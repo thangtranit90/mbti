@@ -1,0 +1,100 @@
+# generated: 2026-04-30T07:09:55Z
+# last_updated: 2026-04-30T21:45:00Z
+# project: MBTI
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: {project-root}/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-04-30T07:09:55Z
+last_updated: 2026-04-30T21:45:00Z
+project: MBTI
+project_key: NOKEY
+tracking_system: file-system
+story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+development_status:
+  # Epic 1: Project Foundation & Infrastructure
+  epic-1: in-progress
+  1-1-monorepo-scaffold-with-turborepo-and-pnpm-workspaces: done
+  1-2-react-spa-with-vite-and-cloudflare-pages-adapter: done
+  1-3-hono-v4-12-api-workers-with-kv-session-auth-and-response-envelope: done
+  1-4-shared-package-with-zod-schemas-d1-row-interfaces-and-query-key-factories: done
+  1-5-cloudflare-d1-database-setup-with-schema-migrations-and-seed-data: in-progress
+  1-6-cloudflare-r2-kv-namespaces-and-environment-secrets-configuration: backlog
+  1-7-ci-cd-pipeline-with-github-actions: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Test (Simple)
+  epic-2: backlog
+  2-1-landing-page-and-anonymous-user-session: backlog
+  2-2-consent-gate-privacy-policy-age-gate-and-ai-disclaimer: backlog
+  2-3-reverse-mechanic-declare-expected-mbti-type: backlog
+  2-4-test-question-flow-with-12-questions-and-earned-pause: backlog
+  2-5-test-submission-mbti-type-calculation-and-shareable-result-url: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Result (Curated + Light AI)
+  epic-3: backlog
+  3-1-curated-insight-system-persona-names-and-villains: backlog
+  3-2-light-ai-insight-enhancement-with-transparent-d1-fallback: backlog
+  3-3-result-page-mirror-reveal-experience: backlog
+  3-4-share-card-generation-and-og-image-for-social-previews: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Social Loop (Core)
+  epic-4: backlog
+  4-1-invite-link-generation-and-test-your-friends-cta: backlog
+  4-2-invitee-perception-voting-flow: backlog
+  4-3-gap-visualization-teaser-and-loop-status: backlog
+  4-4-social-return-notifications-polling-based-in-app: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: Payment & Paid Reports
+  epic-5: backlog
+  5-1-payment-gateway-integration-payos-and-stripe: backlog
+  5-2-couple-friend-pack-purchase-and-compatibility-report: backlog
+  5-3-gap-report-paywall-and-unlock: backlog
+  epic-5-retrospective: optional
+
+  # Epic 6: Content Feed
+  epic-6: backlog
+  6-1-per-type-article-feed: backlog
+  6-2-full-article-reader: backlog
+  epic-6-retrospective: optional
+
+  # Epic 7: Admin, Analytics & Compliance
+  epic-7: backlog
+  7-1-admin-authentication-and-dashboard-shell: backlog
+  7-2-content-management-article-crud-and-threshold-alerts: backlog
+  7-3-ai-insight-review-and-approval: backlog
+  7-4-analytics-event-capture-and-pdpa-compliance-pipeline: backlog
+  epic-7-retrospective: optional

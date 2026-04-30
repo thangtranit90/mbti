@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBTI Platform — UX Design Directions</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    background: #0a0a0f;
+    color: #f1f5f9;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: #0d0f1a;
+    border-bottom: 1px solid #1e2a3a;
+    padding: 20px 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .header h1 { font-size: 18px; font-weight: 600; color: #f1f5f9; }
+  .header p { font-size: 13px; color: #64748b; }
+
+  /* Direction tabs */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 20px 32px;
+    background: #0d0f1a;
+    border-bottom: 1px solid #1e2a3a;
+  }
+  .tab {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #1e2a3a;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab:hover { border-color: #6366f1; color: #f1f5f9; }
+  .tab.active { background: #6366f1; border-color: #6366f1; color: white; font-weight: 500; }
+
+  /* Direction panels */
+  .direction { display: none; padding: 32px; }
+  .direction.active { display: block; }
+
+  .direction-header {
+    margin-bottom: 32px;
+  }
+  .direction-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .direction-header p {
+    font-size: 15px;
+    color: #94a3b8;
+    max-width: 600px;
+    line-height: 1.6;
+  }
+  .direction-meta {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    background: #1e2a3a;
+    color: #94a3b8;
+  }
+  .tag.highlight { background: #1e293b; color: #818cf8; }
+
+  /* Screen grid */
+  .screen-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  .screen-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .screen-label {
+    font-size: 12px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Phone frame */
+  .phone {
+    width: 280px;
+    height: 560px;
+    border-radius: 32px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .phone.light-frame { border: 2px solid #334155; }
+  .phone.dark-frame { border: 2px solid #475569; }
+
+  /* ===================== DIRECTION 1: THE ORACLE ===================== */
+  .d1-entry {
+    background: #0d0f1a;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    text-align: center;
+    position: relative;
+  }
+  .d1-entry::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.2) 0%, transparent 65%);
+  }
+  .d1-entry .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #6366f1;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .d1-entry .headline {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: #f1f5f9;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .d1-entry .sub {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 40px;
+    position: relative;
+  }
+  .d1-entry .cta {
+    background: #6366f1;
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    width: 100%;
+  }
+  .d1-entry .consent {
+    font-size: 11px;
+    color: #475569;
+    margin-top: 16px;
+    position: relative;
+  }
+
+  .d1-question {
+    background: #0d0f1a;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+  }
+  .d1-q-progress {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 32px;
+  }
+  .d1-q-progress span {
+    flex: 1;
+    height: 2px;
+    border-radius: 2px;
+    background: #1e2a3a;
+  }
+  .d1-q-progress span.filled { background: #6366f1; }
+  .d1-q-scenario {
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 8px;
+    font-style: italic;
+  }
+  .d1-q-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #f1f5f9;
+    line-height: 1.4;
+    margin-bottom: 32px;
+    flex: 1;
+  }
+  .d1-q-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .d1-q-option {
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid #1e2a3a;
+    font-size: 14px;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .d1-q-option.selected {
+    border-color: #6366f1;
+    background: rgba(99,102,241,0.12);
+    color: #f1f5f9;
+  }
+
+  .d1-reveal {
+    background: linear-gradient(160deg, #1e1b4b 0%, #0d0f1a 60%);
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    text-align: center;
+    position: relative;
+  }
+  .d1-reveal::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 40%, rgba(129,140,248,0.25) 0%, transparent 60%);
+  }
+  .d1-type-badge {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #818cf8;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .d1-persona {
+    font-size: 34px;
+    font-weight: 800;
+    color: #f1f5f9;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    position: relative;
+  }
+  .d1-4letter {
+    font-size: 14px;
+    color: #818cf8;
+    letter-spacing: 0.2em;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .d1-insight {
+    font-size: 14px;
+    color: #cbd5e1;
+    line-height: 1.65;
+    font-style: italic;
+    margin-bottom: 32px;
+    position: relative;
+  }
+  .d1-share {
+    background: rgba(99,102,241,0.15);
+    border: 1px solid #6366f1;
+    color: #818cf8;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    width: 100%;
+  }
+  .d1-invite {
+    font-size: 13px;
+    color: #475569;
+    margin-top: 12px;
+    position: relative;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  /* ===================== DIRECTION 2: THE JOURNAL ===================== */
+  .d2-entry {
+    background: #faf9f6;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 24px 32px;
+  }
+  .d2-logo {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #1e293b;
+    margin-bottom: 48px;
+  }
+  .d2-entry h2 {
+    font-size: 30px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .d2-entry p {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.7;
+    margin-bottom: 40px;
+    flex: 1;
+  }
+  .d2-cta {
+    background: #0f172a;
+    color: white;
+    padding: 16px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+  .d2-consent-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .d2-check {
+    width: 16px; height: 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .d2-consent-text { font-size: 11px; color: #94a3b8; line-height: 1.5; }
+
+  .d2-question {
+    background: #faf9f6;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+  }
+  .d2-q-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  .d2-q-num { font-size: 13px; color: #94a3b8; }
+  .d2-q-bar {
+    flex: 1; height: 2px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    margin: 0 12px;
+    overflow: hidden;
+  }
+  .d2-q-fill { width: 25%; height: 100%; background: #0f172a; }
+  .d2-q-scene {
+    background: #f1f5f9;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+  .d2-q-prompt {
+    font-size: 17px;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.4;
+    margin-bottom: 28px;
+    flex: 1;
+  }
+  .d2-options { display: flex; flex-direction: column; gap: 10px; }
+  .d2-option {
+    padding: 14px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #334155;
+    background: white;
+    cursor: pointer;
+  }
+  .d2-option.selected { border-color: #0f172a; background: #0f172a; color: white; }
+
+  .d2-reveal {
+    background: #faf9f6;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 24px 24px;
+  }
+  .d2-reveal-tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    border-bottom: 1px solid #94a3b8;
+    padding-bottom: 2px;
+    margin-bottom: 24px;
+  }
+  .d2-reveal-persona {
+    font-size: 36px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .d2-reveal-type {
+    font-size: 13px;
+    color: #94a3b8;
+    letter-spacing: 0.15em;
+    margin-bottom: 20px;
+  }
+  .d2-reveal-insight {
+    font-size: 15px;
+    color: #334155;
+    line-height: 1.7;
+    font-style: italic;
+    border-left: 2px solid #0f172a;
+    padding-left: 16px;
+    margin-bottom: 28px;
+    flex: 1;
+  }
+  .d2-reveal-share {
+    background: #0f172a;
+    color: white;
+    padding: 14px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  .d2-reveal-invite {
+    text-align: center;
+    font-size: 13px;
+    color: #94a3b8;
+    cursor: pointer;
+  }
+
+  /* ===================== DIRECTION 3: THE APP ===================== */
+  .d3-entry {
+    background: #f8f9fc;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .d3-hero {
+    background: linear-gradient(160deg, #4f46e5 0%, #7c3aed 100%);
+    height: 240px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+  }
+  .d3-hero-badge {
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 12px;
+  }
+  .d3-hero h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: white;
+    line-height: 1.2;
+  }
+  .d3-body {
+    flex: 1;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+  }
+  .d3-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .d3-stat {
+    flex: 1;
+    background: white;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .d3-stat-num { font-size: 18px; font-weight: 700; color: #0f172a; }
+  .d3-stat-label { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+  .d3-desc {
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    flex: 1;
+  }
+  .d3-cta {
+    background: #4f46e5;
+    color: white;
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+  }
+
+  .d3-question {
+    background: #f8f9fc;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+  }
+  .d3-q-topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .d3-back { font-size: 18px; color: #64748b; cursor: pointer; }
+  .d3-q-progress-wrap {
+    flex: 1;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .d3-q-progress-fill { width: 25%; height: 100%; background: #4f46e5; border-radius: 3px; }
+  .d3-q-counter { font-size: 13px; color: #94a3b8; }
+  .d3-q-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+    flex: 1;
+  }
+  .d3-q-tag {
+    display: inline-block;
+    background: #ede9fe;
+    color: #7c3aed;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  .d3-q-text {
+    font-size: 17px;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.4;
+  }
+  .d3-options { display: flex; flex-direction: column; gap: 10px; }
+  .d3-option {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #334155;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .d3-option.selected { border-color: #4f46e5; background: #ede9fe; color: #4f46e5; font-weight: 500; }
+
+  .d3-reveal {
+    background: white;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .d3-reveal-hero {
+    background: linear-gradient(160deg, #818cf8 0%, #1e1b4b 100%);
+    height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+  }
+  .d3-reveal-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+  .d3-reveal-name { font-size: 28px; font-weight: 800; color: white; margin-bottom: 4px; }
+  .d3-reveal-code { font-size: 13px; color: rgba(255,255,255,0.5); letter-spacing: 0.2em; }
+  .d3-reveal-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+  .d3-reveal-insight { font-size: 14px; color: #475569; line-height: 1.7; margin-bottom: 16px; flex: 1; }
+  .d3-reveal-actions { display: flex; gap: 10px; }
+  .d3-btn-share { flex: 1; background: #4f46e5; color: white; padding: 13px; border-radius: 10px; text-align: center; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .d3-btn-invite { flex: 1; border: 1px solid #e2e8f0; color: #334155; padding: 13px; border-radius: 10px; text-align: center; font-size: 14px; cursor: pointer; }
+
+  /* ===================== DIRECTION 4: THE STAGE ===================== */
+  .d4-entry {
+    background: #050507;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 24px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .d4-glow {
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(251,146,60,0.15);
+    filter: blur(60px);
+    top: -40px; right: -40px;
+  }
+  .d4-entry-content { position: relative; flex: 1; display: flex; flex-direction: column; }
+  .d4-intro {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #fb923c;
+    margin-bottom: 32px;
+  }
+  .d4-entry h2 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #f8fafc;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .d4-entry p {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.7;
+    flex: 1;
+  }
+  .d4-cta {
+    background: #fb923c;
+    color: #0a0a0f;
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 32px;
+  }
+
+  .d4-question {
+    background: #050507;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+  }
+  .d4-q-num {
+    font-size: 48px;
+    font-weight: 800;
+    color: #1a1a1a;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .d4-q-of { font-size: 13px; color: #334155; margin-bottom: 24px; }
+  .d4-q-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: #f8fafc;
+    line-height: 1.35;
+    flex: 1;
+    margin-bottom: 24px;
+  }
+  .d4-options { display: flex; flex-direction: column; gap: 10px; }
+  .d4-option {
+    padding: 14px 16px;
+    border: 1px solid #1e1e2e;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .d4-option.selected { border-color: #fb923c; color: #f8fafc; background: rgba(251,146,60,0.1); }
+
+  .d4-reveal {
+    background: #050507;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 40px 24px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .d4-reveal-glow {
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(251,146,60,0.12);
+    filter: blur(80px);
+    top: 0; right: -80px;
+    pointer-events: none;
+  }
+  .d4-reveal-content { position: relative; flex: 1; display: flex; flex-direction: column; }
+  .d4-type-label { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: #fb923c; margin-bottom: 8px; }
+  .d4-r-persona { font-size: 36px; font-weight: 900; color: #f8fafc; line-height: 1; margin-bottom: 6px; }
+  .d4-r-code { font-size: 14px; color: #334155; letter-spacing: 0.25em; margin-bottom: 24px; }
+  .d4-r-divider { width: 40px; height: 2px; background: #fb923c; margin-bottom: 20px; }
+  .d4-r-insight {
+    font-size: 15px;
+    color: #94a3b8;
+    line-height: 1.7;
+    flex: 1;
+  }
+  .d4-r-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  .d4-r-share {
+    background: #fb923c;
+    color: #0a0a0f;
+    padding: 14px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .d4-r-invite {
+    border: 1px solid #1e1e2e;
+    color: #64748b;
+    padding: 13px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* ===================== DIRECTION 5: THE MIRROR ===================== */
+  .d5-entry {
+    background: white;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 28px 32px;
+  }
+  .d5-logo-line { width: 32px; height: 2px; background: #0f172a; margin-bottom: 48px; }
+  .d5-entry h2 {
+    font-size: 28px;
+    font-weight: 300;
+    color: #0f172a;
+    line-height: 1.3;
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+  }
+  .d5-entry h2 em { font-style: italic; font-weight: 700; }
+  .d5-entry p {
+    font-size: 14px;
+    color: #94a3b8;
+    line-height: 1.8;
+    flex: 1;
+  }
+  .d5-cta {
+    color: #0f172a;
+    font-size: 15px;
+    font-weight: 600;
+    padding-top: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: 1px solid #f1f5f9;
+  }
+  .d5-arrow { font-size: 20px; }
+
+  .d5-question {
+    background: white;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 28px;
+  }
+  .d5-q-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+  .d5-q-num-txt { font-size: 13px; color: #cbd5e1; }
+  .d5-q-dots { display: flex; gap: 4px; }
+  .d5-q-dot { width: 6px; height: 6px; border-radius: 50%; background: #e2e8f0; }
+  .d5-q-dot.done { background: #0f172a; }
+  .d5-q-text {
+    font-size: 22px;
+    font-weight: 300;
+    color: #0f172a;
+    line-height: 1.45;
+    letter-spacing: -0.3px;
+    flex: 1;
+    margin-bottom: 32px;
+  }
+  .d5-q-text strong { font-weight: 700; }
+  .d5-options { display: flex; flex-direction: column; gap: 1px; }
+  .d5-option {
+    padding: 16px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 15px;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .d5-option.selected { color: #0f172a; font-weight: 500; }
+  .d5-opt-arrow { font-size: 16px; color: #cbd5e1; }
+
+  .d5-reveal {
+    background: white;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 28px 32px;
+  }
+  .d5-r-tag {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 20px;
+  }
+  .d5-r-persona {
+    font-size: 40px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1;
+    letter-spacing: -1px;
+    margin-bottom: 4px;
+  }
+  .d5-r-code { font-size: 14px; color: #cbd5e1; letter-spacing: 0.2em; margin-bottom: 24px; }
+  .d5-r-line { width: 24px; height: 1px; background: #0f172a; margin-bottom: 20px; }
+  .d5-r-insight {
+    font-size: 16px;
+    font-weight: 300;
+    color: #334155;
+    line-height: 1.75;
+    flex: 1;
+    letter-spacing: -0.2px;
+  }
+  .d5-r-share {
+    padding-top: 28px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+  .d5-r-share-txt { font-size: 15px; font-weight: 600; color: #0f172a; }
+  .d5-r-invite { font-size: 13px; color: #94a3b8; margin-top: 8px; cursor: pointer; }
+
+  /* ===================== DIRECTION 6: THE SOCIAL ===================== */
+  .d6-entry {
+    background: #fef3c7;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .d6-hero-card {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    padding: 32px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .d6-hero-card::after {
+    content: '✨';
+    position: absolute;
+    font-size: 80px;
+    opacity: 0.15;
+    right: -10px;
+    top: -10px;
+  }
+  .d6-viral-badge {
+    display: inline-block;
+    background: rgba(0,0,0,0.15);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 16px;
+  }
+  .d6-hero-card h2 {
+    font-size: 26px;
+    font-weight: 800;
+    color: white;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .d6-hero-sub { font-size: 14px; color: rgba(255,255,255,0.75); }
+  .d6-body { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .d6-proof-card {
+    background: white;
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .d6-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .d6-proof-text { font-size: 13px; color: #334155; line-height: 1.4; }
+  .d6-proof-type { font-size: 11px; color: #f59e0b; font-weight: 600; }
+  .d6-cta-wrap { padding: 0 20px 24px; }
+  .d6-cta {
+    background: #f59e0b;
+    color: white;
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(245,158,11,0.35);
+  }
+
+  .d6-question {
+    background: #fffbeb;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+  }
+  .d6-q-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .d6-q-emoji { font-size: 28px; }
+  .d6-q-progress { display: flex; gap: 4px; }
+  .d6-q-pip { width: 20px; height: 4px; border-radius: 2px; background: #fde68a; }
+  .d6-q-pip.done { background: #f59e0b; }
+  .d6-q-text {
+    font-size: 19px;
+    font-weight: 700;
+    color: #1c1917;
+    line-height: 1.4;
+    flex: 1;
+    margin-bottom: 24px;
+  }
+  .d6-options { display: flex; flex-direction: column; gap: 10px; }
+  .d6-option {
+    padding: 15px 16px;
+    border-radius: 12px;
+    background: white;
+    border: 2px solid transparent;
+    font-size: 14px;
+    color: #44403c;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .d6-option.selected { border-color: #f59e0b; background: #fffbeb; color: #92400e; font-weight: 500; }
+
+  .d6-reveal {
+    background: #0c0a09;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .d6-reveal-card {
+    background: linear-gradient(160deg, #f59e0b 0%, #92400e 100%);
+    padding: 32px 24px 24px;
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+    margin: 0;
+  }
+  .d6-r-friends { display: flex; gap: -6px; margin-bottom: 20px; }
+  .d6-r-friend-chip {
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: white;
+    margin-right: 6px;
+  }
+  .d6-r-persona { font-size: 32px; font-weight: 900; color: white; line-height: 1; margin-bottom: 4px; }
+  .d6-r-code { font-size: 13px; color: rgba(255,255,255,0.6); letter-spacing: 0.2em; margin-bottom: 16px; }
+  .d6-r-insight {
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.65;
+    flex: 1;
+  }
+  .d6-actions { padding: 16px 20px; display: flex; gap: 10px; }
+  .d6-btn-share {
+    flex: 1;
+    background: #f59e0b;
+    color: #0c0a09;
+    padding: 14px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .d6-btn-friends {
+    flex: 1;
+    border: 1px solid #292524;
+    color: #a8a29e;
+    padding: 14px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* Notes section */
+  .notes {
+    background: #0d0f1a;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #1e2a3a;
+    margin-top: 8px;
+  }
+  .notes h3 { font-size: 14px; font-weight: 600; color: #94a3b8; margin-bottom: 16px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  .note-item { }
+  .note-label { font-size: 12px; color: #475569; margin-bottom: 4px; }
+  .note-value { font-size: 14px; color: #f1f5f9; line-height: 1.5; }
+
+  /* Divider */
+  hr { border: none; border-top: 1px solid #1e2a3a; margin: 32px 0; }
+
+  /* Choose section */
+  .choose-section {
+    background: #0d0f1a;
+    border: 1px solid #1e2a3a;
+    border-radius: 16px;
+    padding: 32px;
+    margin-top: 32px;
+  }
+  .choose-section h3 { font-size: 18px; font-weight: 600; color: #f1f5f9; margin-bottom: 8px; }
+  .choose-section p { font-size: 14px; color: #64748b; margin-bottom: 24px; line-height: 1.6; }
+  .choose-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .choose-card {
+    padding: 16px;
+    border: 1px solid #1e2a3a;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    text-align: left;
+  }
+  .choose-card:hover { border-color: #6366f1; background: rgba(99,102,241,0.06); }
+  .choose-card .choose-name { font-size: 13px; font-weight: 600; color: #f1f5f9; margin-bottom: 4px; }
+  .choose-card .choose-desc { font-size: 12px; color: #64748b; line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>MBTI Platform — Design Direction Exploration</h1>
+    <p>6 visual directions · Review each screen set · Select your preferred direction</p>
+  </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" onclick="showDir('d1', this)">1 — The Oracle</button>
+  <button class="tab" onclick="showDir('d2', this)">2 — The Journal</button>
+  <button class="tab" onclick="showDir('d3', this)">3 — The App</button>
+  <button class="tab" onclick="showDir('d4', this)">4 — The Stage</button>
+  <button class="tab" onclick="showDir('d5', this)">5 — The Mirror</button>
+  <button class="tab" onclick="showDir('d6', this)">6 — The Social</button>
+</div>
+
+<!-- ==================== DIRECTION 1: THE ORACLE ==================== -->
+<div class="direction active" id="d1">
+  <div class="direction-header">
+    <h2>Direction 1 — "The Oracle"</h2>
+    <p>Dark, immersive, mystical premium. The platform feels like a personal oracle — precise, atmospheric, slightly mysterious. Inspired by Co-Star aesthetics.</p>
+    <div class="direction-meta">
+      <span class="tag highlight">Dark mode first</span>
+      <span class="tag">Premium feel</span>
+      <span class="tag">High emotional weight</span>
+      <span class="tag">Indigo accent</span>
+    </div>
+  </div>
+
+  <div class="screen-grid">
+    <div class="screen-wrapper">
+      <div class="screen-label">Entry Screen</div>
+      <div class="phone dark-frame">
+        <div class="d1-entry">
+          <div class="eyebrow">MBTI Platform</div>
+          <div class="headline">Bài test này<br>uncomfortably<br>accurate</div>
+          <div class="sub">12 câu hỏi. 5 phút.<br>Một cái gương biết bạn.</div>
+          <button class="d1-cta">Bắt đầu →</button>
+          <div class="consent">✓ Tôi đồng ý với điều khoản sử dụng</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrapper">
+      <div class="screen-label">Test Question (Q3/12)</div>
+      <div class="phone dark-frame">
+        <div class="d1-question">
+          <div class="d1-q-progress">
+            <span class="filled"></span><span class="filled"></span><span class="filled"></span>
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="d1-q-scenario">Bạn đang trong một cuộc họp nhóm...</div>
+          <div class="d1-q-text">Một thành viên đề xuất ý tưởng mà bạn biết chắc sẽ không hiệu quả. Bạn làm gì?</div>
+          <div class="d1-q-options">
+            <div class="d1-q-option selected">Nói ra ngay — tránh lãng phí thời gian của mọi người</div>
+            <div class="d1-q-option">Chờ cuộc họp kết thúc rồi nhắn riêng cho họ</div>
+            <div class="d1-q-option">Giữ im lặng và xem kết quả thực tế</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrapper">
+      <div class="screen-label">Result Reveal</div>
+      <div class="phone dark-frame">
+        <div class="d1-reveal">
+          <div class="d1-type-badge">Kết quả của bạn</div>
+          <div class="d1-persona">The Silent<br>Observer</div>
+          <div class="d1-4letter">I N F P</div>
+          <div class="d1-insight">"Bạn thường thấy mọi thứ trước khi lên tiếng — nhưng đôi khi bạn giữ lại lâu đến mức khoảnh khắc đã qua."</div>
+          <button class="d1-share">Chia sẻ kết quả</button>
+          <div class="d1-invite">Test Your Friends →</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h3>Design Notes</h3>
+    <div class="notes-grid">
+      <div class="note-item"><div class="note-label">Mood</div><div class="note-value">Introspective, premium, atmospheric</div></div>
+      <div class="note-item"><div class="note-label">Target User Fit</div><div class="note-value">High for users who want depth; may feel too serious for casual Gen Z entry</div></div>
+      <div class="note-item"><div class="note-label">Share-ability</div><div class="note-value">High — result card screenshot looks premium on Stories</div></div>
+      <div class="note-item"><div class="note-label">Development Effort</div><div class="note-value">Medium — mostly CSS, Framer Motion for reveal animation</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DIRECTION 2: THE JOURNAL ==================== -->
+<div class="direction" id="d2">
+  <div class="direction-header">
+    <h2>Direction 2 — "The Journal"</h2>
+    <p>Light, warm, editorial. Feels like a personal journal or thoughtful essay — intimate, trustworthy, intellectually serious. Good for users who are skeptical of "quiz apps."</p>
+    <div class="direction-meta">
+      <span class="tag highlight">Light mode</span>
+      <span class="tag">Editorial</span>
+      <span class="tag">Warm, trustworthy</span>
+      <span class="tag">Dark type on cream</span>
+    </div>
+  </div>
+
+  <div class="screen-grid">
+    <div class="screen-wrapper">
+      <div class="screen-label">Entry Screen</div>
+      <div class="phone light-frame">
+        <div class="d2-entry">
+          <div class="d2-logo">MBTI</div>
+          <h2>Không phải test.<br>Một bài thực hành<br><em>tự nhận thức.</em></h2>
+          <p>Câu trả lời của bạn tạo ra insight về chính bạn — cụ thể, hành vi thực, không phải template.</p>
+          <div class="d2-cta">Bắt đầu — 12 câu, 5 phút</div>
+          <div class="d2-consent-row">
+            <div class="d2-check">✓</div>
+            <div class="d2-consent-text">Tôi đồng ý với điều khoản. Dữ liệu của bạn được dùng chỉ để tạo insight cá nhân.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrapper">
+      <div class="screen-label">Test Question (Q3/12)</div>
+      <div class="phone light-frame">
+        <div class="d2-question">
+          <div class="d2-q-header">
+            <span class="d2-q-num">3</span>
+            <div class="d2-q-bar"><div class="d2-q-fill"></div></div>
+            <span class="d2-q-num">/ 12</span>
+          </div>
+          <div class="d2-q-scene">Trong một cuộc họp, một đồng nghiệp vừa đề xuất một kế hoạch bạn thấy sẽ thất bại...</div>
+          <div class="d2-q-prompt">Bạn thường phản ứng như thế nào trong tình huống này?</div>
+          <div class="d2-options">
+            <div class="d2-option selected">Nói ra ngay để tránh lãng phí thời gian</div>
+            <div class="d2-option">Nhắn riêng cho họ sau buổi họp</div>
+            <div class="d2-option">Im lặng và quan sát kết quả thực tế</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrapper">
+      <div class="screen-label">Result Reveal</div>
+      <div class="phone light-frame">
+        <div class="d2-reveal">
+          <div class="d2-reveal-tag">Kết quả của bạn</div>
+          <div class="d2-reveal-persona">The Silent<br>Observer</div>
+          <div class="d2-reveal-type">I N F P</div>
+          <div class="d2-reveal-insight">"Bạn thường thấy mọi thứ trước khi lên tiếng — nhưng đôi khi bạn giữ lại lâu đến mức khoảnh khắc đã qua."</div>
+          <div class="d2-reveal-share">Chia sẻ kết quả</div>
+          <div class="d2-reveal-invite">Test Your Friends — xem họ thấy bạn thế nào</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h3>Design Notes</h3>
+    <div class="notes-grid">
+      <div class="note-item"><div class="note-label">Mood</div><div class="note-value">Thoughtful, intimate, editorial — feels like a quality publication</div></div>
+      <div class="note-item"><div class="note-label">Target User Fit</div><div class="note-value">Strong for skeptics and older Millennials; may feel less exciting for TikTok-native Gen Z</div></div>
+      <div class="note-item"><div class="note-label">Share-ability</div><div class="note-value">Medium — clean but may not "pop" on Stories feed; needs a dedicated share card</div></div>
+      <div class="note-item"><div class="note-label">Development Effort</div><div class="note-value">Low — clean CSS, minimal animation, fast to build</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DIRECTION 3: THE APP ==================== -->
+<div class="direction" id="d3">
+  <div class="direction-header">
+    <h2>Direction 3 — "The App"</h2>
+    <p>Clean, modern consumer app aesthetic. Familiar, approachable. Feels like a polished product users can immediately trust. Less distinctive but highest immediate legibility.</p>
+    <div class="direction-meta">
+      <span class="tag highlight">Light + Dark hybrid</span>
+      <span class="tag">Familiar patterns</span>
+      <span class="tag">High legibility</span>
+      <span class="tag">Indigo + white</span>
+    </div>
+  </div>
+
+  <div class="screen-grid">
+    <div class="screen-wrapper">
+      <div class="screen-label">Entry Screen</div>
+      <div class="phone light-frame">
+        <div class="d3-entry">
+          <div class="d3-hero">
+            <div class="d3-hero-badge">✦ MBTI Platform</div>
+            <h2>Discover the real<br>you — in 5 minutes</h2>
+          </div>
+          <div class="d3-body">
+            <div class="d3-stats">
+              <div class="d3-stat"><div class="d3-stat-num">12</div><div class="d3-stat-label">Câu hỏi</div></div>
+              <div class="d3-stat"><div class="d3-stat-num">16</div><div class="d3-stat-label">Kiểu tính cách</div></div>
+              <div class="d3-stat"><div class="d3-stat-num">AI</div><div class="d3-stat-label">Insights</div></div>
+            </div>
+            <div class="d3-desc">Không phải test generic. AI tạo ra insight từ câu trả lời của chính bạn — đủ cụ thể để bạn phải dừng lại.</div>
+            <div class="d3-cta">Bắt đầu ngay →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrapper">
+      <div class="screen-label">Test Question (Q3/12)</div>
+      <div class="phone light-frame">
+        <div class="d3-question">
+          <div class="d3-q-topbar">
+            <span class="d3-back">‹</span>
+            <div class="d3-q-progress-wrap"><div class="d3-q-progress-fill"></div></div>
+            <span class="d3-q-counter">3/12</span>
+          </div>
+          <div class="d3-q-card">
+            <div class="d3-q-tag">Tình huống nhóm</div>
+            <div class="d3-q-text">Đồng nghiệp vừa đề xuất kế hoạch bạn biết sẽ không hiệu quả. Bạn làm gì?</div>
+          </div>
+          <div class="d3-options">
+            <div class="d3-option selected">Nói ra ngay — tránh lãng phí thời gian</div>
+            <div class="d3-option">Nhắn riêng sau khi họp xong</div>
+            <div class="d3-option">Im lặng và quan sát kết quả</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrapper">
+      <div class="screen-label">Result Reveal</div>
+      <div class="phone light-frame">
+        <div class="d3-reveal">
+          <div class="d3-reveal-hero">
+            <div class="d3-reveal-label">Kết quả của bạn</div>
+            <div class="d3-reveal-name">The Silent Observer</div>
+            <div class="d3-reveal-code">I · N · F · P</div>
+          </div>
+          <div class="d3-reveal-body">
+            <div class="d3-reveal-insight">"Bạn thường thấy mọi thứ trước khi lên tiếng — nhưng đôi khi bạn giữ lại lâu đến mức khoảnh khắc đã qua."</div>
+            <div class="d3-reveal-actions">
+              <div class="d3-btn-share">Chia sẻ</div>
+              <div class="d3-btn-invite">Test Friends</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h3>Design Notes</h3>
+    <div class="notes-grid">
+      <div class="note-item"><div class="note-label">Mood</div><div class="note-value">Polished, trustworthy, familiar consumer app</div></div>
+      <div class="note-item"><div class="note-label">Target User Fit</div><div class="note-value">Broad — accessible to all demographics; but risks looking generic</div></div>
+      <div class="note-item"><div class="note-label">Share-ability</div><div class="note-value">Medium-High — hero result card is shareable; needs dedicated card for Stories</div></div>
+      <div class="note-item"><div class="note-label">Development Effort</div><div class="note-value">Low-Medium — familiar patterns, fast to implement</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DIRECTION 4: THE STAGE ==================== -->
+<div class="direction" id="d4">
+  <div class="direction-header">
+    <h2>Direction 4 — "The Stage"</h2>
+    <p>Near-black with a vivid type-specific accent. Theatrical, bold, like a concert poster or editorial magazine. Result feels like a performance — you are the character on stage.</p>
+    <div class="direction-meta">
+      <span class="tag highlight">Near-black base</span>
+      <span class="tag">Type-color dominates</span>
+      <span class="tag">Bold, theatrical</span>
+      <span class="tag">High impact</span>
+    </div>
+  </div>
+
+  <div class="screen-grid">
+    <div class="screen-wrapper">
+      <div class="screen-label">Entry Screen</div>
+      <div class="phone dark-frame">
+        <div class="d4-entry">
+          <div class="d4-glow"></div>
+          <div class="d4-entry-content">
+            <div class="d4-intro">MBTI Platform</div>
+            <h2>12 câu.<br>Một sự thật<br>về bạn.</h2>
+            <p>AI tổng hợp câu trả lời của bạn thành insight hành vi cụ thể. Không generic. Không template.</p>
+            <div class="d4-cta">Bắt đầu ngay</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrapper">
+      <div class="screen-label">Test Question (Q3/12)</div>
+      <div class="phone dark-frame">
+        <div class="d4-question">
+          <div class="d4-q-num">03</div>
+          <div class="d4-q-of">/ 12 câu</div>
+          <div class="d4-q-text">Trong cuộc họp, ai đó đề xuất kế hoạch bạn biết chắc sẽ không hiệu quả. Bạn làm gì?</div>
+          <div class="d4-options">
+            <div class="d4-option selected">Nói ra ngay — tránh mất thời gian</div>
+            <div class="d4-option">Nhắn riêng sau buổi họp</div>
+            <div class="d4-option">Im lặng và quan sát</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrapper">
+      <div class="screen-label">Result Reveal</div>
+      <div class="phone dark-frame">
+        <div class="d4-reveal">
+          <div class="d4-reveal-glow"></div>
+          <div class="d4-reveal-content">
+            <div class="d4-type-label">INFP · Kết quả</div>
+            <div class="d4-r-persona">The Silent<br>Observer</div>
+            <div class="d4-r-code">I N F P</div>
+            <div class="d4-r-divider"></div>
+            <div class="d4-r-insight">"Bạn thường thấy mọi thứ trước khi lên tiếng — nhưng đôi khi bạn giữ lại lâu đến mức khoảnh khắc đã qua."</div>
+            <div class="d4-r-actions">
+              <div class="d4-r-share">Chia sẻ kết quả →</div>
+              <div class="d4-r-invite">Test Your Friends</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h3>Design Notes</h3>
+    <div class="notes-grid">
+      <div class="note-item"><div class="note-label">Mood</div><div class="note-value">Theatrical, bold, memorable — type-specific color IS the brand expression</div></div>
+      <div class="note-item"><div class="note-label">Target User Fit</div><div class="note-value">Very strong for Gen Z — feels like a drop or limited event, not a standard app</div></div>
+      <div class="note-item"><div class="note-label">Share-ability</div><div class="note-value">Very High — near-black + vivid accent is the most screenshot-friendly pattern</div></div>
+      <div class="note-item"><div class="note-label">Development Effort</div><div class="note-value">Medium — type-color system needs careful implementation across 16 palettes</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DIRECTION 5: THE MIRROR ==================== -->
+<div class="direction" id="d5">
+  <div class="direction-header">
+    <h2>Direction 5 — "The Mirror"</h2>
+    <p>Minimal, text-forward, almost typographic-only. The words carry all the emotional weight. Feels like reading something true about yourself in a book. Credibility through restraint.</p>
+    <div class="direction-meta">
+      <span class="tag highlight">White / minimal</span>
+      <span class="tag">Typography-first</span>
+      <span class="tag">Zero UI noise</span>
+      <span class="tag">Restraint as premium</span>
+    </div>
+  </div>
+
+  <div class="screen-grid">
+    <div class="screen-wrapper">
+      <div class="screen-label">Entry Screen</div>
+      <div class="phone light-frame">
+        <div class="d5-entry">
+          <div class="d5-logo-line"></div>
+          <h2>Bài test tính cách <em>biết bạn hơn bạn nghĩ.</em></h2>
+          <p>12 câu hỏi tình huống. AI tạo ra insight hành vi từ câu trả lời của bạn — cụ thể đủ để bạn dừng lại và đọc lại.</p>
+          <div class="d5-cta">Bắt đầu <span class="d5-arrow">→</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrapper">
+      <div class="screen-label">Test Question (Q3/12)</div>
+      <div class="phone light-frame">
+        <div class="d5-question">
+          <div class="d5-q-top">
+            <span class="d5-q-num-txt">Câu 3</span>
+            <div class="d5-q-dots">
+              <div class="d5-q-dot done"></div><div class="d5-q-dot done"></div><div class="d5-q-dot done"></div>
+              <div class="d5-q-dot"></div><div class="d5-q-dot"></div><div class="d5-q-dot"></div>
+              <div class="d5-q-dot"></div><div class="d5-q-dot"></div><div class="d5-q-dot"></div>
+            </div>
+          </div>
+          <div class="d5-q-text">Trong cuộc họp, ai đó đề xuất kế hoạch bạn <strong>biết chắc sẽ không hiệu quả.</strong> Bạn làm gì?</div>
+          <div class="d5-options">
+            <div class="d5-option selected">Nói ra ngay <span class="d5-opt-arrow">✓</span></div>
+            <div class="d5-option">Nhắn riêng sau đó <span class="d5-opt-arrow">›</span></div>
+            <div class="d5-option">Im lặng và quan sát <span class="d5-opt-arrow">›</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrapper">
+      <div class="screen-label">Result Reveal</div>
+      <div class="phone light-frame">
+        <div class="d5-reveal">
+          <div class="d5-r-tag">Kết quả</div>
+          <div class="d5-r-persona">The Silent<br>Observer</div>
+          <div class="d5-r-code">I N F P</div>
+          <div class="d5-r-line"></div>
+          <div class="d5-r-insight">"Bạn thường thấy mọi thứ trước khi lên tiếng — nhưng đôi khi bạn giữ lại lâu đến mức khoảnh khắc đã qua."</div>
+          <div class="d5-r-share">
+            <div class="d5-r-share-txt">Chia sẻ kết quả →</div>
+          </div>
+          <div class="d5-r-invite">Test Your Friends — xem họ thấy bạn thế nào</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h3>Design Notes</h3>
+    <div class="notes-grid">
+      <div class="note-item"><div class="note-label">Mood</div><div class="note-value">Quiet, considered, credible — feels literary and trustworthy</div></div>
+      <div class="note-item"><div class="note-label">Target User Fit</div><div class="note-value">Very strong for INFPs/INFJs; may feel underwhelming for high-energy types (ESTP, ESFP)</div></div>
+      <div class="note-item"><div class="note-label">Share-ability</div><div class="note-value">Medium — beautiful but may not "pop" in busy Stories feeds; needs a dedicated share card with color</div></div>
+      <div class="note-item"><div class="note-label">Development Effort</div><div class="note-value">Lowest — almost pure typography and spacing, no complex components</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DIRECTION 6: THE SOCIAL ==================== -->
+<div class="direction" id="d6">
+  <div class="direction-header">
+    <h2>Direction 6 — "The Social"</h2>
+    <p>Warm, energetic, community-first. Designed around social proof, friend activity, and sharing culture. Feels like the product was built to be seen with others, not in solitude.</p>
+    <div class="direction-meta">
+      <span class="tag highlight">Amber / warm base</span>
+      <span class="tag">Social-proof forward</span>
+      <span class="tag">High energy</span>
+      <span class="tag">Friends as the hero</span>
+    </div>
+  </div>
+
+  <div class="screen-grid">
+    <div class="screen-wrapper">
+      <div class="screen-label">Entry Screen</div>
+      <div class="phone light-frame">
+        <div class="d6-entry">
+          <div class="d6-hero-card">
+            <div class="d6-viral-badge">🔥 Đang lan truyền tại Việt Nam</div>
+            <h2>Test này đang<br>gây sốt vì lý do<br>đặc biệt</h2>
+            <div class="d6-hero-sub">12 câu · AI-powered · Uncomfortably accurate</div>
+          </div>
+          <div class="d6-body">
+            <div class="d6-proof-card">
+              <div class="d6-avatar" style="background:#fde68a">😅</div>
+              <div><div class="d6-proof-text">"ủa sao nó biết mình vậy???"</div><div class="d6-proof-type">INFP · The Silent Observer</div></div>
+            </div>
+            <div class="d6-proof-card">
+              <div class="d6-avatar" style="background:#c7d2fe">😭</div>
+              <div><div class="d6-proof-text">"Type của bạn trai đúng là villain của mình 💀"</div><div class="d6-proof-type">ENFJ · The Advocate</div></div>
+            </div>
+          </div>
+          <div class="d6-cta-wrap">
+            <div class="d6-cta">Bắt đầu test →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrapper">
+      <div class="screen-label">Test Question (Q3/12)</div>
+      <div class="phone light-frame">
+        <div class="d6-question">
+          <div class="d6-q-header">
+            <div class="d6-q-emoji">🤔</div>
+            <div class="d6-q-progress">
+              <div class="d6-q-pip done"></div><div class="d6-q-pip done"></div><div class="d6-q-pip done"></div>
+              <div class="d6-q-pip"></div><div class="d6-q-pip"></div><div class="d6-q-pip"></div>
+            </div>
+          </div>
+          <div class="d6-q-text">Ai đó trong nhóm vừa đề xuất kế hoạch mà bạn biết chắc là sẽ thất bại. Bạn sẽ...</div>
+          <div class="d6-options">
+            <div class="d6-option selected">Nói thẳng ngay lúc đó 🗣️</div>
+            <div class="d6-option">Nhắn riêng sau buổi họp 📱</div>
+            <div class="d6-option">Chờ kết quả thực tế tự chứng minh 🙏</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-wrapper">
+      <div class="screen-label">Result Reveal</div>
+      <div class="phone dark-frame">
+        <div class="d6-reveal">
+          <div class="d6-reveal-card">
+            <div style="display:flex;gap:6px;margin-bottom:20px;">
+              <div class="d6-r-friend-chip">MBTI Platform</div>
+              <div class="d6-r-friend-chip">AI insights</div>
+            </div>
+            <div class="d6-r-persona">The Silent<br>Observer</div>
+            <div class="d6-r-code">I N F P</div>
+            <div class="d6-r-insight">"Bạn thường thấy mọi thứ trước khi lên tiếng — nhưng đôi khi bạn giữ lại lâu đến mức khoảnh khắc đã qua."</div>
+          </div>
+          <div class="d6-actions">
+            <div class="d6-btn-share">Chia sẻ 📤</div>
+            <div class="d6-btn-friends">Test Friends</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h3>Design Notes</h3>
+    <div class="notes-grid">
+      <div class="note-item"><div class="note-label">Mood</div><div class="note-value">Energetic, warm, community-driven — feels like something happening right now</div></div>
+      <div class="note-item"><div class="note-label">Target User Fit</div><div class="note-value">Very strong for extroverted, social-first users (ESFJ, ENFP, ESTP); may feel shallow for introverts</div></div>
+      <div class="note-item"><div class="note-label">Share-ability</div><div class="note-value">Very High — social proof on entry increases share motivation; warm amber is distinctive in feeds</div></div>
+      <div class="note-item"><div class="note-label">Development Effort</div><div class="note-value">Medium — social proof components need real data; UGC trust indicators require backend support</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Choose section (always visible) -->
+<div style="padding: 0 32px 48px;">
+  <div class="choose-section">
+    <h3>Đâu là direction phù hợp nhất?</h3>
+    <p>Sau khi xem qua 6 directions, bạn có thể chọn một direction để đi theo, hoặc kết hợp elements từ nhiều directions (ví dụ: dark base từ Direction 1 + social proof từ Direction 6). Cho tôi biết lựa chọn của bạn và chúng ta sẽ tiến hành bước tiếp theo.</p>
+    <div class="choose-grid">
+      <div class="choose-card"><div class="choose-name">1 — The Oracle</div><div class="choose-desc">Dark, atmospheric, Co-Star feel</div></div>
+      <div class="choose-card"><div class="choose-name">2 — The Journal</div><div class="choose-desc">Light, editorial, trustworthy</div></div>
+      <div class="choose-card"><div class="choose-name">3 — The App</div><div class="choose-desc">Clean, familiar, broad appeal</div></div>
+      <div class="choose-card"><div class="choose-name">4 — The Stage</div><div class="choose-desc">Bold, theatrical, high impact</div></div>
+      <div class="choose-card"><div class="choose-name">5 — The Mirror</div><div class="choose-desc">Minimal, text-forward, restrained</div></div>
+      <div class="choose-card"><div class="choose-name">6 — The Social</div><div class="choose-desc">Warm, energetic, community-first</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showDir(id, btn) {
+  document.querySelectorAll('.direction').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

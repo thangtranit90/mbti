@@ -1,0 +1,10 @@
+{
+  "name": "MBTI Platform",
+  "short_name": "MBTI",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#050507",
+  "background_color": "#050507",
+  "icons": []
+}
