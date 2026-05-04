@@ -7,3 +7,8 @@ dist
 .DS_Store
 .env
 .env.local
+
+# Claude Code / AI agent internals
+.agents/
+.claude/
+skills-lock.json

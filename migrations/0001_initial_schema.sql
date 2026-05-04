@@ -6,7 +6,12 @@
 --   PerceptionVoteRow, CuratedInsightRow, ArticleRow as of Story 1.4)
 -- Applied by: TODO
 
-PRAGMA foreign_keys = ON;
+-- NOTE: D1 runtime ignores `PRAGMA foreign_keys = ON` set inside a migration —
+-- the pragma is per-connection and does not persist to the Worker's runtime
+-- D1 connection (default OFF). FK declarations below document referential
+-- intent; runtime enforcement of cascading deletes / orphan blocks lives at
+-- the application layer (Story 7.4 PDPA purge + future feature-story helpers
+-- in `apps/api/src/lib/db.ts`).
 
 ----------------------------------------------------------------------
 -- test_results
@@ -55,7 +60,7 @@ CREATE INDEX idx_invite_links_inviter_user_id ON invite_links(inviter_user_id);
 ----------------------------------------------------------------------
 CREATE TABLE perception_votes (
   id                  TEXT PRIMARY KEY NOT NULL,
-  invite_token        TEXT NOT NULL REFERENCES invite_links(token),
+  invite_token        TEXT NOT NULL REFERENCES invite_links(token) ON DELETE CASCADE,
   inviter_user_id     TEXT NOT NULL,
   voter_session_id    TEXT NULL,
   behavioral_answers  TEXT NOT NULL,
@@ -103,7 +108,8 @@ CREATE TABLE articles (
   published_at  TEXT NULL,
   is_published  INTEGER NOT NULL DEFAULT 0 CHECK (is_published IN (0,1)),
   created_at    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  updated_at    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  updated_at    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  CHECK (is_published = 0 OR published_at IS NOT NULL)
 );
 
 CREATE INDEX idx_articles_mbti_type_published

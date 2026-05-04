@@ -13,7 +13,8 @@
 -- Applied by: TODO
 
 ALTER TABLE test_results     ADD COLUMN deleted_at      TEXT    DEFAULT NULL;
-ALTER TABLE test_results     ADD COLUMN retention_flag  INTEGER DEFAULT 0;
+ALTER TABLE test_results     ADD COLUMN retention_flag  INTEGER DEFAULT 0
+  CHECK (retention_flag IN (0,1) OR retention_flag IS NULL);
 ALTER TABLE invite_links     ADD COLUMN deleted_at      TEXT    DEFAULT NULL;
 ALTER TABLE perception_votes ADD COLUMN deleted_at      TEXT    DEFAULT NULL;
 

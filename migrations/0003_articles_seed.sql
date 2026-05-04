@@ -7,7 +7,7 @@
 -- TODO Story 6.1 / Story 7.2: replace PLACEHOLDER articles with real curated content.
 -- Applied by: TODO
 
-INSERT INTO articles
+INSERT OR IGNORE INTO articles
   (id, mbti_type, slug, title, content, author, published_at, is_published, created_at, updated_at)
 VALUES
   ('placeholder-article-INTJ-v1','INTJ','mbti-intj-overview-v1','Overview: INTJ','PLACEHOLDER article body for INTJ — TODO Story 6.1 / Story 7.2.',NULL,'2026-04-30T00:00:00.000Z',1,'2026-04-30T00:00:00.000Z','2026-04-30T00:00:00.000Z'),

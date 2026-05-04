@@ -1,0 +1,10 @@
+# Cloudflare Pages project config for `apps/web`.
+# - Project name `mbti-web` is created via:
+#     wrangler pages project create mbti-web --production-branch main
+#   (One-time runbook step in Story 1.7.)
+# - This file is read ONLY by `wrangler pages deploy` and `wrangler pages dev`.
+#   Local Vite dev (`pnpm dev`) reads `vite.config.ts`, NOT this file.
+
+name = "mbti-web"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-04-01"

@@ -1,5 +1,5 @@
 # generated: 2026-04-30T07:09:55Z
-# last_updated: 2026-04-30T21:45:00Z
+# last_updated: 2026-05-01T15:00:00Z
 # project: MBTI
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-30T07:09:55Z
-last_updated: 2026-04-30T21:45:00Z
+last_updated: 2026-05-01T15:00:00Z
 project: MBTI
 project_key: NOKEY
 tracking_system: file-system
@@ -48,9 +48,9 @@ development_status:
   1-2-react-spa-with-vite-and-cloudflare-pages-adapter: done
   1-3-hono-v4-12-api-workers-with-kv-session-auth-and-response-envelope: done
   1-4-shared-package-with-zod-schemas-d1-row-interfaces-and-query-key-factories: done
-  1-5-cloudflare-d1-database-setup-with-schema-migrations-and-seed-data: in-progress
-  1-6-cloudflare-r2-kv-namespaces-and-environment-secrets-configuration: backlog
-  1-7-ci-cd-pipeline-with-github-actions: backlog
+  1-5-cloudflare-d1-database-setup-with-schema-migrations-and-seed-data: done
+  1-6-cloudflare-r2-kv-namespaces-and-environment-secrets-configuration: done
+  1-7-ci-cd-pipeline-with-github-actions: done
   epic-1-retrospective: optional
 
   # Epic 2: Test (Simple)

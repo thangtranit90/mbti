@@ -28,6 +28,9 @@ export type DbContext = { db: D1Database };
 export function withDb(
   c: Context<{ Bindings: Bindings; Variables: Variables }>,
 ): D1Database {
+  if (!c.env.DB) {
+    throw new Error('D1 binding "DB" is not configured on this Worker');
+  }
   return c.env.DB;
 }
 
@@ -42,10 +45,16 @@ export async function getActiveCuratedInsights(
   }
   const result = await db
     .prepare(
-      'SELECT id, mbti_type, variant, content, is_active, created_at, updated_at ' +
-        'FROM curated_insights WHERE mbti_type = ? AND is_active = 1',
+      `SELECT id, mbti_type, variant, content, is_active, created_at, updated_at
+       FROM curated_insights
+       WHERE mbti_type = ? AND is_active = 1`,
     )
     .bind(mbtiType)
     .all<CuratedInsightRow>();
+  if (!result.success) {
+    throw new Error(
+      `getActiveCuratedInsights: D1 query failed: ${result.error ?? 'unknown error'}`,
+    );
+  }
   return result.results ?? [];
 }

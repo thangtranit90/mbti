@@ -6,7 +6,7 @@
 -- TODO Story 3.1: replace PLACEHOLDER content with curated copy.
 -- Applied by: TODO
 
-INSERT INTO curated_insights
+INSERT OR IGNORE INTO curated_insights
   (id, mbti_type, variant, content, is_active, created_at, updated_at)
 VALUES
   ('placeholder-insight-INTJ-v1','INTJ','v1','PLACEHOLDER curated insight for INTJ — TODO Story 3.1.',1,'2026-04-30T00:00:00.000Z','2026-04-30T00:00:00.000Z'),

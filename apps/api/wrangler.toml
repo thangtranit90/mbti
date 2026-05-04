@@ -1,6 +1,6 @@
 name = "mbti-api"
 main = "src/index.ts"
-compatibility_date = "2025-04-01"
+compatibility_date = "2026-04-01"
 
 [dev]
 port = 8787
@@ -8,20 +8,17 @@ port = 8787
 [[d1_databases]]
 binding = "DB"
 database_name = "mbti"
-# TODO Story 1.5 / Task 1.1: run `wrangler d1 create mbti` and replace this UUID
-# with the printed database_id. Required for `wrangler d1 ... --remote` operations
-# (AC-4, AC-5). The placeholder below is sufficient for `--local` SQLite work.
-database_id = "00000000-0000-0000-0000-000000000000"
+# Cloudflare account 1d2219b9236cf74b59467af456e0fbab; provisioned 2026-04-30 (Story 1.6 unblock pass).
+database_id = "ea15a996-8fd9-4ef9-8e6b-3ea13eb6c581"
 migrations_dir = "../../migrations"
 
 [[kv_namespaces]]
 binding = "KV"
-# TODO Story 1.6: replace with real id from `wrangler kv namespace create KV`.
-id = "00000000000000000000000000000000"
+# Cloudflare account 1d2219b9236cf74b59467af456e0fbab; provisioned 2026-04-30 (Story 1.6 unblock pass).
+id = "d9b775c3668e4e39ae708fb0ee2ae53a"
 
 [[r2_buckets]]
 binding = "ASSETS_BUCKET"
-# TODO Story 1.6: create via `wrangler r2 bucket create mbti-assets`.
 bucket_name = "mbti-assets"
 
 [[unsafe.bindings]]
