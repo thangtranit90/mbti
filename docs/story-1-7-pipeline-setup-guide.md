@@ -376,6 +376,28 @@ gh repo create mbti --private --source=. --remote=origin --push
 
 Sau đó chạy lại `gh secret set`.
 
+### ❌ Deploy workflow fail: `npm error Unsupported URL Type "workspace:"`
+
+**Log đầy đủ:**
+```
+npm error code EUNSUPPORTEDPROTOCOL
+npm error Unsupported URL Type "workspace:": workspace:*
+```
+
+**Nguyên nhân:** `wrangler-action` không tìm thấy `wrangler` trong `apps/web/node_modules/.bin/` nên nó tự cài bằng `npm install wrangler`. Nhưng `npm` đọc file `package.json` và gặp cú pháp `workspace:*` — đây là cú pháp riêng của `pnpm`, `npm` không hiểu và báo lỗi.
+
+**Fix:** Thêm `wrangler` vào root `package.json` (đã được fix trong codebase này). Nếu bạn gặp lỗi này sau khi cập nhật dependencies:
+
+```bash
+# Thêm wrangler vào root devDependencies
+pnpm add -D -w wrangler
+
+# Cập nhật lockfile và commit
+git add package.json pnpm-lock.yaml
+git commit -m "fix: add wrangler to root devDependencies for CI compatibility"
+git push
+```
+
 ### ❌ D1 migrations fail trong deploy
 
 Kiểm tra API token có quyền `D1: Edit` chưa (Bước 2). Nếu thiếu quyền, tạo lại token và cập nhật GitHub secret.
