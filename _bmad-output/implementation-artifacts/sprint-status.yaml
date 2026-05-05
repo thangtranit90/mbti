@@ -1,5 +1,5 @@
 # generated: 2026-04-30T07:09:55Z
-# last_updated: 2026-05-01T15:00:00Z
+# last_updated: 2026-05-05T21:00:00Z
 # project: MBTI
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-30T07:09:55Z
-last_updated: 2026-05-01T15:00:00Z
+last_updated: 2026-05-05T23:00:00Z
 project: MBTI
 project_key: NOKEY
 tracking_system: file-system
@@ -54,17 +54,17 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2: Test (Simple)
-  epic-2: backlog
-  2-1-landing-page-and-anonymous-user-session: backlog
-  2-2-consent-gate-privacy-policy-age-gate-and-ai-disclaimer: backlog
-  2-3-reverse-mechanic-declare-expected-mbti-type: backlog
-  2-4-test-question-flow-with-12-questions-and-earned-pause: backlog
-  2-5-test-submission-mbti-type-calculation-and-shareable-result-url: backlog
+  epic-2: in-progress
+  2-1-landing-page-and-anonymous-user-session: done
+  2-2-consent-gate-privacy-policy-age-gate-and-ai-disclaimer: done
+  2-3-reverse-mechanic-declare-expected-mbti-type: done
+  2-4-test-question-flow-with-12-questions-and-earned-pause: done
+  2-5-test-submission-mbti-type-calculation-and-shareable-result-url: done
   epic-2-retrospective: optional
 
   # Epic 3: Result (Curated + Light AI)
-  epic-3: backlog
-  3-1-curated-insight-system-persona-names-and-villains: backlog
+  epic-3: in-progress
+  3-1-curated-insight-system-persona-names-and-villains: ready-for-dev
   3-2-light-ai-insight-enhancement-with-transparent-d1-fallback: backlog
   3-3-result-page-mirror-reveal-experience: backlog
   3-4-share-card-generation-and-og-image-for-social-previews: backlog

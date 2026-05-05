@@ -44,6 +44,7 @@ jobs:
     # Skip for fork PRs: GitHub does not pass secrets to forks.
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
     permissions:
+      contents: read
       pull-requests: write
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4

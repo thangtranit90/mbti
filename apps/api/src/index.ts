@@ -3,10 +3,20 @@ import { HTTPException } from 'hono/http-exception';
 import { ZodError } from 'zod';
 import type { Bindings, Variables } from './types/bindings';
 import { corsMiddleware } from './middleware/cors';
+import ssr from './routes/ssr';
+import sessions from './routes/sessions';
+import tests from './routes/tests';
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 app.use('*', corsMiddleware);
+
+// SSR: landing page HTML at GET /
+app.route('/', ssr);
+
+// API routes
+app.route('/api/sessions', sessions);
+app.route('/api/tests', tests);
 
 app.get('/api/health', (c) => c.json({ data: { status: 'ok' }, error: null }));
 

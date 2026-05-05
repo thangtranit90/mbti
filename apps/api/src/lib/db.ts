@@ -1,5 +1,5 @@
 import type { Context } from 'hono';
-import type { CuratedInsightRow } from '@mbti/shared';
+import type { CuratedInsightRow, QuestionRow, TestResultRow } from '@mbti/shared';
 import { MBTI_TYPES, type MBTIType } from '@mbti/shared';
 import type { Bindings, Variables } from '../types/bindings';
 
@@ -57,4 +57,67 @@ export async function getActiveCuratedInsights(
     );
   }
   return result.results ?? [];
+}
+
+export async function getAllActiveQuestions(db: D1Database): Promise<QuestionRow[]> {
+  const result = await db
+    .prepare(
+      `SELECT id, text, dimension, answer_options, discrimination, difficulty, is_active, created_at
+       FROM questions WHERE is_active = 1`,
+    )
+    .all<QuestionRow>();
+  if (!result.success) {
+    throw new Error(`getAllActiveQuestions: D1 query failed: ${result.error ?? 'unknown error'}`);
+  }
+  return result.results ?? [];
+}
+
+export async function createTestResult(
+  db: D1Database,
+  payload: {
+    id: string;
+    userId: string;
+    mbtiType: MBTIType;
+    declaredType: MBTIType | null;
+    answers: Array<{ questionId: string; value: number }>;
+    personaName: string;
+  },
+): Promise<void> {
+  const now = new Date().toISOString();
+  const result = await db
+    .prepare(
+      `INSERT INTO test_results (id, user_id, calculated_type, declared_type, answers, persona_name, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .bind(
+      payload.id.toLowerCase(),
+      payload.userId.toLowerCase(),
+      payload.mbtiType,
+      payload.declaredType,
+      JSON.stringify(payload.answers),
+      payload.personaName,
+      now,
+      now,
+    )
+    .run();
+  if (!result.success) {
+    throw new Error(`createTestResult: D1 insert failed: ${result.error ?? 'unknown error'}`);
+  }
+}
+
+export async function getTestResult(
+  db: D1Database,
+  resultId: string,
+): Promise<TestResultRow | null> {
+  const result = await db
+    .prepare(
+      `SELECT id, user_id, declared_type, calculated_type, answers, persona_name, created_at, updated_at
+       FROM test_results WHERE id = ? AND deleted_at IS NULL`,
+    )
+    .bind(resultId.toLowerCase())
+    .all<TestResultRow>();
+  if (!result.success) {
+    throw new Error(`getTestResult: D1 query failed: ${result.error ?? 'unknown error'}`);
+  }
+  return result.results[0] ?? null;
 }

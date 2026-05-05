@@ -1,4 +1,10 @@
-export type SessionData = { userId: string; createdAt: string };
+export type SessionData = {
+  userId: string;
+  createdAt: string;
+  // Optional so sessions written before Story 2.2 (PATCH /consent) still parse.
+  consentAt?: string;
+  ageConfirmedAt?: string;
+};
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 const SESSION_KEY_PREFIX = 'session:';

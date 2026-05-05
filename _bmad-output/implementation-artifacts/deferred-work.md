@@ -1,5 +1,51 @@
 # Deferred Work
 
+## Deferred from: code review of 2-5-test-submission-mbti-type-calculation-and-shareable-result-url (2026-05-05)
+
+- `answer_options` JSON.parse unchecked in `/next-question` handler (`apps/api/src/routes/tests.ts`) — SyntaxError would propagate as unhandled 500; pre-existing from Story 2.4 scope.
+- `total: 12` hardcoded magic number in `/next-question` response — returns 12 unconditionally regardless of active question count; pre-existing from Story 2.4.
+- `calculateMBTIType` silently defaults dimensions with 0 matching answers to first pole (`apps/api/src/lib/cat.ts`) — happens when a submitted `questionId` has no match in live `allQuestions`; pre-existing design gap in cat.ts.
+- `TestSubmitSchema` min(1) allows 1–11 answers — server-side enforcement of exactly 12 is defense-in-depth; CAT client flow prevents this in normal usage; out of scope for this story.
+- Local `ResultApiResponse` type in `ResultPage.tsx` — no shared envelope schema for the GET result endpoint exists in `@mbti/shared`; create `TestResultApiResponse` envelope type when shared schema coverage is standardized.
+- `PersonaReveal` dynamic Tailwind class fails silently for a corrupted `mbtiType` DB value — data flows through TypeScript-typed API boundary; robustness hardening (Zod parse of API response in `ResultPage`) belongs to a future API-response validation pass.
+- Zustand persist hydration race on `TestSubmit` mount — `useEffect([])` fires before rehydration if an async storage adapter is used; current `localStorage` adapter is synchronous so this is theoretical; revisit if storage adapter changes.
+
+## Deferred from: code review of 2-3-reverse-mechanic-declare-expected-mbti-type (2026-05-05)
+
+- Tailwind comment safelist in `apps/web/src/features/test/components/TypeSelector.tsx` is the only mechanism preventing JIT scanner from dropping 64 `text/bg/border/ring-type-{TYPE}` utilities at build time — fragile to silent deletion; static class-map object is the safe alternative but was deliberately rejected in story spec (Task 5.1).
+- `/declare` route reachable directly without session or consent guard — consent-gate enforcement is Story 2.2's domain; route-level guard deferred until Story 2.4+ when an authenticated flow guard can be applied consistently across `/declare`, `/test`, and result pages.
+- `useTestStore.answers` (Story 2.4) and `currentIndex` (Story 2.4) persist to `localStorage['mbti-test-progress']` but have no mutation actions in this story — by design; Story 2.4 adds `addAnswer` / `setCurrentIndex`; `reset()` clears both.
+- Stale `answers` / `currentIndex` from a previous incomplete test session can be rehydrated on return — Story 2.4 owns test-session resume/reset logic; Story 2.5 calls `reset()` after successful submit.
+- 4-dot progress indicator: AC-3 describes per-type-card placement (top-right of each card), Task 5.1 / implementation places it in the Phase-2 page header bar — spec ambiguity; page-header is the sensible interpretation (per-card would show 16 identical indicators); requires UX design sign-off.
+- Icon/glyph slot specified in AC-1 for group cards but no icon data or asset exists in the story spec (`TypeGroup` type has no `icon` field, `typeGroups.ts` has no icon values) — deferred until design assets are provided.
+- Phase 1 re-entry animation direction hardcoded to `x: '-100%'` regardless of navigation direction — AC-2 says "inverse transition" (back should enter from right), but Task 6.1 shows fixed direction; true directional animation needs `direction: 'forward' | 'back'` state refactor — defer to UX polish pass.
+
+## Deferred from: code review of 2-2-consent-gate-privacy-policy-age-gate-and-ai-disclaimer (2026-05-05)
+
+- SSR script tag `<script type="module" src="/src/main.tsx">` in `apps/api/src/routes/ssr.ts` is a Vite-dev path — production needs hashed bundle URL resolved from a build manifest. Pre-existing from Story 2.1; owned by the deploy-pipeline story when production asset URL resolution is configured.
+- No CSP / security headers (`Content-Security-Policy`, `Referrer-Policy`, `X-Content-Type-Options`, `Strict-Transport-Security`) on hand-rolled SSR HTML in `routes/ssr.ts`. Pre-existing 2.1 surface; address with the observability/security hardening pass.
+- Privacy page Last-Updated date is hardcoded `Cập nhật: 2026-05-05` in `apps/api/src/routes/ssr.ts:79` — drift risk when copy changes without timestamp bump. Consider build-time substitution or file-mtime injection.
+- Privacy copy mentions "Cloudflare (offshore)" — infra disclosure in user-facing legal text (`apps/api/src/routes/ssr.ts:96`). Content/legal review concern; revisit when product team owns the privacy CMS.
+- `apiCall` mutation in `ConsentGate.tsx` has no `AbortController` — stale state writes after unmount produce StrictMode dev warnings. Benign in prod for this single-mutation flow; address when a request-cancellation pattern is needed elsewhere.
+- Row-error `<p role="alert">` in `ConsentGate.tsx` announces via `aria-live="polite"` but does not move focus to the offending checkbox — AT users with focus elsewhere may not navigate to the error. A11y enhancement for a future polish pass.
+- `submitError` in `ConsentGate.tsx` lacks `scrollIntoView` — on small mobile viewports with keyboard open, the error message below the CTA can be off-screen. Minor UX.
+- `/declare` route is an unstyled placeholder shipped to production at `apps/web/src/router.tsx:16-22` — owned by Story 2.3. Acceptable for sprint sequencing; flag if 2.2 ships before 2.3.
+- `SESSION_GONE` 401 envelope from `apps/api/src/routes/sessions.ts:67-76` does not signal the client to clear the stale `mbti-session-token` from `localStorage` — page refresh recovers via re-init, but a `error.shouldClearToken` hint would be cleaner. Address with the token-rotation / 401-handling unification story.
+- `c.req.header('X-Session-Token')!.trim()` in `apps/api/src/routes/sessions.ts:65` uses a non-null assertion that couples to `requireSession` middleware order. Safe today; brittle to refactor. Replace with a typed `getOrThrow` helper when additional authenticated routes land.
+- `as any` cast on the `env` argument in `apps/api/tests/routes/sessions.test.ts` (existing pattern extended into PATCH cases) — discards type checking on `Bindings`. Tightening requires importing the `Bindings` type into tests. Pre-existing from Story 2.1 test pattern; out-of-scope hygiene.
+- Anchor `role="button"` CTA in SSR landing (`apps/api/src/routes/ssr.ts:43`) — keyboard Space won't activate (anchors only respond to Enter). Pre-existing from Story 2.1; owned by an SSR-accessibility pass.
+
+## Deferred from: code review of 2-1-landing-page-and-anonymous-user-session (2026-05-05)
+
+- PostHog server-side `session_initiated` event missing in `POST /api/sessions/init`. Same scope-boundary pattern as posthog-js (client-side). Server-side counterpart needs `posthog-node` or fetch-based ingest. Belongs to the PostHog wiring story.
+- Clash Display font binary missing at `apps/web/public/fonts/ClashDisplay-Variable.woff2` — `@font-face` references it but file is absent. Half of the app uses fontshare CDN, half references the local file. Manual download from https://www.fontshare.com/fonts/clash-display required during environment setup. Acknowledged in story completion notes.
+- Session token in `localStorage` + custom `X-Session-Token` header is XSS-readable. Architecture-level decision per `architecture.md#Authentication & Security`; HttpOnly cookies are the standard mitigation. Revisit if XSS surface grows or compliance requires it.
+- No rate limiting on `POST /api/sessions/init` — attacker can flood KV with sessions, exhausting quota / cost. RATE_LIMITER binding cleanup is owned by the first feature story that wires rate limiting (per Story 1.6 deferred-work).
+- Client-side token validation against KV expiry not implemented — if KV session expires before localStorage token is cleared, user appears authenticated but every request returns 401. Needs `/api/sessions/validate` endpoint or 401 → re-init flow. Belongs to Story 2.4+ (first authenticated user-flow story).
+- `/consent` route stub in `router.tsx` lacks `errorElement` — Story 2.2 owns the real consent page and its error boundary.
+- `apiCall` `Headers` instance spread (`...init?.headers`) silently drops entries when the caller passes a `Headers` instance instead of a plain object. No current caller uses that form. Revisit when a feature story passes a `Headers` instance (e.g., propagating a streaming response).
+- Test asserts TTL via the out-of-diff `setSession` helper — `apps/api/tests/routes/sessions.test.ts:36-41` asserts `expirationTtl: 60*60*24*30` based on `lib/kv.ts` hardcoding. The route never sets a TTL itself. Test is technically valid (the helper does set the right TTL) but couples to an out-of-diff implementation detail. Not actionable now.
+
 ## Deferred from: code review of 1-1-monorepo-scaffold (2026-04-30)
 
 - Missing CORS middleware in apps/api — needed for cross-origin requests from Cloudflare Pages to Workers. Belongs to Story 1.3.

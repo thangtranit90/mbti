@@ -1,15 +1,21 @@
 import { cors } from 'hono/cors';
 
-// Env-driven CORS config is deferred — see deferred-work.md.
-// For now: localhost (dev) + production domain + default pages.dev fallback.
-const ALLOWED_ORIGINS = [
-  'http://localhost:5173',
-  'https://mbti.thanghost.io.vn',
-  'https://mbti-web.pages.dev',
-];
+// Allow localhost (dev), the project's custom domain, and any Cloudflare Pages
+// preview/production subdomain (*.pages.dev covers all branch preview URLs).
+function isAllowedOrigin(origin: string): string | null {
+  if (
+    origin === 'http://localhost:5173' ||
+    origin === 'https://mbti.thanghost.io.vn' ||
+    origin.endsWith('.pages.dev') ||
+    origin.endsWith('.workers.dev')
+  ) {
+    return origin;
+  }
+  return null;
+}
 
 export const corsMiddleware = cors({
-  origin: ALLOWED_ORIGINS,
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  origin: isAllowedOrigin,
+  allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'X-Session-Token'],
 });
