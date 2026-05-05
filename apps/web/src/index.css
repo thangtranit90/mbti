@@ -2,12 +2,45 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter";
+
+/* Clash Display — self-hosted; binary must be downloaded from https://www.fontshare.com/fonts/clash-display */
+@font-face {
+  font-family: 'Clash Display';
+  src: url('/fonts/ClashDisplay-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
     --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
+    --font-sans: 'Inter Variable', 'Geist Variable', sans-serif;
+    --font-clash: 'Clash Display', sans-serif;
+    --color-surface-deep: #050507;
+    --color-surface-base: #0d0f1a;
+    --color-surface-elevated: #161929;
+    --color-surface-light: #f8f9fc;
+    --color-cta-primary: #6366f1;
+    --color-cta-hover: #4f46e5;
+    /* 16 MBTI type accents — primary column from UX color system. */
+    --color-type-INTJ: #818cf8;
+    --color-type-INTP: #a78bfa;
+    --color-type-ENTJ: #38bdf8;
+    --color-type-ENTP: #34d399;
+    --color-type-INFJ: #c4b5fd;
+    --color-type-INFP: #fda4af;
+    --color-type-ENFJ: #fca5a5;
+    --color-type-ENFP: #fde68a;
+    --color-type-ISTJ: #6ee7b7;
+    --color-type-ISFJ: #a7f3d0;
+    --color-type-ESTJ: #5eead4;
+    --color-type-ESFJ: #86efac;
+    --color-type-ISTP: #fcd34d;
+    --color-type-ISFP: #fde68a;
+    --color-type-ESTP: #fb923c;
+    --color-type-ESFP: #f9a8d4;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

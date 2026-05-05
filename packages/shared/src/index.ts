@@ -5,3 +5,4 @@ export * from './schemas/mbti';
 export * from './schemas/test';
 export * from './schemas/invite';
 export * from './schemas/insight';
+export * from './schemas/session';

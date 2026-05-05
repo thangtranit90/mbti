@@ -69,3 +69,14 @@ export interface ArticleRow {
   created_at: string;
   updated_at: string;
 }
+
+export interface QuestionRow {
+  id: string;
+  text: string;
+  dimension: 'E_I' | 'S_N' | 'T_F' | 'J_P';
+  answer_options: string; // JSON string — parse with JSON.parse before use
+  discrimination: number;
+  difficulty: number;
+  is_active: 0 | 1;
+  created_at: string;
+}
