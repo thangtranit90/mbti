@@ -4,8 +4,8 @@ import { useMutation } from '@tanstack/react-query';
 import { ConsentResponseSchema } from '@mbti/shared';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { apiCall } from '@/lib/api';
-import { getSessionToken } from '@/lib/session';
+import { ApiError, apiCall } from '@/lib/api';
+import { SESSION_KEY, getSessionToken } from '@/lib/session';
 import { safeCapture } from '@/lib/posthog';
 import { AiDisclaimer } from './AiDisclaimer';
 
@@ -45,6 +45,13 @@ export function ConsentGate() {
       navigate('/declare');
     },
     onError: (err) => {
+      // Stale token (session expired/pruned) — clear it and send back to home
+      // so SessionProvider can reinitialise a fresh session.
+      if (err instanceof ApiError && err.status === 401) {
+        try { localStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
+        navigate('/');
+        return;
+      }
       console.error('consent PATCH failed:', err);
       setSubmitError(SUBMIT_ERROR_COPY);
     },
