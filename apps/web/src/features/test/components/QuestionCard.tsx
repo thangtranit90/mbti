@@ -14,7 +14,6 @@ export function QuestionCard({ question, questionIndex, onAnswer }: Props) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rm = useReducedMotion() ?? false;
 
-  // Cleanup timer on unmount to prevent state writes after unmount
   useEffect(() => {
     return () => {
       if (timerRef.current !== null) clearTimeout(timerRef.current);
@@ -22,7 +21,7 @@ export function QuestionCard({ question, questionIndex, onAnswer }: Props) {
   }, []);
 
   const handleSelect = (value: number) => {
-    if (selected !== null) return; // double-tap guard
+    if (selected !== null) return;
     setSelected(value);
     const delay = rm ? 0 : 300;
     timerRef.current = setTimeout(() => {
@@ -38,16 +37,27 @@ export function QuestionCard({ question, questionIndex, onAnswer }: Props) {
   };
 
   return (
-    <div className="flex flex-col min-h-svh bg-[#050507] px-6 py-10">
-      {/* 12-dot progress indicator */}
-      <div className="flex gap-1.5 justify-center mb-10" role="progressbar" aria-valuemin={1} aria-valuemax={12} aria-valuenow={questionIndex + 1}>
+    <main id="main" className="flex flex-col min-h-svh bg-surface-deep px-6 py-10">
+      {/* Progress indicator */}
+      <div
+        className="flex gap-1.5 justify-center mb-10"
+        role="progressbar"
+        aria-valuemin={1}
+        aria-valuemax={12}
+        aria-valuenow={questionIndex + 1}
+        aria-label={`Câu ${questionIndex + 1} trên 12`}
+      >
         {Array.from({ length: 12 }, (_, i) => (
           <span
             key={i}
             aria-label={i === questionIndex ? `Câu ${questionIndex + 1} / 12` : undefined}
             className={cn(
-              'w-2 h-2 rounded-full inline-block',
-              i === questionIndex ? 'bg-[#818CF8]' : 'bg-white/20',
+              'w-2 h-2 rounded-full inline-block transition-colors duration-300',
+              i < questionIndex
+                ? 'bg-cta-primary/60'
+                : i === questionIndex
+                  ? 'bg-cta-primary'
+                  : 'bg-white/15',
             )}
           />
         ))}
@@ -74,19 +84,16 @@ export function QuestionCard({ question, questionIndex, onAnswer }: Props) {
                 onClick={() => handleSelect(option.value)}
                 onKeyDown={(e) => handleKeyDown(e, option.value)}
                 className={cn(
-                  'w-full text-left rounded-xl border-2 px-5 py-4',
+                  'w-full text-left rounded-xl border-2 px-5 py-4 cursor-pointer',
                   'text-[15px] font-medium leading-relaxed',
-                  'transition-opacity bg-white/5',
+                  'transition-all duration-150 bg-white/5',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-primary/50',
+                  'disabled:cursor-not-allowed',
                   isSelected
-                    ? 'border-[#818CF8] ring-2 ring-[#818CF8]/30 text-white'
-                    : 'border-white/10 text-slate-300 hover:border-white/30',
+                    ? 'border-cta-primary ring-2 ring-cta-primary/30 text-white bg-cta-primary/10'
+                    : 'border-white/10 text-slate-300 hover:border-white/30 hover:bg-white/8',
                   isDimmed && 'opacity-40',
                 )}
-                style={
-                  isSelected && !rm
-                    ? { transitionDuration: '150ms' }
-                    : undefined
-                }
               >
                 {option.label}
               </button>
@@ -94,6 +101,6 @@ export function QuestionCard({ question, questionIndex, onAnswer }: Props) {
           })}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

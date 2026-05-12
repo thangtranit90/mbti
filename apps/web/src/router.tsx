@@ -1,52 +1,98 @@
-import { createBrowserRouter } from 'react-router';
-import { Landing } from './pages/Landing';
+/* eslint-disable react-refresh/only-export-components */
+import { lazy, Suspense } from 'react';
+import { createBrowserRouter, Link } from 'react-router';
 import { RootError } from './pages/RootError';
-import { ConsentGate } from './features/test/components/ConsentGate';
-import { TypeSelector } from './features/test/components/TypeSelector';
-import { TestFlow } from './features/test/components/TestFlow';
-import { TestSubmit } from './features/test/components/TestSubmit';
-import { ResultPage } from './features/result/components/ResultPage';
+
+const Landing = lazy(() => import('./pages/Landing').then((m) => ({ default: m.Landing })));
+const ConsentGate = lazy(() =>
+  import('./features/test/components/ConsentGate').then((m) => ({ default: m.ConsentGate })),
+);
+const TypeSelector = lazy(() =>
+  import('./features/test/components/TypeSelector').then((m) => ({ default: m.TypeSelector })),
+);
+const TestFlow = lazy(() =>
+  import('./features/test/components/TestFlow').then((m) => ({ default: m.TestFlow })),
+);
+const TestSubmit = lazy(() =>
+  import('./features/test/components/TestSubmit').then((m) => ({ default: m.TestSubmit })),
+);
+const ResultPage = lazy(() =>
+  import('./features/result/components/ResultPage').then((m) => ({ default: m.ResultPage })),
+);
+
+function PageLoader() {
+  return (
+    <div className="min-h-svh bg-surface-deep flex items-center justify-center">
+      <svg
+        className="animate-spin text-white/20"
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        aria-label="Đang tải..."
+      >
+        <path d="M21 12a9 9 0 11-6.219-8.56" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
+
+function wrap(element: React.ReactNode) {
+  return <Suspense fallback={<PageLoader />}>{element}</Suspense>;
+}
+
+function NotFound() {
+  return (
+    <div className="min-h-svh bg-surface-base flex items-center justify-center px-6">
+      <main id="main" className="text-center max-w-sm">
+        <h1 className="text-6xl font-clash font-bold text-white mb-4 leading-none">404</h1>
+        <p className="text-slate-400 mb-8">Trang bạn tìm không tồn tại.</p>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cta-primary hover:bg-cta-hover text-white font-medium text-[15px] transition-colors duration-200 cursor-pointer"
+        >
+          Về trang chủ
+        </Link>
+      </main>
+    </div>
+  );
+}
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Landing />,
+    element: wrap(<Landing />),
     errorElement: <RootError />,
   },
   {
     path: '/consent',
-    element: <ConsentGate />,
+    element: wrap(<ConsentGate />),
     errorElement: <RootError />,
   },
   {
     path: '/declare',
-    element: <TypeSelector />,
+    element: wrap(<TypeSelector />),
     errorElement: <RootError />,
   },
   {
     path: '/test',
-    element: <TestFlow />,
+    element: wrap(<TestFlow />),
     errorElement: <RootError />,
   },
   {
     path: '/test/submit',
-    element: <TestSubmit />,
+    element: wrap(<TestSubmit />),
     errorElement: <RootError />,
   },
   {
     path: '/result/:resultId',
-    element: <ResultPage />,
+    element: wrap(<ResultPage />),
     errorElement: <RootError />,
   },
   {
     path: '*',
-    element: (
-      <div className="min-h-screen bg-[#0D0F1A] flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-white mb-4">404</h1>
-          <p className="text-slate-400">Trang không tồn tại</p>
-        </div>
-      </div>
-    ),
+    element: <NotFound />,
   },
 ]);

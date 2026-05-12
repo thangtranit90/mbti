@@ -32,8 +32,27 @@ import { AiDisclaimer } from './AiDisclaimer';
 
 const HEADLINE = 'Trước khi bắt đầu — bạn hay bị nhận xét là người như thế nào?';
 const SUBCOPY = 'Không cần chắc chắn. Kết quả sẽ cho bạn thấy mình đoán đúng hay sai.';
-const SKIP_COPY = 'Tôi không chắc — bỏ qua bước này →';
+const SKIP_COPY = 'Tôi không chắc — bỏ qua bước này';
 const CONFIRM_DELAY_MS = 450;
+
+function ChevronLeftIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M13 15l-5-5 5-5" />
+    </svg>
+  );
+}
 
 export function TypeSelector() {
   const navigate = useNavigate();
@@ -97,7 +116,7 @@ export function TypeSelector() {
 
   return (
     <div className="min-h-svh flex items-center justify-center px-6 py-[60px] bg-surface-deep">
-      <div className="w-full max-w-[480px]">
+      <main id="main" className="w-full max-w-[480px]">
         <AiDisclaimer />
 
         <div className="mt-8 overflow-hidden">
@@ -115,11 +134,7 @@ export function TypeSelector() {
                 </h1>
                 <p className="text-[14px] text-slate-400 mt-2 mb-6">{SUBCOPY}</p>
 
-                <div
-                  role="radiogroup"
-                  aria-label="Nhóm tính cách"
-                  className="space-y-2"
-                >
+                <div role="radiogroup" aria-label="Nhóm tính cách" className="space-y-2">
                   {TYPE_GROUPS.map((group) => (
                     <button
                       key={group.key}
@@ -129,9 +144,9 @@ export function TypeSelector() {
                       aria-label={`${group.name} — ${group.descriptor}`}
                       onClick={() => handleGroupTap(group.key)}
                       className={cn(
-                        'w-full text-left rounded-lg border border-white/10 bg-surface-elevated',
-                        'px-4 py-4 min-h-[80px] flex flex-col gap-1',
-                        'transition-colors hover:bg-white/5 active:bg-white/10',
+                        'w-full text-left rounded-xl border border-white/10 bg-surface-elevated',
+                        'px-4 py-4 min-h-[80px] flex flex-col gap-1 cursor-pointer',
+                        'transition-colors duration-150 hover:bg-white/5 hover:border-white/20 active:bg-white/10',
                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
                       )}
                     >
@@ -143,7 +158,6 @@ export function TypeSelector() {
                     </button>
                   ))}
                 </div>
-
               </motion.div>
             )}
 
@@ -162,12 +176,13 @@ export function TypeSelector() {
                     onClick={handleBack}
                     disabled={selectedType !== null}
                     className={cn(
-                      'w-11 h-11 flex items-center justify-center text-white text-xl',
-                      'rounded hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
-                      'disabled:opacity-40',
+                      'w-11 h-11 flex items-center justify-center text-white rounded-lg cursor-pointer',
+                      'hover:bg-white/5 transition-colors duration-150',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
+                      'disabled:opacity-40 disabled:cursor-not-allowed',
                     )}
                   >
-                    ←
+                    <ChevronLeftIcon />
                   </button>
                   <span className="text-[16px] font-medium text-white">{activeGroup.name}</span>
                   <div className="flex gap-1.5" aria-hidden="true">
@@ -206,14 +221,15 @@ export function TypeSelector() {
                         }
                         transition={{ duration: reduceMotion ? 0 : 0.3, ease: 'easeInOut' }}
                         className={cn(
-                          'flex flex-col gap-2 rounded-lg border-2 p-4 text-left min-h-[120px]',
-                          'transition-opacity duration-150',
+                          'flex flex-col gap-2 rounded-xl border-2 p-4 text-left min-h-[120px]',
+                          'transition-opacity duration-150 cursor-pointer',
                           'bg-surface-elevated',
                           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
+                          'disabled:cursor-not-allowed',
                           dim && 'opacity-40',
                           isSelected
                             ? `border-type-${code} ring-2 ring-type-${code}/30`
-                            : 'border-white/10',
+                            : 'border-white/10 hover:border-white/25',
                         )}
                       >
                         <span
@@ -248,15 +264,28 @@ export function TypeSelector() {
             type="button"
             onClick={handleSkip}
             className={cn(
-              'block mx-auto mt-6 text-[14px] text-slate-500 underline underline-offset-4',
-              'hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded',
-              'sticky bottom-6',
+              'flex items-center gap-1.5 mx-auto mt-6 text-[14px] text-slate-500',
+              'hover:text-slate-300 transition-colors duration-150 cursor-pointer',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded px-2 py-1',
             )}
           >
             {SKIP_COPY}
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
           </button>
         )}
-      </div>
+      </main>
     </div>
   );
 }

@@ -10,5 +10,18 @@
   "orientation": "portrait",
   "theme_color": "#050507",
   "background_color": "#050507",
-  "icons": []
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "maskable"
+    }
+  ]
 }

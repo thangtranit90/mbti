@@ -45,8 +45,6 @@ export function ConsentGate() {
       navigate('/declare');
     },
     onError: (err) => {
-      // Stale token (session expired/pruned) — clear it and send back to home
-      // so SessionProvider can reinitialise a fresh session.
       if (err instanceof ApiError && err.status === 401) {
         try { localStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
         navigate('/');
@@ -75,16 +73,10 @@ export function ConsentGate() {
   const handleSubmit = () => {
     if (!bothChecked) {
       setShowRowErrors(true);
-      safeCapture('consent_attempted_without_check', {
-        ageConfirmed,
-        consentGiven,
-      });
+      safeCapture('consent_attempted_without_check', { ageConfirmed, consentGiven });
       return;
     }
     if (inFlightRef.current || mutation.isPending) return;
-    // No session token means SessionProvider's POST /api/sessions/init never
-    // succeeded (private mode, direct deep-link, etc.). PATCH would 401 with an
-    // opaque submit error — redirect home so the provider can re-init.
     if (!getSessionToken()) {
       navigate('/');
       return;
@@ -96,7 +88,7 @@ export function ConsentGate() {
 
   return (
     <div className="min-h-svh flex items-center justify-center px-6 py-[60px] bg-surface-deep">
-      <div className="w-full max-w-[480px]">
+      <main id="main" className="w-full max-w-[480px]">
         <AiDisclaimer />
 
         <div className="mt-8 space-y-4">
@@ -112,11 +104,7 @@ export function ConsentGate() {
             </span>
           </label>
           {showRowErrors && !ageConfirmed && (
-            <p
-              role="alert"
-              aria-live="polite"
-              className="text-red-400 text-[13px] -mt-2 ml-7"
-            >
+            <p role="alert" aria-live="polite" className="text-red-400 text-[13px] -mt-2 ml-7">
               {ROW_ERROR_COPY}
             </p>
           )}
@@ -134,18 +122,14 @@ export function ConsentGate() {
                 href="/privacy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-slate-300 underline underline-offset-2"
+                className="text-slate-300 underline underline-offset-2 hover:text-white transition-colors duration-150"
               >
                 Xem chính sách bảo mật
               </a>
             </span>
           </label>
           {showRowErrors && !consentGiven && (
-            <p
-              role="alert"
-              aria-live="polite"
-              className="text-red-400 text-[13px] -mt-2 ml-7"
-            >
+            <p role="alert" aria-live="polite" className="text-red-400 text-[13px] -mt-2 ml-7">
               {ROW_ERROR_COPY}
             </p>
           )}
@@ -156,23 +140,37 @@ export function ConsentGate() {
           aria-disabled={!bothChecked}
           aria-busy={mutation.isPending}
           onClick={handleSubmit}
-          className={`mt-8 w-full h-auto min-h-[48px] py-3 bg-[#6366F1] hover:bg-[#4F46E5] active:bg-[#3730A3] text-white text-base font-medium border-transparent ${
+          className={`mt-8 w-full h-auto min-h-[52px] py-3.5 bg-[#6366F1] hover:bg-[#4F46E5] active:bg-[#3730A3] text-white text-base font-semibold border-transparent transition-colors duration-200 cursor-pointer ${
             bothChecked ? '' : 'opacity-60 cursor-not-allowed'
           }`}
         >
-          Bắt đầu
+          {mutation.isPending ? (
+            <span className="flex items-center gap-2">
+              <svg
+                className="animate-spin"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
+                <path d="M21 12a9 9 0 11-6.219-8.56" strokeLinecap="round" />
+              </svg>
+              Đang xử lý...
+            </span>
+          ) : (
+            'Bắt đầu'
+          )}
         </Button>
 
         {submitError && (
-          <p
-            role="alert"
-            aria-live="polite"
-            className="text-red-400 text-[13px] text-center mt-3"
-          >
+          <p role="alert" aria-live="polite" className="text-red-400 text-[13px] text-center mt-3">
             {submitError}
           </p>
         )}
-      </div>
+      </main>
     </div>
   );
 }
