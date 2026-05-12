@@ -27,32 +27,29 @@ export function EarnedPauseTransition({ onComplete }: Props) {
 
   return (
     <div
-      className="min-h-svh bg-[#0D0F1A] flex items-center justify-center relative overflow-hidden"
+      className="min-h-svh bg-surface-base flex items-center justify-center relative overflow-hidden"
       aria-label="Đang phân tích kết quả"
       aria-live="polite"
     >
       {rm ? (
-        // Reduced motion: single glow pulse only
         <motion.div
-          className="w-24 h-24 rounded-full bg-[#818CF8]/30 blur-2xl"
+          className="w-24 h-24 rounded-full bg-cta-primary/30 blur-2xl"
           animate={{ opacity: [0.2, 0.6, 0.2] }}
           transition={{ duration: 1.2, ease: 'easeInOut' }}
         />
       ) : (
-        // Full animation: particles coalescing toward center
         <>
           {PARTICLE_OFFSETS.slice(0, PARTICLE_COUNT).map((offset, i) => (
             <motion.span
               key={i}
-              className="absolute w-2 h-2 rounded-full bg-[#818CF8]"
+              className="absolute w-2 h-2 rounded-full bg-cta-primary"
               initial={{ x: offset.x, y: offset.y, opacity: 0.8 }}
               animate={{ x: 0, y: 0, opacity: 0 }}
               transition={{ duration: 0.9, ease: 'easeIn', delay: i * 0.04 }}
             />
           ))}
-          {/* Center glow intensifies from 900ms to 1200ms */}
           <motion.div
-            className="w-20 h-20 rounded-full bg-[#818CF8]/20 blur-xl"
+            className="w-20 h-20 rounded-full bg-cta-primary/20 blur-xl"
             initial={{ opacity: 0.3, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1.2 }}
             transition={{ duration: 0.3, ease: 'easeOut', delay: 0.9 }}

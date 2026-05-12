@@ -6,13 +6,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#050507" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="description" content="Bài trắc nghiệm tính cách chuẩn xác, không cần đăng ký. Nhận kết quả ngay." />
+
+    <!-- Primary SEO -->
+    <title>MBTI Platform — Khám phá kiểu tính cách của bạn</title>
+    <meta name="description" content="Bài trắc nghiệm MBTI chuẩn xác — 16 kiểu tính cách, không cần đăng ký, nhận kết quả ngay lập tức. Hơn 12,000 người Việt đã khám phá bản thân." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://mbti.thanghost.io.vn/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mbti.thanghost.io.vn/" />
+    <meta property="og:title" content="MBTI Platform — Khám phá kiểu tính cách của bạn" />
+    <meta property="og:description" content="Bài trắc nghiệm MBTI chuẩn xác, không cần đăng ký. Khám phá 16 kiểu tính cách và nhận kết quả ngay." />
+    <meta property="og:image" content="https://mbti.thanghost.io.vn/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:site_name" content="MBTI Platform" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MBTI Platform — Khám phá kiểu tính cách của bạn" />
+    <meta name="twitter:description" content="Bài trắc nghiệm MBTI chuẩn xác, không cần đăng ký. Nhận kết quả ngay." />
+    <meta name="twitter:image" content="https://mbti.thanghost.io.vn/og-image.png" />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
     <link rel="preload" href="/fonts/ClashDisplay-Variable.woff2" as="font" type="font/woff2" crossorigin />
     <link href="https://api.fontshare.com/v2/css?f[]=clash-display@700,600,500&display=swap" rel="stylesheet" />
-    <title>MBTI Platform — Khám phá kiểu tính cách của bạn</title>
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "MBTI Platform",
+      "description": "Bài trắc nghiệm MBTI chuẩn xác, không cần đăng ký. Khám phá 16 kiểu tính cách.",
+      "url": "https://mbti.thanghost.io.vn/",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "Any",
+      "inLanguage": "vi",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "VND"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "MBTI Platform"
+      }
+    }
+    </script>
   </head>
   <body>
+    <a
+      href="#main"
+      style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden"
+      onfocus="this.style.cssText='position:fixed;top:1rem;left:1rem;z-index:9999;padding:0.5rem 1rem;background:#fff;color:#000;border-radius:0.5rem;font-size:0.875rem;font-weight:500;text-decoration:none'"
+      onblur="this.style.cssText='position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden'"
+    >
+      Bỏ qua đến nội dung chính
+    </a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

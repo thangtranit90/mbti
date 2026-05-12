@@ -18,6 +18,7 @@
     --font-heading: var(--font-sans);
     --font-sans: 'Inter Variable', 'Geist Variable', sans-serif;
     --font-clash: 'Clash Display', sans-serif;
+    --font-display: var(--font-clash);
     --color-surface-deep: #050507;
     --color-surface-base: #0d0f1a;
     --color-surface-elevated: #161929;

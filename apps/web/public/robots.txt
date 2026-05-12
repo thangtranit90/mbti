@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mbti.thanghost.io.vn/sitemap.xml
