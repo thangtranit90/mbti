@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { safeCapture } from '@/lib/posthog';
+import { apiCall } from '@/lib/api';
+import { getSessionToken } from '@/lib/session';
 
 const TRUST_ITEMS = ['Miễn phí', 'Không đăng ký', 'Kết quả ngay'];
 
@@ -14,7 +16,13 @@ export function Landing() {
 
   const handleCTAClick = () => {
     safeCapture('cta_tapped', { buttonText: 'Xem tôi thuộc kiểu người nào' });
-    navigate('/consent');
+    if (getSessionToken()) {
+      apiCall('/api/sessions/consent', {
+        method: 'PATCH',
+        body: JSON.stringify({ consentGiven: true, ageConfirmed: true }),
+      }).catch(() => {});
+    }
+    navigate('/declare');
   };
 
   return (

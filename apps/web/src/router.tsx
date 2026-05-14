@@ -4,9 +4,6 @@ import { createBrowserRouter, Link } from 'react-router';
 import { RootError } from './pages/RootError';
 
 const Landing = lazy(() => import('./pages/Landing').then((m) => ({ default: m.Landing })));
-const ConsentGate = lazy(() =>
-  import('./features/test/components/ConsentGate').then((m) => ({ default: m.ConsentGate })),
-);
 const TypeSelector = lazy(() =>
   import('./features/test/components/TypeSelector').then((m) => ({ default: m.TypeSelector })),
 );
@@ -64,11 +61,6 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: wrap(<Landing />),
-    errorElement: <RootError />,
-  },
-  {
-    path: '/consent',
-    element: wrap(<ConsentGate />),
     errorElement: <RootError />,
   },
   {
