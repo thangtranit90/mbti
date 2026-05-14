@@ -25,6 +25,9 @@ export interface TestResultRow {
   updated_at: string;
   deleted_at: string | null;
   retention_flag: 0 | 1 | null;
+  // Story 4.2 — populated when this test_result row was seeded from an invite
+  // flow (invitee taking the test after voting on the inviter).
+  invite_source_token: string | null;
 }
 
 export interface InviteLinkRow {
@@ -68,6 +71,33 @@ export interface ArticleRow {
   is_published: 0 | 1;
   created_at: string;
   updated_at: string;
+}
+
+export interface ReportRow {
+  id: string;
+  inviter_user_id: string;
+  invitee_user_id: string;
+  inviter_result_id: string;
+  invitee_result_id: string;
+  r2_key: string;
+  created_at: string;
+  deleted_at: string | null;
+}
+
+export interface PaymentRow {
+  id: string;
+  user_id: string;
+  result_id: string | null;
+  product_type: 'couple_pack' | 'gap_report';
+  gateway: 'payos' | 'stripe';
+  provider_ref: string | null;
+  amount: number;
+  currency: string;
+  status: 'pending' | 'completed' | 'failed';
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+  deleted_at: string | null;
 }
 
 export interface QuestionRow {

@@ -10,11 +10,16 @@ export function TestSubmit() {
   const navigate = useNavigate();
   const answers = useTestStore((s) => s.answers);
   const declaredType = useTestStore((s) => s.declaredType);
+  const inviteSource = useTestStore((s) => s.inviteSource);
   const reset = useTestStore((s) => s.reset);
   const hasFired = useRef(false);
 
   const { mutate, isPending, isError } = useMutation({
-    mutationFn: (payload: { answers: typeof answers; declaredType: typeof declaredType }) =>
+    mutationFn: (payload: {
+      answers: typeof answers;
+      declaredType: typeof declaredType;
+      inviteSource?: string | null;
+    }) =>
       apiCall<TestSubmitResponse>('/api/tests/submit', {
         method: 'POST',
         body: JSON.stringify(payload),
@@ -33,7 +38,7 @@ export function TestSubmit() {
     }
     if (hasFired.current) return;
     hasFired.current = true;
-    mutate({ answers, declaredType });
+    mutate({ answers, declaredType, inviteSource });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // intentionally empty — fire exactly once on mount
 
@@ -54,7 +59,7 @@ export function TestSubmit() {
             onClick={() => {
               if (isPending) return;
               hasFired.current = true;
-              mutate({ answers, declaredType });
+              mutate({ answers, declaredType, inviteSource });
             }}
             className="px-6 py-3 rounded-xl bg-cta-primary hover:bg-cta-hover text-white font-medium text-[15px] disabled:opacity-50 cursor-pointer transition-colors duration-200"
           >

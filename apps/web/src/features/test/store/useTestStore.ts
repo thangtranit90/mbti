@@ -8,9 +8,11 @@ type TestState = {
   declaredType: MBTIType | null;
   answers: Answer[];
   currentIndex: number;
+  inviteSource: string | null;
   setDeclaredType: (type: MBTIType | null) => void;
   setAnswer: (questionId: string, value: number) => void;
   setCurrentIndex: (index: number) => void;
+  setInviteSource: (token: string | null) => void;
   reset: () => void;
 };
 
@@ -37,6 +39,7 @@ export const useTestStore = create<TestState>()(
       declaredType: null,
       answers: [],
       currentIndex: 0,
+      inviteSource: null,
       setDeclaredType: (type) => set({ declaredType: type }),
       setAnswer: (questionId, value) =>
         set((s) => ({
@@ -46,7 +49,9 @@ export const useTestStore = create<TestState>()(
           ],
         })),
       setCurrentIndex: (index) => set({ currentIndex: index }),
-      reset: () => set({ declaredType: null, answers: [], currentIndex: 0 }),
+      setInviteSource: (token) => set({ inviteSource: token }),
+      reset: () =>
+        set({ declaredType: null, answers: [], currentIndex: 0, inviteSource: null }),
     }),
     {
       name: 'mbti-test-progress',

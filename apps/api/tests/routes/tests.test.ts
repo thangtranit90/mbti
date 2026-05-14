@@ -135,6 +135,7 @@ const RESULT_ROW: TestResultRow = {
   updated_at: '2026-05-05T10:00:00.000Z',
   deleted_at: null,
   retention_flag: null,
+  invite_source_token: null,
 };
 
 /** Build 12 answers (3 per dimension × 4), all value=1 → yields ESTJ */

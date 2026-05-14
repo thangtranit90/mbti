@@ -56,6 +56,8 @@ export const TestSubmitSchema = z
   .object({
     declaredType: MBTITypeSchema.nullable(),
     answers: z.array(AnswerSchema).min(1).max(ANSWERS_MAX),
+    // Story 4.2 — optional invite token attaching this test to a social graph.
+    inviteSource: z.string().uuid().optional().nullable(),
   })
   .strict();
 

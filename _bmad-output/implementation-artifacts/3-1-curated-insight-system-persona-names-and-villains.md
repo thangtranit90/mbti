@@ -1,6 +1,6 @@
 # Story 3.1: Curated Insight System, Persona Names & Villains
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -36,72 +36,72 @@ Then it shows the insight string from the API response in Inter 16px, `text-slat
 
 ## Tasks / Subtasks
 
-- [ ] Task 1 — Replace placeholder content in `packages/shared/src/constants.ts` (AC: 3)
-  - [ ] 1.1 Replace all 16 `PERSONA_NAMES` values with production copy (see Dev Notes — Curated Copy)
-  - [ ] 1.2 Replace all 48 `PLACEHOLDER_REASON` strings in `VILLAINS_MAP` with production villain reason copy (see Dev Notes — Curated Copy)
-  - [ ] 1.3 Delete the `const PLACEHOLDER_REASON` line and its TODO comment — no placeholder references remain after this task
+- [x] Task 1 — Replace placeholder content in `packages/shared/src/constants.ts` (AC: 3)
+  - [x] 1.1 Replace all 16 `PERSONA_NAMES` values with production copy (see Dev Notes — Curated Copy)
+  - [x] 1.2 Replace all 48 `PLACEHOLDER_REASON` strings in `VILLAINS_MAP` with production villain reason copy (see Dev Notes — Curated Copy)
+  - [x] 1.3 Delete the `const PLACEHOLDER_REASON` line and its TODO comment — no placeholder references remain after this task
 
-- [ ] Task 2 — Create migration `migrations/0006_curated_insights_content.sql` (AC: 2)
-  - [ ] 2.1 UPDATE all 16 placeholder rows with production curated insight strings (see Dev Notes — Curated Copy)
-  - [ ] 2.2 Use `WHERE id = 'placeholder-insight-{TYPE}-v1'` to target exact rows
-  - [ ] 2.3 Set `updated_at = '2026-05-05T00:00:00.000Z'` on all updated rows
-  - [ ] 2.4 Apply migration locally: `wrangler d1 execute mbti --local --file=migrations/0006_curated_insights_content.sql`
+- [x] Task 2 — Create migration `migrations/0006_curated_insights_content.sql` (AC: 2)
+  - [x] 2.1 UPDATE all 16 placeholder rows with production curated insight strings (see Dev Notes — Curated Copy)
+  - [x] 2.2 Use `WHERE id = 'placeholder-insight-{TYPE}-v1'` to target exact rows
+  - [x] 2.3 Set `updated_at = '2026-05-05T00:00:00.000Z'` on all updated rows
+  - [x] 2.4 Apply migration locally: `wrangler d1 execute mbti --local --file=migrations/0006_curated_insights_content.sql`
 
-- [ ] Task 3 — Add schema + query key to `packages/shared` (AC: 1)
-  - [ ] 3.1 In `packages/shared/src/schemas/insight.ts` — add `VillainEntrySchema`, `ResultInsightResponseSchema` (see Dev Notes — Schema)
-  - [ ] 3.2 In `packages/shared/src/queryKeys.ts` — add `resultInsight: (resultId: string) => ['resultInsight', resultId] as const`
-  - [ ] 3.3 Verify `packages/shared/src/index.ts` already re-exports `./schemas/insight` (it does — no change needed)
+- [x] Task 3 — Add schema + query key to `packages/shared` (AC: 1)
+  - [x] 3.1 In `packages/shared/src/schemas/insight.ts` — add `VillainEntrySchema`, `ResultInsightResponseSchema` (see Dev Notes — Schema)
+  - [x] 3.2 In `packages/shared/src/queryKeys.ts` — add `resultInsight: (resultId: string) => ['resultInsight', resultId] as const`
+  - [x] 3.3 Verify `packages/shared/src/index.ts` already re-exports `./schemas/insight` (it does — no change needed)
 
-- [ ] Task 4 — Add `getCuratedInsight` helper to `apps/api/src/lib/db.ts` (AC: 2, 4)
-  - [ ] 4.1 Add `getCuratedInsight(db: D1Database, mbtiType: MBTIType): Promise<CuratedInsightRow | null>` — SELECT first active row for type, ORDER BY created_at ASC, LIMIT 1; throw on `!result.success`; return `result.results[0] ?? null`
-  - [ ] 4.2 Do NOT modify existing `getActiveCuratedInsights` — that is the multi-row helper owned by Story 3.2
+- [x] Task 4 — Add `getCuratedInsight` helper to `apps/api/src/lib/db.ts` (AC: 2, 4)
+  - [x] 4.1 Add `getCuratedInsight(db: D1Database, mbtiType: MBTIType): Promise<CuratedInsightRow | null>` — SELECT first active row for type, ORDER BY created_at ASC, LIMIT 1; throw on `!result.success`; return `result.results[0] ?? null`
+  - [x] 4.2 Do NOT modify existing `getActiveCuratedInsights` — that is the multi-row helper owned by Story 3.2
 
-- [ ] Task 5 — Create `apps/api/src/routes/insights.ts` (AC: 1, 4)
-  - [ ] 5.1 `GET /:resultId/insight` — NO `requireSession` (public route; result is shareable)
-  - [ ] 5.2 Fetch test result via `getTestResult(db, c.req.param('resultId'))` — return 404 `NOT_FOUND` if null
-  - [ ] 5.3 Derive `personaName = PERSONA_NAMES[mbtiType]` from `@mbti/shared`
-  - [ ] 5.4 Derive `villains = VILLAINS_MAP[mbtiType]` from `@mbti/shared`
-  - [ ] 5.5 Fetch insight via `getCuratedInsight(db, mbtiType)`; if null use fallback: `FALLBACK_INSIGHT` const (see Dev Notes — Fallback)
-  - [ ] 5.6 Return `c.json({ data: { personaName, insight: row.content, villains }, error: null })`
-  - [ ] 5.7 Import `withDb` from `../lib/db` — never call `c.env.DB` directly
+- [x] Task 5 — Create `apps/api/src/routes/insights.ts` (AC: 1, 4)
+  - [x] 5.1 `GET /:resultId/insight` — NO `requireSession` (public route; result is shareable)
+  - [x] 5.2 Fetch test result via `getTestResult(db, c.req.param('resultId'))` — return 404 `NOT_FOUND` if null
+  - [x] 5.3 Derive `personaName = PERSONA_NAMES[mbtiType]` from `@mbti/shared`
+  - [x] 5.4 Derive `villains = VILLAINS_MAP[mbtiType]` from `@mbti/shared`
+  - [x] 5.5 Fetch insight via `getCuratedInsight(db, mbtiType)`; if null use fallback: `FALLBACK_INSIGHT` const (see Dev Notes — Fallback)
+  - [x] 5.6 Return `c.json({ data: { personaName, insight: row.content, villains }, error: null })`
+  - [x] 5.7 Import `withDb` from `../lib/db` — never call `c.env.DB` directly
 
-- [ ] Task 6 — Mount insights route in `apps/api/src/index.ts` (AC: 1)
-  - [ ] 6.1 Import `insights` from `./routes/insights`
-  - [ ] 6.2 Add `app.route('/api/results', insights)` after the `tests` route line
+- [x] Task 6 — Mount insights route in `apps/api/src/index.ts` (AC: 1)
+  - [x] 6.1 Import `insights` from `./routes/insights`
+  - [x] 6.2 Add `app.route('/api/results', insights)` after the `tests` route line
 
-- [ ] Task 7 — Create `apps/web/src/features/result/components/InsightCard.tsx` (AC: 5, 6)
-  - [ ] 7.1 Props: `insight: string`
-  - [ ] 7.2 Framer Motion Beat 2 (800ms delay, 400ms `y: 16 → 0` + `opacity: 0 → 1`): wrap content in `<motion.div>`
-  - [ ] 7.3 Text: `<p className="text-[16px] leading-relaxed text-slate-300 text-center max-w-xs">` with insight string
-  - [ ] 7.4 `prefers-reduced-motion`: `const rm = useReducedMotion() ?? false` — when `rm=true` skip y-animation and set initial opacity to 1
+- [x] Task 7 — Create `apps/web/src/features/result/components/InsightCard.tsx` (AC: 5, 6)
+  - [x] 7.1 Props: `insight: string`
+  - [x] 7.2 Framer Motion Beat 2 (800ms delay, 400ms `y: 16 → 0` + `opacity: 0 → 1`): wrap content in `<motion.div>`
+  - [x] 7.3 Text: `<p className="text-[16px] leading-relaxed text-slate-300 text-center max-w-xs">` with insight string
+  - [x] 7.4 `prefers-reduced-motion`: `const rm = useReducedMotion() ?? false` — when `rm=true` skip y-animation and set initial opacity to 1
 
-- [ ] Task 8 — Create `apps/web/src/features/result/components/VillainsSection.tsx` (AC: 6)
-  - [ ] 8.1 Props: `villains: Array<{ type: MBTIType; reason: string }>`
-  - [ ] 8.2 Framer Motion: enter at 2200ms delay (after scroll chevron), 300ms fade-in
-  - [ ] 8.3 Heading: `<h2 className="text-[13px] uppercase tracking-[0.2em] text-slate-500 mb-4">3 kiểu người dễ mâu thuẫn với bạn</h2>`
-  - [ ] 8.4 Three villain chips: `<div className="flex flex-col gap-3">` — each chip: type code in `text-type-{villain.type}` + reason text below in `text-slate-400 text-[14px]`
-  - [ ] 8.5 Tailwind JIT: chip text uses `text-type-{type}` — already safelisted in `PersonaReveal.tsx` comments (DO NOT duplicate the safelist block; it's global)
-  - [ ] 8.6 `prefers-reduced-motion`: skip fade animation, render immediately
+- [x] Task 8 — Create `apps/web/src/features/result/components/VillainsSection.tsx` (AC: 6)
+  - [x] 8.1 Props: `villains: Array<{ type: MBTIType; reason: string }>`
+  - [x] 8.2 Framer Motion: enter at 2200ms delay (after scroll chevron), 300ms fade-in
+  - [x] 8.3 Heading: `<h2 className="text-[13px] uppercase tracking-[0.2em] text-slate-500 mb-4">3 kiểu người dễ mâu thuẫn với bạn</h2>`
+  - [x] 8.4 Three villain chips: `<div className="flex flex-col gap-3">` — each chip: type code in `text-type-{villain.type}` + reason text below in `text-slate-400 text-[14px]`
+  - [x] 8.5 Tailwind JIT: chip text uses `text-type-{type}` — already safelisted in `PersonaReveal.tsx` comments (DO NOT duplicate the safelist block; it's global)
+  - [x] 8.6 `prefers-reduced-motion`: skip fade animation, render immediately
 
-- [ ] Task 9 — Update `apps/web/src/features/result/components/PersonaReveal.tsx` (AC: 5)
-  - [ ] 9.1 Add props: `insight: string`, `villains: Array<{ type: MBTIType; reason: string }>`
-  - [ ] 9.2 Render `<InsightCard insight={insight} />` between the HR divider and the type code — Beat 2 at 800ms delay handles its own animation internally
-  - [ ] 9.3 Render `<VillainsSection villains={villains} />` below the scroll chevron in the scrollable area — wrap the bottom section in a `<div className="mt-16 w-full max-w-sm">` after the centered reveal block
-  - [ ] 9.4 Do NOT change Beat 1 (persona name, 0ms), Beat 3 (type code, 1400ms), or chevron (2000ms) timing — only add Beat 2 inside the existing flow
+- [x] Task 9 — Update `apps/web/src/features/result/components/PersonaReveal.tsx` (AC: 5)
+  - [x] 9.1 Add props: `insight: string`, `villains: Array<{ type: MBTIType; reason: string }>`
+  - [x] 9.2 Render `<InsightCard insight={insight} />` between the HR divider and the type code — Beat 2 at 800ms delay handles its own animation internally
+  - [x] 9.3 Render `<VillainsSection villains={villains} />` below the scroll chevron in the scrollable area — wrap the bottom section in a `<div className="mt-16 w-full max-w-sm">` after the centered reveal block
+  - [x] 9.4 Do NOT change Beat 1 (persona name, 0ms), Beat 3 (type code, 1400ms), or chevron (2000ms) timing — only add Beat 2 inside the existing flow
 
-- [ ] Task 10 — Update `apps/web/src/features/result/components/ResultPage.tsx` (AC: 1, 5, 6)
-  - [ ] 10.1 Add second TanStack Query for insight: `queryKey: queryKeys.resultInsight(resultId!)`, `queryFn: () => apiCall<ResultInsightApiResponse>('/api/results/${resultId}/insight')`, `staleTime: Infinity`, `enabled: !!resultId`
-  - [ ] 10.2 Add local type `ResultInsightApiResponse` with shape `{ data: { personaName: string; insight: string; villains: Array<{ type: MBTIType; reason: string }> } | null; error: ... | null }`
-  - [ ] 10.3 Loading state: wait for BOTH queries to resolve before rendering; show full-screen `bg-[#0D0F1A]` while either is loading
-  - [ ] 10.4 Pass `insight` and `villains` to `<PersonaReveal>`: `<PersonaReveal personaName={...} mbtiType={...} insight={insightData.insight} villains={insightData.villains} />`
-  - [ ] 10.5 Use the `personaName` from the insight API response (authoritative) over the one from the test result response — they are the same value but the insight endpoint is the canonical source for this screen
+- [x] Task 10 — Update `apps/web/src/features/result/components/ResultPage.tsx` (AC: 1, 5, 6)
+  - [x] 10.1 Add second TanStack Query for insight: `queryKey: queryKeys.resultInsight(resultId!)`, `queryFn: () => apiCall<ResultInsightApiResponse>('/api/results/${resultId}/insight')`, `staleTime: Infinity`, `enabled: !!resultId`
+  - [x] 10.2 Add local type `ResultInsightApiResponse` with shape `{ data: { personaName: string; insight: string; villains: Array<{ type: MBTIType; reason: string }> } | null; error: ... | null }`
+  - [x] 10.3 Loading state: wait for BOTH queries to resolve before rendering; show full-screen `bg-[#0D0F1A]` while either is loading
+  - [x] 10.4 Pass `insight` and `villains` to `<PersonaReveal>`: `<PersonaReveal personaName={...} mbtiType={...} insight={insightData.insight} villains={insightData.villains} />`
+  - [x] 10.5 Use the `personaName` from the insight API response (authoritative) over the one from the test result response — they are the same value but the insight endpoint is the canonical source for this screen
 
-- [ ] Task 11 — Write tests for `GET /api/results/:resultId/insight` in `apps/api/tests/routes/insights.test.ts` (AC: 1, 4)
-  - [ ] 11.1 Valid resultId → 200 with `{ data: { personaName, insight, villains }, error: null }` — all fields present and non-empty
-  - [ ] 11.2 Unknown resultId → 404 `NOT_FOUND` envelope
-  - [ ] 11.3 No session token → still 200 (public route)
-  - [ ] 11.4 Mock `getCuratedInsight` returning null → response uses fallback string (not 500)
-  - [ ] 11.5 `villains` array length === 3 for all valid responses
+- [x] Task 11 — Write tests for `GET /api/results/:resultId/insight` in `apps/api/tests/routes/insights.test.ts` (AC: 1, 4)
+  - [x] 11.1 Valid resultId → 200 with `{ data: { personaName, insight, villains }, error: null }` — all fields present and non-empty
+  - [x] 11.2 Unknown resultId → 404 `NOT_FOUND` envelope
+  - [x] 11.3 No session token → still 200 (public route)
+  - [x] 11.4 Mock `getCuratedInsight` returning null → response uses fallback string (not 500)
+  - [x] 11.5 `villains` array length === 3 for all valid responses
 
 ---
 
@@ -471,6 +471,102 @@ UPDATE curated_insights SET content = 'Bạn mang lại sự ấm áp cho mọi 
   - VillainsSection: 2200ms delay, 300ms fade-in — below the centered reveal block in the scroll area
 
 Note: The VillainsSection is in the scrollable area BELOW the full-screen reveal block. PersonaReveal must become a scrollable page (`overflow-y: auto` or natural document flow) after the centered reveal. The villains are revealed by scroll, not part of the centered animation block.
+
+## Dev Agent Record
+
+### Completion Notes
+
+Story 3.1 fully implemented per spec. All 11 tasks complete with 5 new tests passing (`apps/api/tests/routes/insights.test.ts`). Full regression: 36 api / 23 web / 10 shared tests green; typecheck and lint clean across all 3 workspaces.
+
+- **Constants**: 16 PERSONA_NAMES + 48 villain reasons replaced with production copy. `PLACEHOLDER_REASON` const deleted. Module-load invariant loop preserved untouched.
+- **Migration 0006**: Applied locally via `wrangler d1 execute mbti --local`. All 16 placeholder rows updated.
+- **Schema**: `VillainEntrySchema` + `ResultInsightResponseSchema` added in `schemas/insight.ts`. Note: deliberately did NOT export the inferred `VillainEntry` type from `insight.ts` to avoid `export *` collision with the existing `VillainEntry` type alias in `constants.ts` (both structurally identical). Consumers can use `z.infer<typeof VillainEntrySchema>` at use sites if needed. This is a divergence from the Dev Notes code block but preserves type-system correctness.
+- **DB helper**: `getCuratedInsight` added without modifying `getActiveCuratedInsights` (Story 3.2 owns the latter).
+- **Route**: `GET /api/results/:resultId/insight` is public (no `requireSession`) and uses `withDb` boundary. `FALLBACK_INSIGHT` const used when curated row missing.
+- **UI**: `InsightCard` (Beat 2, 800ms slide-up + fade) + `VillainsSection` (2200ms fade). `prefers-reduced-motion` honored throughout. PersonaReveal restructured: centered reveal block has its own `min-h-svh`, scroll chevron stays absolutely positioned, VillainsSection lives below in document flow for natural scroll.
+- **ResultPage**: Two parallel TanStack queries (`testResult` + `resultInsight`), both `staleTime: Infinity`. Loading state waits for both. `safeCapture('insight_viewed', ...)` fired alongside `result_viewed` once both data are available. `personaName` sourced from insight endpoint as canonical.
+
+### File List
+
+**Modified:**
+- `packages/shared/src/constants.ts` (production PERSONA_NAMES + VILLAINS_MAP copy)
+- `packages/shared/src/schemas/insight.ts` (added `VillainEntrySchema`, `ResultInsightResponseSchema`)
+- `packages/shared/src/queryKeys.ts` (added `resultInsight` key)
+- `apps/api/src/lib/db.ts` (added `getCuratedInsight` helper)
+- `apps/api/src/index.ts` (mounted `insights` route at `/api/results`)
+- `apps/web/src/features/result/components/PersonaReveal.tsx` (Beat 2 + VillainsSection + new props)
+- `apps/web/src/features/result/components/ResultPage.tsx` (second TanStack query + dual loading state)
+
+**Created:**
+- `migrations/0006_curated_insights_content.sql`
+- `apps/api/src/routes/insights.ts`
+- `apps/api/tests/routes/insights.test.ts`
+- `apps/web/src/features/result/components/InsightCard.tsx`
+- `apps/web/src/features/result/components/VillainsSection.tsx`
+
+## Change Log
+
+| Date | Change |
+|---|---|
+| 2026-05-14 | Story 3.1 implementation complete — production curated copy, insight endpoint, InsightCard/VillainsSection. All ACs satisfied. Ready for review. |
+| 2026-05-14 | Adversarial code review (Blind Hunter + Edge Case Hunter + Acceptance Auditor) — see Review Findings below. Consolidated Epic 3 findings; story-specific items reproduced in 3-2/3-3/3-4 review sections too. |
+| 2026-05-15 | All 27 patches applied (HIGH ownership check, initWasm guard, JSON.parse safety, UUID validation, Pages middleware tightening, AbortController + clearTimeout, R2 cache validation, AI prompt enrichment, etc.). 5 decisions accepted as documented. Full regression green: 86 tests pass, typecheck + lint clean, both builds succeed. |
+
+### Review Findings
+
+**Consolidated Epic 3 adversarial review — 2026-05-14.** Findings span all 4 stories; this section is the canonical list.
+
+**Decision-needed (5) — all resolved 2026-05-15 as "accept as documented":**
+- [x] [Review][Decision] **Story 3.2 AC5 — Server-side `insight_served` PostHog** — RESOLVED: PM accepts deferral. TODO comment stays; bind `POSTHOG_API_KEY` + add server-side capture in a follow-up.
+- [x] [Review][Decision] **Story 3.4 AC5 — OG meta injection location** — RESOLVED: Pages `_middleware.ts` ratified as the correct injection point. Spec wording superseded.
+- [x] [Review][Decision] **Story 3.4 AC2 — ShareCard render timing** — RESOLVED: Eager mount-time render accepted. LCP/CLS impact deemed minor for the share-impulse user.
+- [x] [Review][Decision] **AI model alias `claude-sonnet-4-6`** — RESOLVED: Current "source: curated" prod state accepted. NFR17 fallback is the documented graceful path. Verify model alias / key in a separate investigation.
+- [x] [Review][Decision] **Story 3.3 ReverseReveal copy** — RESOLVED: Card-style copy accepted. UX deviation from inline wording is preserved.
+
+**Patch — HIGH (6):**
+- [x] [Review][Patch] **Ownership check on POST /api/insights/generate** [apps/api/src/routes/insights.ts:43] — `requireSession` authenticates the caller but doesn't compare `row.user_id` to `c.get('userId')`. Any authenticated user can trigger paid Anthropic calls on any other user's resultId.
+- [x] [Review][Patch] **`initWasm` re-init crashes after first request** [apps/api/src/lib/og.ts:135] — `@resvg/resvg-wasm`'s `initWasm` throws on re-init. After the first cache-miss, every subsequent miss falls back to the 67-byte transparent PNG forever. Guard with module-scope `wasmInitialized` flag.
+- [x] [Review][Patch] **`getCuratedInsight` unsafe `result.results[0]`** [apps/api/src/lib/db.ts:65] — If D1 returns `success: true` without a `results` field, `result.results[0]` throws TypeError. Use `result.results?.[0] ?? null`. Inconsistent with sibling `getActiveCuratedInsights` which already does `?? []`.
+- [x] [Review][Patch] **`JSON.parse(row.answers)` unguarded** [apps/api/src/routes/insights.ts:48] — Malformed/null answers throws unhandled `SyntaxError` → 500. Wrap in try/catch defaulting to `[]`; also `if (!Array.isArray(answers)) answers = [];`.
+- [x] [Review][Patch] **Pages middleware accepts non-UUID + rewrites on error responses** [apps/web/functions/_middleware.ts:6, 36] — Regex `[a-zA-Z0-9-]+` too permissive. Tighten to UUID v4 regex. Also skip rewrite when `response.status !== 200` so 404 pages don't get OG meta pointing to nonexistent results.
+- [x] [Review][Patch] **Anthropic error swallowed silently** [apps/api/src/lib/ai.ts:50] — `catch {}` gives no telemetry. Restore `console.error('[ai.ts] AI generation failed:', err)` so operators can distinguish timeout / network / auth / model-not-found.
+
+**Patch — MED (18):**
+- [x] [Review][Patch] **AI prompt only sends `answers.length`** [apps/api/src/lib/ai.ts:18] — Defeats the "Reference observable behavior" instruction. Include actual answer values summarized by dimension (e.g., `E_I avg: 0.7, S_N avg: 0.3, ...`).
+- [x] [Review][Patch] **setCopied timer leaks** [apps/web/src/features/result/components/PersonaReveal.tsx] — `setTimeout` runs without cleanup; navigating away in the 2s window warns about state-update-on-unmounted.
+- [x] [Review][Patch] **html-to-image cacheBust=true + missing fonts.ready** [apps/web/src/lib/share.ts:14, 18] — Re-fetches all images on every click; PNG may render with fallback fonts. Set `cacheBust: false`, prepend `await document.fonts.ready`.
+- [x] [Review][Patch] **shareCardRef dead branch** [apps/web/src/features/result/components/PersonaReveal.tsx:46-52] — `else` clipboard path never reached since ShareCard always renders. Remove dead code or disable share button until ref attached.
+- [x] [Review][Patch] **mbti_type validation at API boundary** [apps/api/src/routes/insights.ts, apps/api/src/routes/og.ts] — If D1 row has corrupt `calculated_type`, `PERSONA_NAMES[mbtiType]` returns undefined. Validate at all three routes; return 500 INVALID_TYPE.
+- [x] [Review][Patch] **Fallback PNG Cache-Control 60s** [apps/api/src/routes/og.ts:69] — CDN/browser caches 1×1 transparent for 60s after upstream recovers. Use `no-store`.
+- [x] [Review][Patch] **getInterFont no timeout + concurrent fetch race** [apps/api/src/lib/og.ts:21] — Add `AbortSignal.timeout(3000)`. Cache in-flight Promise (not just resolved buffer) to dedupe parallel cold-start requests.
+- [x] [Review][Patch] **R2 `put` in waitUntil fails silently** [apps/api/src/routes/og.ts:54] — Add `.catch(e => console.error('og r2 put failed:', e))`.
+- [x] [Review][Patch] **R2 cache hit not validated** [apps/api/src/routes/og.ts:21] — Empty/corrupt R2 objects served for a year. Check `cached.size > 0` and `cached.httpMetadata?.contentType === 'image/png'`.
+- [x] [Review][Patch] **resultId validation** [apps/api/src/routes/insights.ts, og.ts] — Empty/garbage IDs hit DB layer and create `og/.png` cache key collisions. Validate UUID shape at all public routes.
+- [x] [Review][Patch] **declared_type runtime validation** [apps/api/src/routes/insights.ts:53, ReverseReveal.tsx:14] — Direct cast `as MBTIType | null` bypasses validation; corrupt DB data flows into AI prompt + `PERSONA_NAMES[declaredType]` returning undefined in ReverseReveal.
+- [x] [Review][Patch] **Promise.race timer + AbortController** [apps/api/src/lib/ai.ts:43] — When timeout wins, Anthropic call continues consuming tokens; setTimeout handle leaks. Use AbortController + clearTimeout in `finally`.
+- [x] [Review][Patch] **stop_reason === 'max_tokens'** [apps/api/src/lib/ai.ts:32] — Truncated mid-sentence content served as 'ai'. Check `msg.stop_reason !== 'max_tokens'`; if truncated, throw and fall back.
+- [x] [Review][Patch] **Schema `uuid()` rejects uppercase** [packages/shared/src/schemas/insight.ts:27] — POST /generate 400s for uppercase UUIDs that work in GET routes (which lowercase via `getTestResult`). Use `.transform(s => s.toLowerCase())`.
+- [x] [Review][Patch] **POST queryFn swallows non-401** [apps/web/src/features/result/components/ResultPage.tsx:78] — Real failures invisible in telemetry. Selective catch: only swallow 401, log others via `safeCapture('insight_generate_error', ...)`.
+- [x] [Review][Patch] **`generated?.content ?? ...` doesn't fall back on empty string** [apps/web/src/features/result/components/ResultPage.tsx:96] — Empty AI string shown with 'AI-generated' badge. Use `||` instead of `??`.
+- [x] [Review][Patch] **`isGenerateLoading` in `isLoading` blocks skeleton** [apps/web/src/features/result/components/ResultPage.tsx:108] — User waits ~2.5s for AI to time out even when curated insight ready immediately. Exclude generate query from skeleton trigger; AI badge will appear later.
+- [x] [Review][Patch] **`insight_viewed` effect re-runs on source flip** [apps/web/src/features/result/components/ResultPage.tsx:98] — Duplicate analytics. Gate with `hasFired` useRef.
+
+**Patch — LOW (3):**
+- [x] [Review][Patch] **Hardcoded API URL + site URL in Pages middleware** [apps/web/functions/_middleware.ts:5] — Should come from Pages env binding for staging/prod separation.
+- [x] [Review][Patch] **FALLBACK_INSIGHT duplicated** [apps/api/src/lib/ai.ts:7, apps/api/src/routes/insights.ts:18] — Two declarations of the same string. Extract to a single shared module.
+- [x] [Review][Patch] **`console.error` drops stack trace** [apps/api/src/routes/og.ts:65] — `(e as Error)?.message` strips stack. Log full error object.
+
+**Defer (8):**
+- [x] [Review][Defer] iOS Safari memory saver may clip off-screen ShareCard — needs real-device test before changing layout.
+- [x] [Review][Defer] AI long / multi-sentence content overrun — rare; add length cap when tuning prompts.
+- [x] [Review][Defer] `navigator.share` NotAllowedError silent fallthrough — UX edge case; acceptable v1.
+- [x] [Review][Defer] Test `(e) tool_use` brittle order — passes in practice; refactor when tests are touched next.
+- [x] [Review][Defer] Test path inconsistency (`src/tests/lib` vs `tests/routes`) — pre-existing repo pattern.
+- [x] [Review][Defer] Middleware doesn't inject missing meta tags — relies on placeholders existing in index.html.
+- [x] [Review][Defer] Anchor injection into document.body briefly pollutes DOM tree — minor screen-reader noise.
+- [x] [Review][Defer] Cross-test `vi.mock('lib/og')` leakage risk — vitest worker isolation should prevent it; revisit if flakes appear.
+
+**Dismissed:** 14 findings rejected as noise or false positives (e.g., public OG endpoint is intentional, ZodError handled by global `app.onError`, dual-mount of insights router is per-spec, `nodejs_compat` flag justified by Anthropic SDK credential chain, OG dimensions 1200×630 are correct for `summary_large_image`, etc.).
 
 ## References
 

@@ -6,6 +6,13 @@ import { corsMiddleware } from './middleware/cors';
 import ssr from './routes/ssr';
 import sessions from './routes/sessions';
 import tests from './routes/tests';
+import insights from './routes/insights';
+import og from './routes/og';
+import invites from './routes/invites';
+import social from './routes/social';
+import payments from './routes/payments';
+import reports from './routes/reports';
+import content from './routes/content';
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
@@ -17,6 +24,14 @@ app.route('/', ssr);
 // API routes
 app.route('/api/sessions', sessions);
 app.route('/api/tests', tests);
+app.route('/api/results', insights);
+app.route('/api/insights', insights);
+app.route('/api/og', og);
+app.route('/api/invites', invites);
+app.route('/api/social', social);
+app.route('/api/payments', payments);
+app.route('/api/reports', reports);
+app.route('/api/content', content);
 
 app.get('/api/health', (c) => c.json({ data: { status: 'ok' }, error: null }));
 

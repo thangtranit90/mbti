@@ -2,7 +2,6 @@ import { z } from 'zod';
 
 const ANSWER_VALUE_MIN = 1;
 const ANSWER_VALUE_MAX = 5;
-const ANSWERS_MAX = 50;
 
 const PerceptionAnswerSchema = z.object({
   questionId: z.string().min(1),
@@ -17,10 +16,11 @@ export const InviteGenerateSchema = z
 
 export type InviteGenerate = z.infer<typeof InviteGenerateSchema>;
 
+// Story 4.2: exactly 3 perception answers (matches PERCEPTION_QUESTIONS).
 export const PerceptionVoteSchema = z
   .object({
     inviteToken: z.string().uuid(),
-    answers: z.array(PerceptionAnswerSchema).min(1).max(ANSWERS_MAX),
+    answers: z.array(PerceptionAnswerSchema).length(3),
   })
   .strict();
 

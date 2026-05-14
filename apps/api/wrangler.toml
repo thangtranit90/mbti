@@ -1,9 +1,16 @@
 name = "mbti-api"
 main = "src/index.ts"
 compatibility_date = "2026-04-01"
+compatibility_flags = ["nodejs_compat"]
 
 [dev]
 port = 8787
+
+# Bundle .wasm modules (resvg-wasm for OG image generation, Story 3.4)
+[[rules]]
+type = "CompiledWasm"
+globs = ["**/*.wasm"]
+fallthrough = true
 
 [[d1_databases]]
 binding = "DB"

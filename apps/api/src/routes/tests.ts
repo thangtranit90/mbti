@@ -57,7 +57,7 @@ tests.post('/submit', requireSession, async (c) => {
     );
   }
   // ZodError bubbles to global app.onError → 400 VALIDATION_ERROR envelope
-  const { answers, declaredType } = TestSubmitSchema.parse(payload);
+  const { answers, declaredType, inviteSource } = TestSubmitSchema.parse(payload);
 
   const db = withDb(c);
   const userId = c.get('userId');
@@ -73,6 +73,7 @@ tests.post('/submit', requireSession, async (c) => {
     declaredType: declaredType ?? null,
     answers,
     personaName,
+    inviteSourceToken: inviteSource ?? null,
   });
 
   return c.json({ data: { resultId: id, mbtiType }, error: null }, 201);

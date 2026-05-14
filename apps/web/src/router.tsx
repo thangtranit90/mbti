@@ -1,7 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter, Link } from 'react-router';
+import { createBrowserRouter, Link, Outlet } from 'react-router';
 import { RootError } from './pages/RootError';
+import { SocialNotificationToast } from './features/social/components/SocialNotificationToast';
 
 const Landing = lazy(() => import('./pages/Landing').then((m) => ({ default: m.Landing })));
 const TypeSelector = lazy(() =>
@@ -15,6 +16,17 @@ const TestSubmit = lazy(() =>
 );
 const ResultPage = lazy(() =>
   import('./features/result/components/ResultPage').then((m) => ({ default: m.ResultPage })),
+);
+const InviteeLanding = lazy(() =>
+  import('./features/social/components/InviteeLanding').then((m) => ({
+    default: m.InviteeLanding,
+  })),
+);
+const FeedPage = lazy(() =>
+  import('./features/feed/components/FeedPage').then((m) => ({ default: m.FeedPage })),
+);
+const ArticlePage = lazy(() =>
+  import('./features/feed/components/ArticlePage').then((m) => ({ default: m.ArticlePage })),
 );
 
 function PageLoader() {
@@ -57,34 +69,29 @@ function NotFound() {
   );
 }
 
+function RootLayout() {
+  return (
+    <>
+      <Outlet />
+      <SocialNotificationToast />
+    </>
+  );
+}
+
 export const router = createBrowserRouter([
   {
-    path: '/',
-    element: wrap(<Landing />),
+    element: <RootLayout />,
     errorElement: <RootError />,
-  },
-  {
-    path: '/declare',
-    element: wrap(<TypeSelector />),
-    errorElement: <RootError />,
-  },
-  {
-    path: '/test',
-    element: wrap(<TestFlow />),
-    errorElement: <RootError />,
-  },
-  {
-    path: '/test/submit',
-    element: wrap(<TestSubmit />),
-    errorElement: <RootError />,
-  },
-  {
-    path: '/result/:resultId',
-    element: wrap(<ResultPage />),
-    errorElement: <RootError />,
-  },
-  {
-    path: '*',
-    element: <NotFound />,
+    children: [
+      { path: '/', element: wrap(<Landing />) },
+      { path: '/declare', element: wrap(<TypeSelector />) },
+      { path: '/test', element: wrap(<TestFlow />) },
+      { path: '/test/submit', element: wrap(<TestSubmit />) },
+      { path: '/result/:resultId', element: wrap(<ResultPage />) },
+      { path: '/invite/:token', element: wrap(<InviteeLanding />) },
+      { path: '/feed', element: wrap(<FeedPage />) },
+      { path: '/feed/:slug', element: wrap(<ArticlePage />) },
+      { path: '*', element: <NotFound /> },
+    ],
   },
 ]);

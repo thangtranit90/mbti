@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@mbti/shared';
@@ -6,6 +6,7 @@ import { apiCall } from '@/lib/api';
 import { safeCapture } from '@/lib/posthog';
 import type { MBTIType } from '@mbti/shared';
 import { PersonaReveal } from './PersonaReveal';
+import { setLatestResultId } from '@/features/social/hooks/useSocialNotification';
 
 type ResultApiResponse = {
   data: {
@@ -15,6 +16,20 @@ type ResultApiResponse = {
     personaName: string;
     createdAt: string;
   } | null;
+  error: { code: string; message: string } | null;
+};
+
+type ResultInsightApiResponse = {
+  data: {
+    personaName: string;
+    insight: string;
+    villains: Array<{ type: MBTIType; reason: string }>;
+  } | null;
+  error: { code: string; message: string } | null;
+};
+
+type InsightGenerateApiResponse = {
+  data: { content: string; source: 'ai' | 'curated' } | null;
   error: { code: string; message: string } | null;
 };
 
@@ -40,26 +55,89 @@ function ResultSkeleton() {
 export function ResultPage() {
   const { resultId } = useParams<{ resultId: string }>();
 
-  const { data: res, isLoading, isError } = useQuery({
+  const {
+    data: res,
+    isLoading: isResultLoading,
+    isError: isResultError,
+  } = useQuery({
     queryKey: queryKeys.testResult(resultId!),
     queryFn: () => apiCall<ResultApiResponse>(`/api/tests/${resultId}`),
     staleTime: Infinity,
     enabled: !!resultId,
   });
 
+  // Static curated insight (public GET) — provides personaName + villains for both AI and curated paths
+  const {
+    data: insightRes,
+    isLoading: isInsightLoading,
+    isError: isInsightError,
+  } = useQuery({
+    queryKey: queryKeys.resultInsight(resultId!),
+    queryFn: () => apiCall<ResultInsightApiResponse>(`/api/results/${resultId}/insight`),
+    staleTime: Infinity,
+    enabled: !!resultId,
+  });
+
+  // AI-enhanced insight (POST, session-gated) — replaces curated content + source when available.
+  // The query never throws — non-401 errors are reported via telemetry; UI falls back to curated.
+  const { data: generateRes } = useQuery({
+    queryKey: queryKeys.insightGenerate(resultId!),
+    queryFn: async () => {
+      try {
+        return await apiCall<InsightGenerateApiResponse>('/api/insights/generate', {
+          method: 'POST',
+          body: JSON.stringify({ resultId }),
+        });
+      } catch (err) {
+        const status = (err as { status?: number })?.status;
+        if (status !== 401 && status !== 403) {
+          safeCapture('insight_generate_error', {
+            resultId,
+            status: status ?? 'unknown',
+          });
+        }
+        return { data: null, error: null } as InsightGenerateApiResponse;
+      }
+    },
+    staleTime: Infinity,
+    enabled: !!resultId,
+  });
+
   const result = res?.data ?? null;
+  const insightData = insightRes?.data ?? null;
+  const generated = generateRes?.data ?? null;
 
+  // AI content takes precedence; fall back to curated GET endpoint content.
+  // Use `||` (not `??`) so empty-string AI responses also fall back.
+  const finalInsight = (generated?.content || insightData?.insight) ?? '';
+  const finalSource: 'ai' | 'curated' = generated?.source ?? 'curated';
+
+  // Fire analytics exactly once per result load — not on every source flip.
+  const analyticsFired = useRef(false);
   useEffect(() => {
-    if (result) {
+    if (result && insightData && !analyticsFired.current) {
+      analyticsFired.current = true;
+      setLatestResultId(result.id);
       safeCapture('result_viewed', { resultId: result.id, mbtiType: result.mbtiType });
+      safeCapture('insight_viewed', {
+        resultId: result.id,
+        mbtiType: result.mbtiType,
+        source: finalSource,
+      });
     }
-  }, [result]);
+  }, [result, insightData, finalSource]);
 
-  if (isLoading || (!result && !isError)) {
+  // The curated insight (insightData) is sufficient to render the page; do NOT
+  // gate the skeleton on the AI POST query — the user sees the curated insight
+  // immediately and the AI badge appears later if generation succeeds.
+  const isLoading = isResultLoading || isInsightLoading;
+  const isError = isResultError || isInsightError;
+
+  if (isLoading || (!result && !isError) || (!insightData && !isError)) {
     return <ResultSkeleton />;
   }
 
-  if (isError || !result) {
+  if (isError || !result || !insightData) {
     return (
       <main id="main" className="min-h-svh bg-surface-base flex items-center justify-center px-6">
         <div className="text-center max-w-sm">
@@ -81,5 +159,15 @@ export function ResultPage() {
     );
   }
 
-  return <PersonaReveal personaName={result.personaName} mbtiType={result.mbtiType} />;
+  return (
+    <PersonaReveal
+      resultId={result.id}
+      personaName={insightData.personaName}
+      mbtiType={result.mbtiType}
+      declaredType={result.declaredType}
+      insight={finalInsight}
+      source={finalSource}
+      villains={insightData.villains}
+    />
+  );
 }

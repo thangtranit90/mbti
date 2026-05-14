@@ -146,3 +146,14 @@
 - Production deploy queue has no timeout — a hung deploy (`d1 migrations apply` hanging on a large migration) blocks all subsequent deploys indefinitely. Add a `timeout-minutes:` on the deploy job when the migration set grows.
 - Action SHA pinning not applied — floating mutable tags (`@v4`, `@v3`, `@v2`) are used. Pin to full commit SHAs using a tool like `renovate` or `actions/pin-to-sha` when supply-chain hardening is prioritized.
 - `database_id` placeholder regex `/^[0-]+$/` covers spec's dual-pattern (`^0+$` and `^00000000-0000-0000-0000-000000000000$`) by coincidence (both `0` and `-` are in the character class). Replace with explicit alternation regex for clarity in a future script cleanup pass.
+
+## Deferred from: code review of Epic 3 (2026-05-14)
+
+- iOS Safari memory saver may clip off-screen ShareCard at `top: -10000px`. Needs real-device test before changing layout strategy (e.g., to `opacity:0; transform: translate(-200%)`).
+- AI returns long/multi-sentence content overrun — rare; add length cap (e.g., `if (content.split('.').length > 3) throw`) when tuning prompts.
+- `navigator.share` rejects with non-AbortError (NotAllowedError, security) — falls through silently to download. Acceptable UX edge case v1.
+- Test `(e) tool_use` ordering brittle (`block.text.trim()` would throw before type check matters) — passes in practice; refactor when tests are touched next.
+- Test path inconsistency: Story 3.2 unit tests at `apps/api/src/tests/lib/`, route tests at `apps/api/tests/routes/`. Pre-existing repo pattern.
+- Pages middleware HTMLRewriter only rewrites existing meta tags; doesn't inject when missing. Relies on placeholder meta tags being present in `apps/web/index.html`.
+- `share.ts` anchor injection into `document.body` briefly pollutes DOM tree; some screen readers will momentarily announce. Use `URL.createObjectURL` on detached element if it becomes an issue.
+- Cross-test `vi.mock('../../src/lib/og')` in `og.test.ts` — risk of leaking to other test files. Vitest worker isolation should prevent it; revisit if test flakes appear.
