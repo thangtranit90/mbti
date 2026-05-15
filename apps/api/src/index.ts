@@ -13,8 +13,11 @@ import social from './routes/social';
 import payments from './routes/payments';
 import reports from './routes/reports';
 import content from './routes/content';
+import admin from './routes/admin';
+import privacy from './routes/privacy';
+import { purgeInactiveUsers } from './lib/db';
 
-const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
+export const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 app.use('*', corsMiddleware);
 
@@ -32,6 +35,8 @@ app.route('/api/social', social);
 app.route('/api/payments', payments);
 app.route('/api/reports', reports);
 app.route('/api/content', content);
+app.route('/api/admin', admin);
+app.route('/api/privacy', privacy);
 
 app.get('/api/health', (c) => c.json({ data: { status: 'ok' }, error: null }));
 
@@ -66,4 +71,30 @@ app.onError((err, c) => {
   );
 });
 
-export default app;
+/**
+ * Story 7.4 — Cloudflare Cron Trigger entrypoint. Runs the PDPA inactivity
+ * purge (hard-delete of rows soft-deleted > 30 days ago). Schedule is set in
+ * wrangler.toml ([triggers] crons).
+ */
+async function scheduled(
+  _event: ScheduledController,
+  env: Bindings,
+  ctx: ExecutionContext,
+): Promise<void> {
+  ctx.waitUntil(
+    (async () => {
+      if (!env.DB) {
+        console.error('scheduled purge: D1 binding "DB" missing');
+        return;
+      }
+      try {
+        const result = await purgeInactiveUsers(env.DB);
+        console.log('scheduled PDPA purge complete:', JSON.stringify(result));
+      } catch (err) {
+        console.error('scheduled PDPA purge failed:', err);
+      }
+    })(),
+  );
+}
+
+export default { fetch: app.fetch, scheduled };

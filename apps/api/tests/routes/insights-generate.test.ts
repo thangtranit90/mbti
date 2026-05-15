@@ -11,7 +11,7 @@ vi.mock('@anthropic-ai/sdk', () => {
   return { default: MockAnthropic };
 });
 
-import app from '../../src/index';
+import { app } from '../../src/index';
 import * as db from '../../src/lib/db';
 import type { CuratedInsightRow, TestResultRow } from '@mbti/shared';
 
@@ -50,6 +50,8 @@ function makeCuratedInsightRow(
     variant: 'v1',
     content: 'Curated INFP content.',
     is_active: 1,
+    source: 'curated',
+    status: 'approved',
     created_at: '2026-05-05T00:00:00.000Z',
     updated_at: '2026-05-05T00:00:00.000Z',
     ...overrides,

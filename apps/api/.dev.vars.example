@@ -24,11 +24,18 @@ PAYOS_API_KEY=REPLACE_ME_PAYOS_KEY
 STRIPE_SECRET_KEY=REPLACE_ME_STRIPE_SECRET_KEY
 STRIPE_WEBHOOK_SECRET=whsec_REPLACE_ME_STRIPE_WEBHOOK_SECRET
 
-# Admin auth — bcrypt hash of admin password (FR33; architecture.md auth model)
-# Generate without leaking the password to shell history:
-#   read -srp "Admin password: " ADMIN_PW; echo
-#   ADMIN_PW="$ADMIN_PW" node -e 'import("bcryptjs").then(m => m.hash(process.env.ADMIN_PW, 12).then(console.log))'
-#   unset ADMIN_PW
-# The placeholder below is a well-formed `$2b$12$` shape so `bcryptjs.compare`
-# returns `false` deterministically rather than throwing on malformed input.
-ADMIN_PASSWORD_HASH=$2b$12$REPLACE.WITH.REAL.BCRYPT.HASH........................
+# Admin auth — PBKDF2-SHA256 hash of admin password (FR33; Story 7.1).
+# NOT bcrypt: pure-JS bcrypt cost-12 risks the Workers CPU budget
+# (deferred-work.md:130). Uses native Web Crypto PBKDF2. Generate with:
+#   node apps/api/scripts/hash-admin-password.mjs
+# (type the password at the hidden prompt; paste the printed line here)
+# Format: pbkdf2$<iterations>$<saltBase64>$<hashBase64>. Iterations MUST be
+# <= 100000 — Cloudflare Workers crypto.subtle PBKDF2 rejects higher counts
+# (NotSupportedError) and every production login would fail. The placeholder
+# below is well-formed so verifyAdminPassword() returns false deterministically.
+ADMIN_PASSWORD_HASH=pbkdf2$100000$REPLACEWITHSALT$REPLACEWITHHASH
+
+# PostHog server-side analytics (Story 7.4). Optional — leave unset and
+# server-side capture is a silent no-op (deploys never block on this).
+POSTHOG_API_KEY=
+POSTHOG_HOST=https://us.i.posthog.com

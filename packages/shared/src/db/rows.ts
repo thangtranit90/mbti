@@ -56,6 +56,10 @@ export interface CuratedInsightRow {
   variant: string | null;
   content: string;
   is_active: 0 | 1;
+  // Story 7.3 — admin review pipeline (migration 0011). Existing rows backfill
+  // to source='curated', status='approved' so Epic 3 serving is unaffected.
+  source: 'ai' | 'curated';
+  status: 'pending' | 'approved' | 'rejected';
   created_at: string;
   updated_at: string;
 }
@@ -89,7 +93,8 @@ export interface PaymentRow {
   user_id: string;
   result_id: string | null;
   product_type: 'couple_pack' | 'gap_report';
-  gateway: 'payos' | 'stripe';
+  // Story 5.4 — PayOS replaced by SePay (migration 0010 CHECK IN ('sepay','stripe')).
+  gateway: 'sepay' | 'stripe';
   provider_ref: string | null;
   amount: number;
   currency: string;

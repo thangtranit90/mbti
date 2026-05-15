@@ -1,5 +1,5 @@
 # generated: 2026-04-30T07:09:55Z
-# last_updated: 2026-05-15T18:55:00Z
+# last_updated: 2026-05-16T00:00:00Z
 # project: MBTI
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-30T07:09:55Z
-last_updated: 2026-05-15T18:55:00Z
+last_updated: 2026-05-16T00:00:00Z
 project: MBTI
 project_key: NOKEY
 tracking_system: file-system
@@ -93,9 +93,9 @@ development_status:
   epic-6-retrospective: optional
 
   # Epic 7: Admin, Analytics & Compliance
-  epic-7: backlog
-  7-1-admin-authentication-and-dashboard-shell: backlog
-  7-2-content-management-article-crud-and-threshold-alerts: backlog
-  7-3-ai-insight-review-and-approval: backlog
-  7-4-analytics-event-capture-and-pdpa-compliance-pipeline: backlog
+  epic-7: done
+  7-1-admin-authentication-and-dashboard-shell: done
+  7-2-content-management-article-crud-and-threshold-alerts: done
+  7-3-ai-insight-review-and-approval: done
+  7-4-analytics-event-capture-and-pdpa-compliance-pipeline: done
   epic-7-retrospective: optional

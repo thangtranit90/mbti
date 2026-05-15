@@ -35,3 +35,42 @@ export async function setSession(
 export async function deleteSession(kv: KVNamespace, token: string): Promise<void> {
   await kv.delete(sessionKey(token));
 }
+
+// --- Admin sessions (Story 7.1) — fully separate keyspace from user sessions ---
+export type AdminSessionData = {
+  username: string;
+  createdAt: string;
+};
+
+const ADMIN_SESSION_TTL_SECONDS = 60 * 60 * 24; // 24h (Story 7.1 AC)
+const ADMIN_KEY_PREFIX = 'admin:';
+
+const adminKey = (token: string): string => `${ADMIN_KEY_PREFIX}${token}`;
+
+export async function getAdminSession(
+  kv: KVNamespace,
+  token: string,
+): Promise<AdminSessionData | null> {
+  try {
+    return await kv.get<AdminSessionData>(adminKey(token), 'json');
+  } catch {
+    return null;
+  }
+}
+
+export async function setAdminSession(
+  kv: KVNamespace,
+  token: string,
+  data: AdminSessionData,
+): Promise<void> {
+  await kv.put(adminKey(token), JSON.stringify(data), {
+    expirationTtl: ADMIN_SESSION_TTL_SECONDS,
+  });
+}
+
+export async function deleteAdminSession(
+  kv: KVNamespace,
+  token: string,
+): Promise<void> {
+  await kv.delete(adminKey(token));
+}

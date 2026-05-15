@@ -17,6 +17,7 @@ import { Link } from 'react-router';
 import { motion, useReducedMotion } from 'framer-motion';
 import type { MBTIType } from '@mbti/shared';
 import { generateAndShare } from '@/lib/share';
+import { safeCapture } from '@/lib/posthog';
 import { InsightCard } from './InsightCard';
 import { VillainsSection } from './VillainsSection';
 import { ReverseReveal } from './ReverseReveal';
@@ -85,6 +86,17 @@ export function PersonaReveal({
     );
     if (outcome === 'copied' || outcome === 'downloaded') {
       flashCopied();
+    }
+    // Story 7.4 — result_shared analytics. Native share sheet does not expose
+    // the target app, so we record the resolved delivery channel.
+    if (outcome !== 'cancelled' && outcome !== 'error') {
+      const shareChannel =
+        outcome === 'downloaded'
+          ? 'download'
+          : outcome === 'copied'
+            ? 'copy_link'
+            : 'share_sheet';
+      safeCapture('result_shared', { shareChannel, resultId });
     }
   };
 

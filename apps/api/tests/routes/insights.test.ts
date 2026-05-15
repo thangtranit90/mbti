@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import app from '../../src/index';
+import { app } from '../../src/index';
 import * as db from '../../src/lib/db';
 import type { CuratedInsightRow, MBTIType, TestResultRow } from '@mbti/shared';
 
@@ -40,6 +40,8 @@ function makeCuratedInsightRow(
     variant: 'v1',
     content: 'Test curated insight content for INFP.',
     is_active: 1,
+    source: 'curated',
+    status: 'approved',
     created_at: '2026-05-05T00:00:00.000Z',
     updated_at: '2026-05-05T00:00:00.000Z',
     ...overrides,

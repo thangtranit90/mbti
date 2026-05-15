@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import app from '../../src/index';
+import { app } from '../../src/index';
 import * as db from '../../src/lib/db';
 import type { InviteLinkRow, PerceptionVoteRow } from '@mbti/shared';
 

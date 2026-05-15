@@ -6,7 +6,7 @@ vi.mock('../../src/lib/og', () => ({
   generateOGPng: mockGenerate,
 }));
 
-import app from '../../src/index';
+import { app } from '../../src/index';
 import * as db from '../../src/lib/db';
 import type { TestResultRow } from '@mbti/shared';
 

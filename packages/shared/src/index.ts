@@ -7,3 +7,4 @@ export * from './schemas/invite';
 export * from './schemas/insight';
 export * from './schemas/session';
 export * from './schemas/payment';
+export * from './schemas/admin';

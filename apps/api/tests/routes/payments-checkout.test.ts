@@ -14,7 +14,7 @@ vi.mock('../../src/lib/payment', () => ({
   extractProviderRef: mockExtractRef,
 }));
 
-import app from '../../src/index';
+import { app } from '../../src/index';
 import * as db from '../../src/lib/db';
 
 const SESSION_TOKEN = '22222222-3333-4444-8555-666666666666';

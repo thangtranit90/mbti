@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import sessions from '../../src/routes/sessions';
-import app from '../../src/index';
+import { app } from '../../src/index';
 
 type SessionInitBody = {
   data: { sessionToken: string } | null;

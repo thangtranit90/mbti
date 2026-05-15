@@ -3,6 +3,7 @@ import type { Bindings, Variables } from '../types/bindings';
 import { requireSession } from '../middleware/auth';
 import { withDb, getAllActiveQuestions, createTestResult, getTestResult } from '../lib/db';
 import { selectNextQuestion, calculateMBTIType } from '../lib/cat';
+import { captureServer } from '../lib/analytics';
 import { NextQuestionRequestSchema, TestSubmitSchema, PERSONA_NAMES } from '@mbti/shared';
 
 const tests = new Hono<{ Bindings: Bindings; Variables: Variables }>();
@@ -75,6 +76,20 @@ tests.post('/submit', requireSession, async (c) => {
     personaName,
     inviteSourceToken: inviteSource ?? null,
   });
+
+  // Story 7.4 — server-side analytics. Non-blocking; no-op without creds.
+  // `executionCtx` is absent in unit tests (app.request without a Worker ctx);
+  // fall back to fire-and-forget so the request still succeeds.
+  const capture = captureServer(c.env, 'test_completed', userId, {
+    resultType: mbtiType,
+    questionCount: 12,
+    declaredType: declaredType ?? null,
+  });
+  try {
+    c.executionCtx.waitUntil(capture);
+  } catch {
+    void capture;
+  }
 
   return c.json({ data: { resultId: id, mbtiType }, error: null }, 201);
 });

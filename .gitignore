@@ -8,6 +8,9 @@ dist
 .env
 .env.local
 
+# Sensitive — contains the live admin password (Epic 7). Keep local only.
+docs/epic7-admin-credentials-and-secrets.md
+
 # Claude Code / AI agent internals
 .agents/
 .claude/
