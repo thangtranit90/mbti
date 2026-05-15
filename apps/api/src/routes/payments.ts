@@ -6,14 +6,16 @@ import {
   createPayment,
   createReport,
   getPaymentByProviderRef,
+  getPaymentById,
   getTestResult,
   markPaymentCompleted,
 } from '../lib/db';
 import { generateCompatibilityReport } from '../lib/report';
 import {
   createCheckoutSession,
-  verifyPayOSSignature,
   verifyStripeSignature,
+  verifySePayApiKey,
+  extractProviderRef,
 } from '../lib/payment';
 import { CheckoutRequestSchema } from '@mbti/shared';
 
@@ -53,9 +55,9 @@ payments.post('/checkout', requireSession, async (c) => {
     );
   }
 
-  const id = crypto.randomUUID();
+  const paymentId = crypto.randomUUID();
   await createPayment(db, {
-    id,
+    id: paymentId,
     userId,
     resultId,
     productType,
@@ -65,105 +67,163 @@ payments.post('/checkout', requireSession, async (c) => {
     currency: session.currency,
   });
 
-  return c.json({ data: { checkoutUrl: session.checkoutUrl }, error: null }, 201);
-});
-
-// Webhook handler — public (signature validated). Body MUST be read as raw text
-// for HMAC verification; do not parse before validation.
-payments.post('/webhook', async (c) => {
-  const bodyText = await c.req.text();
-  const stripeSig = c.req.header('Stripe-Signature');
-  const payosSig =
-    c.req.header('x-payos-signature') ?? c.req.header('X-Payos-Signature');
-
-  const db = withDb(c);
-
-  if (stripeSig) {
-    const { valid, eventId } = await verifyStripeSignature(
-      c.env.STRIPE_WEBHOOK_SECRET,
-      bodyText,
-      stripeSig,
-    );
-    if (!valid) {
-      return c.json(
-        {
-          data: null,
-          error: {
-            code: 'INVALID_WEBHOOK_SIGNATURE',
-            message: 'Stripe signature verification failed',
-          },
+  if (session.gateway === 'sepay') {
+    return c.json(
+      {
+        data: {
+          gateway: 'sepay',
+          paymentId,
+          qrUrl: session.qrUrl,
+          transferContent: session.transferContent,
+          amount: session.amount,
+          bankAccount: session.bankAccount,
+          bankName: session.bankName,
         },
-        400,
-      );
-    }
-    let parsed: {
-      id?: string;
-      type?: string;
-      data?: { object?: { id?: string; client_reference_id?: string } };
-    };
-    try {
-      parsed = JSON.parse(bodyText);
-    } catch {
-      return c.json(
-        { data: null, error: { code: 'INVALID_JSON', message: 'Invalid webhook body' } },
-        400,
-      );
-    }
-    if (parsed.type === 'checkout.session.completed') {
-      const sessionId = parsed.data?.object?.id;
-      if (sessionId) {
-        const payment = await getPaymentByProviderRef(db, sessionId);
-        await markPaymentCompleted(db, sessionId);
-        if (payment && payment.product_type === 'couple_pack') {
-          c.executionCtx.waitUntil(maybeGenerateCouplePackReport(c, payment));
-        }
-      }
-    }
-    return c.json({ data: { received: true, eventId }, error: null });
-  }
-
-  if (payosSig) {
-    const { valid, payload } = await verifyPayOSSignature(
-      c.env.PAYOS_CHECKSUM_KEY,
-      bodyText,
-      payosSig,
+        error: null,
+      },
+      201,
     );
-    if (!valid) {
-      return c.json(
-        {
-          data: null,
-          error: {
-            code: 'INVALID_WEBHOOK_SIGNATURE',
-            message: 'PayOS signature verification failed',
-          },
-        },
-        400,
-      );
-    }
-    const orderCode = (payload as { data?: { orderCode?: string | number } }).data?.orderCode;
-    if (orderCode != null) {
-      const providerRef = String(orderCode);
-      const existing = await getPaymentByProviderRef(db, providerRef);
-      if (existing && existing.status !== 'completed') {
-        await markPaymentCompleted(db, providerRef);
-        if (existing.product_type === 'couple_pack') {
-          c.executionCtx.waitUntil(maybeGenerateCouplePackReport(c, existing));
-        }
-      }
-    }
-    return c.json({ data: { received: true }, error: null });
   }
 
   return c.json(
     {
-      data: null,
-      error: {
-        code: 'INVALID_WEBHOOK_SIGNATURE',
-        message: 'Missing webhook signature header',
-      },
+      data: { gateway: 'stripe', paymentId, checkoutUrl: session.checkoutUrl },
+      error: null,
     },
-    400,
+    201,
   );
+});
+
+// SePay IPN — public; auth via `Authorization: Apikey <SEPAY_IPN_API_KEY>`.
+// MUST return HTTP 200/201 with body {"success": true} within 30s or SePay
+// retries. This response shape intentionally bypasses the {data,error} envelope.
+payments.post('/sepay-ipn', async (c) => {
+  const auth = c.req.header('Authorization') ?? c.req.header('authorization');
+  if (!verifySePayApiKey(c.env, auth)) {
+    return c.json({ success: false, message: 'Unauthorized' }, 401);
+  }
+
+  let body: {
+    id?: string | number;
+    transferType?: string;
+    transferAmount?: number;
+    code?: string | null;
+    content?: string | null;
+    description?: string | null;
+  };
+  try {
+    body = await c.req.json();
+  } catch {
+    // Malformed body but authenticated — ack so SePay stops retrying a payload
+    // we can never process.
+    return c.json({ success: true }, 200);
+  }
+
+  // Only incoming transfers are payments. Ack-and-ignore outgoing.
+  if (body.transferType !== 'in') {
+    return c.json({ success: true }, 200);
+  }
+
+  const db = withDb(c);
+  // Resolve our transfer content (provider_ref): prefer SePay's auto-extracted
+  // `code`, else scan content/description for the QM-prefixed token we embed.
+  const providerRef = extractProviderRef(body);
+  if (!providerRef) {
+    // Authenticated but unmatched (e.g. unrelated transfer) — ack so SePay
+    // doesn't retry forever; nothing to do.
+    return c.json({ success: true }, 200);
+  }
+
+  const existing = await getPaymentByProviderRef(db, providerRef);
+  if (existing && existing.status !== 'completed') {
+    await markPaymentCompleted(db, providerRef);
+    if (existing.product_type === 'couple_pack') {
+      c.executionCtx.waitUntil(maybeGenerateCouplePackReport(c, existing));
+    }
+  }
+  return c.json({ success: true }, 200);
+});
+
+// Stripe webhook — HMAC-signed.
+payments.post('/webhook', async (c) => {
+  const bodyText = await c.req.text();
+  const stripeSig = c.req.header('Stripe-Signature');
+
+  if (!stripeSig) {
+    return c.json(
+      {
+        data: null,
+        error: {
+          code: 'INVALID_WEBHOOK_SIGNATURE',
+          message: 'Missing webhook signature header',
+        },
+      },
+      400,
+    );
+  }
+
+  const db = withDb(c);
+  const { valid, eventId } = await verifyStripeSignature(
+    c.env.STRIPE_WEBHOOK_SECRET,
+    bodyText,
+    stripeSig,
+  );
+  if (!valid) {
+    return c.json(
+      {
+        data: null,
+        error: {
+          code: 'INVALID_WEBHOOK_SIGNATURE',
+          message: 'Stripe signature verification failed',
+        },
+      },
+      400,
+    );
+  }
+  let parsed: {
+    id?: string;
+    type?: string;
+    data?: { object?: { id?: string; client_reference_id?: string } };
+  };
+  try {
+    parsed = JSON.parse(bodyText);
+  } catch {
+    return c.json(
+      { data: null, error: { code: 'INVALID_JSON', message: 'Invalid webhook body' } },
+      400,
+    );
+  }
+  if (parsed.type === 'checkout.session.completed') {
+    const sessionId = parsed.data?.object?.id;
+    if (sessionId) {
+      const payment = await getPaymentByProviderRef(db, sessionId);
+      await markPaymentCompleted(db, sessionId);
+      if (payment && payment.product_type === 'couple_pack') {
+        c.executionCtx.waitUntil(maybeGenerateCouplePackReport(c, payment));
+      }
+    }
+  }
+  return c.json({ data: { received: true, eventId }, error: null });
+});
+
+// Polled by the SePay QR screen until the transfer is reconciled.
+payments.get('/:paymentId/status', requireSession, async (c) => {
+  const userId = c.get('userId');
+  const db = withDb(c);
+  const row = await getPaymentById(db, c.req.param('paymentId'));
+  if (!row) {
+    return c.json(
+      { data: null, error: { code: 'NOT_FOUND', message: 'Payment not found' } },
+      404,
+    );
+  }
+  if (row.user_id !== userId.toLowerCase()) {
+    return c.json(
+      { data: null, error: { code: 'FORBIDDEN', message: 'Not your payment' } },
+      403,
+    );
+  }
+  return c.json({ data: { status: row.status }, error: null });
 });
 
 // Async: generate compatibility report once Couple Pack payment is confirmed.
@@ -175,8 +235,6 @@ async function maybeGenerateCouplePackReport(
   try {
     const db = c.env.DB;
     if (!payment.result_id) return;
-    // The inviter's result_id is the user's own result. Find an invite link
-    // for it and a corresponding invitee test_result linked via invite_source_token.
     const invitee = await db
       .prepare(
         `SELECT tr.id as id, tr.user_id as user_id, tr.calculated_type as calculated_type, tr.persona_name as persona_name

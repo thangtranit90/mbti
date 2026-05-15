@@ -1,5 +1,5 @@
 # generated: 2026-04-30T07:09:55Z
-# last_updated: 2026-05-15T12:00:00Z
+# last_updated: 2026-05-15T18:55:00Z
 # project: MBTI
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-30T07:09:55Z
-last_updated: 2026-05-15T12:00:00Z
+last_updated: 2026-05-15T18:55:00Z
 project: MBTI
 project_key: NOKEY
 tracking_system: file-system
@@ -83,6 +83,7 @@ development_status:
   5-1-payment-gateway-integration-payos-and-stripe: done
   5-2-couple-friend-pack-purchase-and-compatibility-report: done
   5-3-gap-report-paywall-and-unlock: done
+  5-4-sepay-gateway-adapter-replace-payos: done
   epic-5-retrospective: optional
 
   # Epic 6: Content Feed

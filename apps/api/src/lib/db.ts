@@ -321,7 +321,7 @@ export async function createPayment(
     userId: string;
     resultId: string | null;
     productType: 'couple_pack' | 'gap_report';
-    gateway: 'payos' | 'stripe';
+    gateway: 'sepay' | 'stripe';
     providerRef: string;
     amount: number;
     currency: string;
@@ -429,6 +429,23 @@ export async function getReportRow(
     .all<ReportRow>();
   if (!result.success) {
     throw new Error(`getReportRow: D1 query failed: ${result.error ?? 'unknown error'}`);
+  }
+  return result.results[0] ?? null;
+}
+
+export async function getPaymentById(
+  db: D1Database,
+  paymentId: string,
+): Promise<PaymentRow | null> {
+  const result = await db
+    .prepare(
+      `SELECT id, user_id, result_id, product_type, gateway, provider_ref, amount, currency, status, created_at, updated_at, completed_at, deleted_at
+       FROM payments WHERE id = ? AND deleted_at IS NULL LIMIT 1`,
+    )
+    .bind(paymentId.toLowerCase())
+    .all<PaymentRow>();
+  if (!result.success) {
+    throw new Error(`getPaymentById: D1 query failed: ${result.error ?? 'unknown error'}`);
   }
   return result.results[0] ?? null;
 }

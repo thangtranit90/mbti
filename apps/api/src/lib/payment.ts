@@ -1,14 +1,16 @@
-// Story 5.1 — Payment gateway abstraction. Two adapters: PayOS (primary for VN)
-// and Stripe (international). All gateway calls go through this module so the
-// route handler is gateway-agnostic.
+// Story 5.1 + 5.4 — Payment gateway abstraction. Two adapters:
+//   - SePay (primary VN): VietQR bank-transfer reconciliation. We build a
+//     VietQR image URL; the user transfers via their bank app; SePay sends an
+//     IPN authenticated by `Authorization: Apikey` when the money lands.
+//   - Stripe (international cards): hosted checkout + HMAC-signed webhook.
 //
-// PCI: the Worker NEVER touches card data. Both gateways host their own
-// checkout pages and return a redirect URL.
+// PCI: the Worker NEVER touches card/bank credentials. SePay's QR encodes the
+// merchant bank account; Stripe hosts its own card form.
 
 import type { Bindings } from '../types/bindings';
 import { PRODUCT_CATALOG, type ProductType } from '@mbti/shared';
 
-export type Gateway = 'payos' | 'stripe';
+export type Gateway = 'sepay' | 'stripe';
 
 export type CheckoutParams = {
   productType: ProductType;
@@ -17,18 +19,31 @@ export type CheckoutParams = {
   gateway?: Gateway;
 };
 
-export type CheckoutSession = {
-  gateway: Gateway;
+export type StripeCheckoutSession = {
+  gateway: 'stripe';
   checkoutUrl: string;
   providerRef: string;
   amount: number;
   currency: string;
 };
 
+export type SePayCheckoutSession = {
+  gateway: 'sepay';
+  qrUrl: string;
+  transferContent: string;
+  providerRef: string;
+  amount: number;
+  currency: string;
+  bankAccount: string;
+  bankName: string;
+};
+
+export type CheckoutSession = StripeCheckoutSession | SePayCheckoutSession;
+
 function pickGateway(env: Bindings, requested?: Gateway): Gateway {
   if (requested) return requested;
-  if (env.PAYOS_API_KEY && env.PAYOS_CLIENT_ID && env.PAYOS_CHECKSUM_KEY) {
-    return 'payos';
+  if (env.SEPAY_BANK_ACCOUNT && env.SEPAY_BANK_CODE && env.SEPAY_IPN_API_KEY) {
+    return 'sepay';
   }
   return 'stripe';
 }
@@ -52,98 +67,77 @@ async function hmacSha256Hex(key: string, data: string): Promise<string> {
     .join('');
 }
 
-// ---------------------- PayOS ----------------------
-// Minimal PayOS Create-Payment integration. Real PayOS API:
-//   POST https://api-merchant.payos.vn/v2/payment-requests
-//   Headers: x-client-id, x-api-key
-//   Body: { orderCode, amount, description, returnUrl, cancelUrl, signature }
+// ---------------------- SePay ----------------------
+// No outbound API call needed: we construct a VietQR image URL. SePay matches
+// the incoming bank transfer by the `des` (transfer content) we embed here.
 
-async function createPayOSSession(
+function generateTransferContent(): string {
+  // QM + 8 base36 chars, uppercase, alphanumeric only — bank transfer content
+  // fields reject most punctuation, so keep it tight (≤ ~20 chars).
+  const rand = crypto.randomUUID().replace(/-/g, '').slice(0, 10);
+  return `QM${rand.toUpperCase()}`;
+}
+
+export function createSePayCheckout(
   env: Bindings,
   params: CheckoutParams,
-): Promise<CheckoutSession> {
+): SePayCheckoutSession {
   const product = PRODUCT_CATALOG[params.productType];
-  // orderCode must be a positive integer that fits in 53-bit JS number; derive
-  // from current time + small random suffix to avoid collisions inside a sec.
-  const orderCode = Number(`${Date.now()}${Math.floor(Math.random() * 100)}`);
-  const description = product.label;
-  const returnUrl = `${originForReturn(env)}/payment/success`;
-  const cancelUrl = `${originForReturn(env)}/payment/cancel`;
-
-  // Signature is HMAC-SHA256 over key=value pairs in alphabetical order,
-  // joined by '&'. Spec: `amount=...&cancelUrl=...&description=...&orderCode=...&returnUrl=...`.
-  const signaturePayload = [
-    `amount=${product.amount}`,
-    `cancelUrl=${cancelUrl}`,
-    `description=${description}`,
-    `orderCode=${orderCode}`,
-    `returnUrl=${returnUrl}`,
-  ].join('&');
-  const signature = await hmacSha256Hex(env.PAYOS_CHECKSUM_KEY, signaturePayload);
-
-  const res = await fetch('https://api-merchant.payos.vn/v2/payment-requests', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-client-id': env.PAYOS_CLIENT_ID,
-      'x-api-key': env.PAYOS_API_KEY,
-    },
-    body: JSON.stringify({
-      orderCode,
-      amount: product.amount,
-      description,
-      returnUrl,
-      cancelUrl,
-      signature,
-    }),
-  });
-
-  if (!res.ok) {
-    throw new Error(`PayOS create payment failed: ${res.status}`);
-  }
-  const body = (await res.json()) as {
-    code?: string;
-    data?: { checkoutUrl?: string; paymentLinkId?: string };
-  };
-  if (!body.data?.checkoutUrl) {
-    throw new Error(`PayOS missing checkoutUrl (code=${body.code ?? 'unknown'})`);
-  }
+  const transferContent = generateTransferContent();
+  const qr = new URL('https://qr.sepay.vn/img');
+  qr.searchParams.set('acc', env.SEPAY_BANK_ACCOUNT);
+  qr.searchParams.set('bank', env.SEPAY_BANK_CODE);
+  qr.searchParams.set('amount', String(product.amount));
+  qr.searchParams.set('des', transferContent);
 
   return {
-    gateway: 'payos',
-    checkoutUrl: body.data.checkoutUrl,
-    providerRef: String(orderCode),
+    gateway: 'sepay',
+    qrUrl: qr.toString(),
+    transferContent,
+    providerRef: transferContent,
     amount: product.amount,
     currency: product.currency,
+    bankAccount: env.SEPAY_BANK_ACCOUNT,
+    bankName: env.SEPAY_BANK_NAME,
   };
 }
 
-export async function verifyPayOSSignature(
-  checksumKey: string,
-  bodyText: string,
-  receivedSignature: string,
-): Promise<{ valid: boolean; payload: unknown }> {
-  // PayOS webhook signs the `data` object's flattened key=value pairs.
-  let parsed: { data?: Record<string, unknown> } = {};
-  try {
-    parsed = JSON.parse(bodyText) as { data?: Record<string, unknown> };
-  } catch {
-    return { valid: false, payload: null };
+// SePay IPN auth: header `Authorization: Apikey <SEPAY_IPN_API_KEY>`.
+export function verifySePayApiKey(
+  env: Bindings,
+  authHeader: string | undefined,
+): boolean {
+  if (!authHeader) return false;
+  const expected = `Apikey ${env.SEPAY_IPN_API_KEY}`;
+  // Constant-time-ish: lengths differ → fail fast; otherwise compare.
+  if (authHeader.length !== expected.length) return false;
+  let diff = 0;
+  for (let i = 0; i < expected.length; i += 1) {
+    diff |= authHeader.charCodeAt(i) ^ expected.charCodeAt(i);
   }
-  if (!parsed.data) return { valid: false, payload: null };
-  const sortedKeys = Object.keys(parsed.data).sort();
-  const signaturePayload = sortedKeys
-    .map((k) => `${k}=${String((parsed.data as Record<string, unknown>)[k] ?? '')}`)
-    .join('&');
-  const expected = await hmacSha256Hex(checksumKey, signaturePayload);
-  return { valid: expected === receivedSignature, payload: parsed };
+  return diff === 0;
+}
+
+// Extract our provider_ref (a `QM`-prefixed token) from a SePay IPN payload.
+// SePay auto-extracts a `code` when the transfer content matches a known
+// pattern; otherwise the raw content is in `content`/`description`.
+const PROVIDER_REF_RE = /QM[A-Z0-9]{6,}/;
+
+export function extractProviderRef(payload: {
+  code?: string | null;
+  content?: string | null;
+  description?: string | null;
+}): string | null {
+  const hay = `${payload.code ?? ''} ${payload.content ?? ''} ${payload.description ?? ''}`;
+  const m = hay.toUpperCase().match(PROVIDER_REF_RE);
+  return m ? m[0] : null;
 }
 
 // ---------------------- Stripe ----------------------
 async function createStripeSession(
   env: Bindings,
   params: CheckoutParams,
-): Promise<CheckoutSession> {
+): Promise<StripeCheckoutSession> {
   const product = PRODUCT_CATALOG[params.productType];
   const successUrl = `${originForReturn(env)}/payment/success`;
   const cancelUrl = `${originForReturn(env)}/payment/cancel`;
@@ -208,8 +202,8 @@ export async function createCheckoutSession(
   params: CheckoutParams,
 ): Promise<CheckoutSession> {
   const gateway = pickGateway(env, params.gateway);
-  if (gateway === 'payos') {
-    return createPayOSSession(env, params);
+  if (gateway === 'sepay') {
+    return createSePayCheckout(env, params);
   }
   return createStripeSession(env, params);
 }

@@ -1,14 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-const { mockCreateCheckout, mockVerifyStripe, mockVerifyPayOS } = vi.hoisted(() => ({
-  mockCreateCheckout: vi.fn(),
-  mockVerifyStripe: vi.fn(),
-  mockVerifyPayOS: vi.fn(),
-}));
+const { mockCreateCheckout, mockVerifyStripe, mockVerifySePay, mockExtractRef } =
+  vi.hoisted(() => ({
+    mockCreateCheckout: vi.fn(),
+    mockVerifyStripe: vi.fn(),
+    mockVerifySePay: vi.fn(),
+    mockExtractRef: vi.fn(),
+  }));
 vi.mock('../../src/lib/payment', () => ({
   createCheckoutSession: mockCreateCheckout,
   verifyStripeSignature: mockVerifyStripe,
-  verifyPayOSSignature: mockVerifyPayOS,
+  verifySePayApiKey: mockVerifySePay,
+  extractProviderRef: mockExtractRef,
 }));
 
 import app from '../../src/index';
@@ -42,14 +45,15 @@ const baseEnv = (kv: ReturnType<typeof makeKv>, dbMock: ReturnType<typeof makeDb
   ({
     KV: kv,
     DB: dbMock,
-    PAYOS_API_KEY: 'pk',
-    PAYOS_CLIENT_ID: 'cid',
-    PAYOS_CHECKSUM_KEY: 'ck',
+    SEPAY_IPN_API_KEY: 'ipnkey',
+    SEPAY_BANK_ACCOUNT: '0123456789',
+    SEPAY_BANK_CODE: '970436',
+    SEPAY_BANK_NAME: 'Vietcombank',
     STRIPE_SECRET_KEY: 'sk',
     STRIPE_WEBHOOK_SECRET: 'wh',
   }) as any;
 
-describe('POST /api/payments/checkout', () => {
+describe('POST /api/payments/checkout (SePay)', () => {
   let kv: ReturnType<typeof makeKv>;
   let dbMock: ReturnType<typeof makeDb>;
 
@@ -57,18 +61,19 @@ describe('POST /api/payments/checkout', () => {
     kv = makeKv({ userId: USER_ID, createdAt: '2026-05-05T00:00:00.000Z' });
     dbMock = makeDb();
     mockCreateCheckout.mockReset();
-    mockVerifyStripe.mockReset();
-    mockVerifyPayOS.mockReset();
   });
   afterEach(() => vi.restoreAllMocks());
 
-  it('(a) happy path → returns checkoutUrl and inserts a pending payment row', async () => {
+  it('(a) sepay → returns QR data + inserts pending payment', async () => {
     mockCreateCheckout.mockResolvedValue({
-      gateway: 'payos',
-      checkoutUrl: 'https://payos/c/abc',
-      providerRef: '123',
+      gateway: 'sepay',
+      qrUrl: 'https://qr.sepay.vn/img?acc=0123456789&bank=970436&amount=49000&des=QMABC123',
+      transferContent: 'QMABC123',
+      providerRef: 'QMABC123',
       amount: 49000,
       currency: 'VND',
+      bankAccount: '0123456789',
+      bankName: 'Vietcombank',
     });
     const createSpy = vi.spyOn(db, 'createPayment').mockResolvedValue();
 
@@ -81,14 +86,46 @@ describe('POST /api/payments/checkout', () => {
       },
       baseEnv(kv, dbMock),
     );
-    const body = (await res.json()) as { data: { checkoutUrl: string } | null };
+    const body = (await res.json()) as {
+      data: { gateway: string; paymentId: string; qrUrl: string; transferContent: string } | null;
+    };
     expect(res.status).toBe(201);
-    expect(body.data?.checkoutUrl).toBe('https://payos/c/abc');
+    expect(body.data?.gateway).toBe('sepay');
+    expect(body.data?.transferContent).toBe('QMABC123');
+    expect(body.data?.qrUrl).toContain('qr.sepay.vn');
     expect(createSpy).toHaveBeenCalledOnce();
+    expect(createSpy.mock.calls[0]?.[1].gateway).toBe('sepay');
   });
 
-  it('(b) gateway failure → 502 GATEWAY_ERROR', async () => {
-    mockCreateCheckout.mockRejectedValue(new Error('gateway down'));
+  it('(b) stripe → returns checkoutUrl', async () => {
+    mockCreateCheckout.mockResolvedValue({
+      gateway: 'stripe',
+      checkoutUrl: 'https://checkout.stripe.com/c/xyz',
+      providerRef: 'cs_test_1',
+      amount: 49000,
+      currency: 'VND',
+    });
+    vi.spyOn(db, 'createPayment').mockResolvedValue();
+
+    const res = await app.request(
+      '/api/payments/checkout',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Session-Token': SESSION_TOKEN },
+        body: JSON.stringify({ productType: 'gap_report', resultId: RESULT_ID, gateway: 'stripe' }),
+      },
+      baseEnv(kv, dbMock),
+    );
+    const body = (await res.json()) as {
+      data: { gateway: string; checkoutUrl: string } | null;
+    };
+    expect(res.status).toBe(201);
+    expect(body.data?.gateway).toBe('stripe');
+    expect(body.data?.checkoutUrl).toContain('checkout.stripe.com');
+  });
+
+  it('(c) gateway failure → 502 GATEWAY_ERROR', async () => {
+    mockCreateCheckout.mockRejectedValue(new Error('down'));
     const res = await app.request(
       '/api/payments/checkout',
       {
@@ -103,7 +140,7 @@ describe('POST /api/payments/checkout', () => {
     expect(body.error.code).toBe('GATEWAY_ERROR');
   });
 
-  it('(c) missing session → 401', async () => {
+  it('(d) missing session → 401', async () => {
     const res = await app.request(
       '/api/payments/checkout',
       {
@@ -116,13 +153,13 @@ describe('POST /api/payments/checkout', () => {
     expect(res.status).toBe(401);
   });
 
-  it('(d) invalid productType → 400 VALIDATION_ERROR', async () => {
+  it('(e) invalid productType → 400 VALIDATION_ERROR', async () => {
     const res = await app.request(
       '/api/payments/checkout',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Session-Token': SESSION_TOKEN },
-        body: JSON.stringify({ productType: 'subscription', resultId: RESULT_ID }),
+        body: JSON.stringify({ productType: 'sub', resultId: RESULT_ID }),
       },
       baseEnv(kv, dbMock),
     );
@@ -132,107 +169,64 @@ describe('POST /api/payments/checkout', () => {
   });
 });
 
-describe('POST /api/payments/webhook', () => {
+describe('GET /api/payments/:paymentId/status', () => {
   let kv: ReturnType<typeof makeKv>;
   let dbMock: ReturnType<typeof makeDb>;
-
   beforeEach(() => {
-    kv = makeKv();
+    kv = makeKv({ userId: USER_ID, createdAt: '2026-05-05T00:00:00.000Z' });
     dbMock = makeDb();
-    mockVerifyStripe.mockReset();
-    mockVerifyPayOS.mockReset();
   });
   afterEach(() => vi.restoreAllMocks());
 
-  it('(e) Stripe valid signature + checkout.session.completed → marks completed', async () => {
-    mockVerifyStripe.mockResolvedValue({
-      valid: true,
-      eventId: 'evt_1',
-      payload: { type: 'checkout.session.completed' },
-    });
-    const markSpy = vi.spyOn(db, 'markPaymentCompleted').mockResolvedValue();
+  const PID = '33333333-4444-4555-8666-777777777777';
+  const makePayment = (over: Record<string, unknown> = {}) => ({
+    id: PID,
+    user_id: USER_ID,
+    result_id: RESULT_ID,
+    product_type: 'gap_report' as const,
+    gateway: 'sepay' as const,
+    provider_ref: 'QMABC123',
+    amount: 49000,
+    currency: 'VND',
+    status: 'pending' as const,
+    created_at: '2026-05-05T00:00:00.000Z',
+    updated_at: '2026-05-05T00:00:00.000Z',
+    completed_at: null,
+    deleted_at: null,
+    ...over,
+  });
 
-    const body = JSON.stringify({
-      type: 'checkout.session.completed',
-      data: { object: { id: 'cs_test_123' } },
-    });
+  it('(f) owner → returns status', async () => {
+    vi.spyOn(db, 'getPaymentById').mockResolvedValue(makePayment({ status: 'completed' }));
     const res = await app.request(
-      '/api/payments/webhook',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Stripe-Signature': 't=1,v1=x' },
-        body,
-      },
+      `/api/payments/${PID}/status`,
+      { method: 'GET', headers: { 'X-Session-Token': SESSION_TOKEN } },
       baseEnv(kv, dbMock),
     );
+    const body = (await res.json()) as { data: { status: string } | null };
     expect(res.status).toBe(200);
-    expect(markSpy).toHaveBeenCalledWith(expect.anything(), 'cs_test_123');
+    expect(body.data?.status).toBe('completed');
   });
 
-  it('(f) Stripe invalid signature → 400 INVALID_WEBHOOK_SIGNATURE, no DB write', async () => {
-    mockVerifyStripe.mockResolvedValue({ valid: false, eventId: null, payload: null });
-    const markSpy = vi.spyOn(db, 'markPaymentCompleted').mockResolvedValue();
-
+  it('(g) other user → 403', async () => {
+    vi.spyOn(db, 'getPaymentById').mockResolvedValue(
+      makePayment({ user_id: 'someone-else' }),
+    );
     const res = await app.request(
-      '/api/payments/webhook',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Stripe-Signature': 't=1,v1=x' },
-        body: '{}',
-      },
+      `/api/payments/${PID}/status`,
+      { method: 'GET', headers: { 'X-Session-Token': SESSION_TOKEN } },
       baseEnv(kv, dbMock),
     );
-    const json = (await res.json()) as { error: { code: string } };
-    expect(res.status).toBe(400);
-    expect(json.error.code).toBe('INVALID_WEBHOOK_SIGNATURE');
-    expect(markSpy).not.toHaveBeenCalled();
+    expect(res.status).toBe(403);
   });
 
-  it('(g) no signature header → 400 INVALID_WEBHOOK_SIGNATURE', async () => {
+  it('(h) unknown → 404', async () => {
+    vi.spyOn(db, 'getPaymentById').mockResolvedValue(null);
     const res = await app.request(
-      '/api/payments/webhook',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: '{}',
-      },
+      `/api/payments/${PID}/status`,
+      { method: 'GET', headers: { 'X-Session-Token': SESSION_TOKEN } },
       baseEnv(kv, dbMock),
     );
-    expect(res.status).toBe(400);
-  });
-
-  it('(h) PayOS valid signature → marks completed by orderCode', async () => {
-    mockVerifyPayOS.mockResolvedValue({
-      valid: true,
-      payload: { data: { orderCode: 555 } },
-    });
-    vi.spyOn(db, 'getPaymentByProviderRef').mockResolvedValue({
-      id: 'p',
-      user_id: 'u',
-      result_id: null,
-      product_type: 'gap_report',
-      gateway: 'payos',
-      provider_ref: '555',
-      amount: 49000,
-      currency: 'VND',
-      status: 'pending',
-      created_at: '2026-05-05T00:00:00.000Z',
-      updated_at: '2026-05-05T00:00:00.000Z',
-      completed_at: null,
-      deleted_at: null,
-    });
-    const markSpy = vi.spyOn(db, 'markPaymentCompleted').mockResolvedValue();
-
-    const res = await app.request(
-      '/api/payments/webhook',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-payos-signature': 'sig' },
-        body: JSON.stringify({ data: { orderCode: 555 } }),
-      },
-      baseEnv(kv, dbMock),
-    );
-    expect(res.status).toBe(200);
-    expect(markSpy).toHaveBeenCalledWith(expect.anything(), '555');
+    expect(res.status).toBe(404);
   });
 });

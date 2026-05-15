@@ -3,11 +3,29 @@ import { apiCall } from '@/lib/api';
 import { safeCapture } from '@/lib/posthog';
 import type { ProductType } from '@mbti/shared';
 
+export type SePayCheckoutData = {
+  gateway: 'sepay';
+  paymentId: string;
+  qrUrl: string;
+  transferContent: string;
+  amount: number;
+  bankAccount: string;
+  bankName: string;
+};
+
+export type StripeCheckoutData = {
+  gateway: 'stripe';
+  paymentId: string;
+  checkoutUrl: string;
+};
+
 type CheckoutResponse = {
-  data: { checkoutUrl: string } | null;
+  data: SePayCheckoutData | StripeCheckoutData | null;
   error: { code: string; message: string } | null;
 };
 
+// Returns checkout data. Stripe is redirected immediately; SePay data is
+// returned so the caller can render the VietQR screen.
 export function useCheckout() {
   return useMutation({
     mutationFn: async (vars: { productType: ProductType; resultId: string }) => {
@@ -15,17 +33,20 @@ export function useCheckout() {
         method: 'POST',
         body: JSON.stringify({ productType: vars.productType, resultId: vars.resultId }),
       });
-      if (!res.data?.checkoutUrl) {
+      if (!res.data) {
         throw new Error(res.error?.message ?? 'Checkout failed');
       }
-      return res.data.checkoutUrl;
+      return res.data;
     },
-    onSuccess: (checkoutUrl, vars) => {
+    onSuccess: (data, vars) => {
       safeCapture('payment_initiated_client', {
         productType: vars.productType,
         resultId: vars.resultId,
+        gateway: data.gateway,
       });
-      window.location.assign(checkoutUrl);
+      if (data.gateway === 'stripe') {
+        window.location.assign(data.checkoutUrl);
+      }
     },
   });
 }

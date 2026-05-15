@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { PRODUCT_CATALOG, type MBTIType } from '@mbti/shared';
 import { useCheckout } from '../hooks/useCheckout';
+import { PaymentQR } from './PaymentQR';
 
 type Props = {
   resultId: string;
@@ -17,6 +18,9 @@ export function CouplePack({ resultId, mbtiType }: Props) {
   const rm = useReducedMotion() ?? false;
   const [open, setOpen] = useState(false);
   const checkout = useCheckout();
+
+  const sepay =
+    checkout.data?.gateway === 'sepay' ? checkout.data : null;
 
   const handlePay = () => {
     checkout.mutate({ productType: 'couple_pack', resultId });
@@ -92,6 +96,20 @@ export function CouplePack({ resultId, mbtiType }: Props) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {sepay && (
+        <PaymentQR
+          checkout={sepay}
+          open={open}
+          onClose={() => {
+            setOpen(false);
+            checkout.reset();
+          }}
+          onCompleted={() => {
+            setOpen(false);
+          }}
+        />
+      )}
     </>
   );
 }

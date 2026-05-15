@@ -27,6 +27,7 @@ import { LoopStatus } from '@/features/social/components/LoopStatus';
 import { useSocialStatus } from '@/features/social/hooks/useSocialStatus';
 import { CouplePack } from '@/features/payment/components/CouplePack';
 import { useCheckout } from '@/features/payment/hooks/useCheckout';
+import { PaymentQR } from '@/features/payment/components/PaymentQR';
 
 type Props = {
   resultId: string;
@@ -55,6 +56,7 @@ export function PersonaReveal({
   const status = socialStatus?.data ?? null;
   const voterCount = status?.voterCount ?? 0;
   const checkout = useCheckout();
+  const gapSepay = checkout.data?.gateway === 'sepay' ? checkout.data : null;
   const unlockGapReport = () =>
     checkout.mutate({ productType: 'gap_report', resultId });
 
@@ -240,6 +242,15 @@ export function PersonaReveal({
           </>
         )}
       </div>
+
+      {gapSepay && (
+        <PaymentQR
+          checkout={gapSepay}
+          open
+          onClose={() => checkout.reset()}
+          onCompleted={() => checkout.reset()}
+        />
+      )}
     </main>
   );
 }
