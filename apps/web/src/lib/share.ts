@@ -2,6 +2,23 @@ import { toPng } from 'html-to-image';
 
 export type ShareResult = 'shared' | 'downloaded' | 'copied' | 'cancelled' | 'error';
 
+// Opens the Facebook share dialog for a URL. Facebook scrapes OG tags from the
+// target page server-side, so only the URL is passed (FB ignores prefilled
+// text by policy).
+export function shareToFacebook(url: string): void {
+  const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+  window.open(fb, '_blank', 'noopener,noreferrer,width=600,height=620');
+}
+
+export async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
   const res = await fetch(dataUrl);
   const blob = await res.blob();

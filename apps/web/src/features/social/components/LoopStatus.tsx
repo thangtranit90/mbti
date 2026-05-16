@@ -1,4 +1,4 @@
-import type { MBTIType } from '@mbti/shared';
+import { FREE_UNLOCK_VOTER_THRESHOLD, type MBTIType } from '@mbti/shared';
 
 type Props = {
   voterCount: number;
@@ -7,7 +7,8 @@ type Props = {
   onUnlock: () => void;
 };
 
-const TARGET = 3;
+// Hitting this many friend votes unlocks the Gap Report for free.
+const TARGET = FREE_UNLOCK_VOTER_THRESHOLD;
 
 export function LoopStatus({ voterCount, mbtiType, onInviteMore, onUnlock }: Props) {
   const displayCount = Math.min(voterCount, TARGET);
@@ -30,7 +31,8 @@ export function LoopStatus({ voterCount, mbtiType, onInviteMore, onUnlock }: Pro
         className="text-[14px] text-slate-300 mb-2"
       >
         <span className={`font-semibold text-type-${mbtiType}`}>{displayCount}/{TARGET}</span>{' '}
-        người đã vote
+        bạn đã làm — đủ {TARGET} là mở khoá báo cáo{' '}
+        <span className="text-white font-medium">miễn phí</span>
       </div>
 
       <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden mb-4">
@@ -48,7 +50,7 @@ export function LoopStatus({ voterCount, mbtiType, onInviteMore, onUnlock }: Pro
           className="flex-1 h-[44px] rounded-xl border border-white/15 text-slate-200 hover:text-white hover:bg-white/5 cursor-pointer text-[14px] font-medium"
           data-testid="invite-more-btn"
         >
-          Mời thêm người
+          Mời thêm bạn (miễn phí)
         </button>
         <button
           type="button"
@@ -56,7 +58,7 @@ export function LoopStatus({ voterCount, mbtiType, onInviteMore, onUnlock }: Pro
           className={`flex-1 h-[44px] rounded-xl bg-type-${mbtiType} text-white hover:opacity-90 cursor-pointer text-[14px] font-semibold`}
           data-testid="unlock-now-btn"
         >
-          Mở khóa ngay
+          Mở khoá ngay 25.000đ
         </button>
       </div>
     </section>

@@ -14,10 +14,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
-import { motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import type { MBTIType } from '@mbti/shared';
-import { generateAndShare } from '@/lib/share';
+import { generateAndShare, shareToFacebook, copyToClipboard } from '@/lib/share';
 import { safeCapture } from '@/lib/posthog';
+import { useGenerateInvite } from '../hooks/useGenerateInvite';
 import { InsightCard } from './InsightCard';
 import { VillainsSection } from './VillainsSection';
 import { ReverseReveal } from './ReverseReveal';
@@ -51,8 +52,16 @@ export function PersonaReveal({
 }: Props) {
   const rm = useReducedMotion() ?? false;
   const [copied, setCopied] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareToast, setShareToast] = useState<string | null>(null);
   const shareCardRef = useRef<HTMLDivElement>(null);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const shareToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const generateInvite = useGenerateInvite();
+  // The shared link is an INVITE link, not /result/:id — recipients land on
+  // InviteeLanding → 3 perception questions → the full 12-question test. This
+  // fixes the bug where a shared link only showed the sender's result.
+  const inviteUrl = generateInvite.data?.inviteUrl ?? '';
   const { data: socialStatus } = useSocialStatus();
   const status = socialStatus?.data ?? null;
   const voterCount = status?.voterCount ?? 0;
@@ -64,39 +73,60 @@ export function PersonaReveal({
   useEffect(
     () => () => {
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      if (shareToastTimer.current) clearTimeout(shareToastTimer.current);
     },
     [],
   );
 
-  const flashCopied = () => {
-    setCopied(true);
-    if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-    copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
+  const flashShareToast = (msg: string) => {
+    setShareToast(msg);
+    if (shareToastTimer.current) clearTimeout(shareToastTimer.current);
+    shareToastTimer.current = setTimeout(() => setShareToast(null), 2500);
   };
 
-  const handleShare = async () => {
+  // Open the share sheet and lazily mint the invite link.
+  const openShareSheet = async () => {
+    setShareOpen(true);
+    if (!generateInvite.data && !generateInvite.isPending) {
+      try {
+        await generateInvite.mutateAsync({ resultId });
+      } catch {
+        flashShareToast('Không tạo được link. Thử lại nhé.');
+      }
+    }
+  };
+
+  const handleFacebook = () => {
+    if (!inviteUrl) return;
+    shareToFacebook(inviteUrl);
+    safeCapture('result_shared', { shareChannel: 'facebook', resultId });
+    flashShareToast('Đã mở Facebook để chia sẻ.');
+  };
+
+  const handleCopyLink = async () => {
+    if (!inviteUrl) return;
+    const ok = await copyToClipboard(inviteUrl);
+    if (ok) {
+      safeCapture('result_shared', { shareChannel: 'copy_link', resultId });
+      flashShareToast('Đã sao chép link! Gửi cho bạn bè để mở khoá miễn phí.');
+    } else {
+      flashShareToast('Trình duyệt không hỗ trợ sao chép.');
+    }
+  };
+
+  // Secondary: download the Stories-format share card image (UX hero card).
+  const handleDownloadCard = async () => {
     if (!shareCardRef.current) return;
-    const shareText = `Kết quả MBTI của tôi: ${personaName} — ${mbtiType}. Làm bài test để khám phá kiểu tính cách của bạn!`;
-    const fileName = `mbti-${mbtiType}-result.png`;
     const outcome = await generateAndShare(
       shareCardRef.current,
-      fileName,
-      shareText,
-      window.location.href,
+      `mbti-${mbtiType}-result.png`,
+      `Kết quả MBTI của tôi: ${personaName} — ${mbtiType}.`,
+      inviteUrl || window.location.href,
     );
     if (outcome === 'copied' || outcome === 'downloaded') {
-      flashCopied();
-    }
-    // Story 7.4 — result_shared analytics. Native share sheet does not expose
-    // the target app, so we record the resolved delivery channel.
-    if (outcome !== 'cancelled' && outcome !== 'error') {
-      const shareChannel =
-        outcome === 'downloaded'
-          ? 'download'
-          : outcome === 'copied'
-            ? 'copy_link'
-            : 'share_sheet';
-      safeCapture('result_shared', { shareChannel, resultId });
+      setCopied(true);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -160,28 +190,17 @@ export function PersonaReveal({
           >
             <button
               type="button"
-              onClick={handleShare}
-              aria-live="polite"
+              onClick={openShareSheet}
+              data-testid="share-result-cta"
               className={`w-full h-[52px] rounded-xl font-semibold text-[15px] cursor-pointer transition-colors duration-200 flex items-center justify-center gap-2 bg-type-${mbtiType} text-white hover:opacity-90 active:opacity-80`}
             >
-              {copied ? (
-                <>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <polyline points="2,8 6,12 14,4" />
-                  </svg>
-                  Đã sao chép liên kết!
-                </>
-              ) : (
-                <>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <circle cx="13" cy="3" r="1.5" />
-                    <circle cx="3" cy="8" r="1.5" />
-                    <circle cx="13" cy="13" r="1.5" />
-                    <path d="M4.5 8.5l7-4M4.5 8l7 4" />
-                  </svg>
-                  Chia sẻ kết quả
-                </>
-              )}
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="13" cy="3" r="1.5" />
+                <circle cx="3" cy="8" r="1.5" />
+                <circle cx="13" cy="13" r="1.5" />
+                <path d="M4.5 8.5l7-4M4.5 8l7 4" />
+              </svg>
+              Chia sẻ kết quả
             </button>
 
             <Link
@@ -263,6 +282,112 @@ export function PersonaReveal({
           onCompleted={() => checkout.reset()}
         />
       )}
+
+      {/* Share sheet — Facebook + Copy link of the INVITE url (recipients can
+          take the full test; sharing to 2 friends unlocks the Gap Report). */}
+      <AnimatePresence>
+        {shareOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-end justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: rm ? 0 : 0.2 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="share-sheet-title"
+          >
+            <button
+              type="button"
+              aria-label="Đóng"
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
+              onClick={() => setShareOpen(false)}
+            />
+            <motion.div
+              className="relative w-full max-w-md bg-surface-base border-t border-white/10 rounded-t-2xl px-6 pt-6 pb-8 flex flex-col gap-4"
+              initial={{ y: rm ? 0 : '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: rm ? 0 : '100%' }}
+              transition={{ duration: rm ? 0 : 0.3, ease: 'easeOut' }}
+            >
+              <div className="flex items-start justify-between">
+                <h2 id="share-sheet-title" className="text-[18px] font-semibold text-white">
+                  Chia sẻ kết quả
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setShareOpen(false)}
+                  className="text-slate-400 hover:text-white p-1 -m-1 cursor-pointer"
+                  aria-label="Đóng"
+                >
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                    <path d="M5 5l10 10M15 5L5 15" />
+                  </svg>
+                </button>
+              </div>
+
+              <p className="text-[14px] text-slate-300 leading-relaxed">
+                Chia sẻ cho <span className="text-white font-medium">2 người bạn</span> qua Facebook
+                hoặc copy link — họ làm bài và bạn{' '}
+                <span className="text-white font-medium">mở khoá báo cáo miễn phí</span>.
+              </p>
+
+              <div
+                className="bg-white/5 border border-white/10 rounded-xl px-3 py-3 text-[13px] text-slate-200 break-all select-all min-h-[48px] flex items-center"
+                data-testid="share-invite-url"
+              >
+                {generateInvite.isPending ? (
+                  <span className="text-slate-500">Đang tạo link…</span>
+                ) : inviteUrl ? (
+                  inviteUrl
+                ) : (
+                  <span className="text-slate-500">—</span>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleFacebook}
+                  disabled={!inviteUrl || generateInvite.isPending}
+                  data-testid="share-facebook-btn"
+                  className="flex-1 h-[48px] rounded-xl font-semibold text-[15px] transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer bg-[#1877F2] text-white hover:opacity-90"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07c0 6 4.39 10.97 10.13 11.85v-8.38H7.08v-3.47h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.89v2.25h3.32l-.53 3.47h-2.79v8.38C19.61 23.04 24 18.07 24 12.07Z" />
+                  </svg>
+                  Facebook
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  disabled={!inviteUrl || generateInvite.isPending}
+                  data-testid="share-copy-btn"
+                  className="flex-1 h-[48px] rounded-xl font-medium text-[15px] border border-white/15 text-white hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <rect x="5" y="5" width="9" height="9" rx="1" />
+                    <path d="M3 11V4a1 1 0 0 1 1-1h7" />
+                  </svg>
+                  Copy link
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleDownloadCard}
+                className="text-[13px] text-slate-400 hover:text-white transition-colors cursor-pointer"
+              >
+                {copied ? 'Đã lưu ảnh kết quả ✓' : 'Hoặc tải ảnh kết quả để đăng story'}
+              </button>
+
+              <div role="status" aria-live="polite" className="min-h-[20px] text-[13px] text-center">
+                {shareToast && <span className="text-green-400">{shareToast}</span>}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

@@ -204,7 +204,11 @@ export function InviteeLanding() {
   };
 
   return (
+    // `key` remounts QuestionCard per question so its internal `selected`
+    // state resets — without it, after Q1 every option stays disabled and the
+    // invitee is stuck (mirrors TestFlow.tsx which keys on currentQuestion.id).
     <QuestionCard
+      key={q.id}
       question={{
         id: q.id,
         text: q.text.replace('Người này', inviter.inviterPersonaName),

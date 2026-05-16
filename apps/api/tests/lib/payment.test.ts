@@ -23,14 +23,14 @@ describe('createSePayCheckout', () => {
     expect(s.gateway).toBe('sepay');
     expect(s.bankAccount).toBe('0123456789');
     expect(s.bankName).toBe('Vietcombank');
-    expect(s.amount).toBe(49000);
+    expect(s.amount).toBe(25000);
     expect(s.transferContent).toMatch(/^QM[A-Z0-9]+$/);
     expect(s.providerRef).toBe(s.transferContent);
     const u = new URL(s.qrUrl);
     expect(u.host).toBe('qr.sepay.vn');
     expect(u.searchParams.get('acc')).toBe('0123456789');
     expect(u.searchParams.get('bank')).toBe('970436');
-    expect(u.searchParams.get('amount')).toBe('49000');
+    expect(u.searchParams.get('amount')).toBe('25000');
     expect(u.searchParams.get('des')).toBe(s.transferContent);
   });
 

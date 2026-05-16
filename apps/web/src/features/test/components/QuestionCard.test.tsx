@@ -113,4 +113,37 @@ describe('QuestionCard', () => {
     const activeDot = container.querySelector<HTMLSpanElement>('[aria-label="Câu 4 / 12"]');
     expect(activeDot).not.toBeNull();
   });
+
+  // Regression (invitee perception flow bug): selecting an option latches the
+  // whole group disabled. A consumer that re-renders QuestionCard for the next
+  // question WITHOUT changing its React key reuses this disabled state and the
+  // user gets stuck. InviteeLanding/TestFlow must key on question id.
+  it('latches all options disabled after a selection', () => {
+    renderCard(vi.fn());
+    const [opt1, opt2] = getRadios();
+    act(() => { opt1.click(); });
+    expect(opt1.disabled).toBe(true);
+    expect(opt2.disabled).toBe(true);
+  });
+
+  it('a fresh mount (new key per question) starts enabled again', () => {
+    const onAnswer = vi.fn();
+    renderCard(onAnswer);
+    act(() => { getRadios()[0].click(); });
+    expect(getRadios().every((r) => r.disabled)).toBe(true);
+
+    // Simulate the key-driven remount the parent must do for the next question.
+    act(() => { root.unmount(); });
+    act(() => {
+      root = createRoot(container);
+      root.render(
+        React.createElement(QuestionCard, {
+          question: { ...mockQuestion, id: 'p2-social' },
+          questionIndex: 1,
+          onAnswer,
+        }),
+      );
+    });
+    expect(getRadios().every((r) => !r.disabled)).toBe(true);
+  });
 });

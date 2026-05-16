@@ -12,7 +12,7 @@ import {
 } from '../lib/db';
 import { getSession } from '../lib/kv';
 import { requireSession } from '../middleware/auth';
-import { PerceptionVoteSchema } from '@mbti/shared';
+import { PerceptionVoteSchema, FREE_UNLOCK_VOTER_THRESHOLD } from '@mbti/shared';
 import {
   aggregateFriendAnswers,
   deriveFriendTags,
@@ -109,6 +109,10 @@ social.get('/status', requireSession, async (c) => {
   }
 
   const unlocked = await getCompletedPayment(db, userId, 'gap_report');
+  // Share-to-unlock: getting FREE_UNLOCK_VOTER_THRESHOLD friends to engage via
+  // the shared invite link (each leaves a perception vote) unlocks the Gap
+  // Report for free. Otherwise the 25k payment is the fallback.
+  const unlockedByShare = voterCount >= FREE_UNLOCK_VOTER_THRESHOLD;
 
   return c.json({
     data: {
@@ -118,7 +122,7 @@ social.get('/status', requireSession, async (c) => {
         id: v.id,
         createdAt: v.created_at,
       })),
-      hasUnlockedGapReport: unlocked !== null,
+      hasUnlockedGapReport: unlockedByShare || unlocked !== null,
       selfTags,
       friendTags,
     },

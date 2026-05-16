@@ -4,8 +4,14 @@ export const PRODUCT_CATALOG: Readonly<
   Record<ProductType, { amount: number; currency: string; label: string }>
 > = {
   couple_pack: { amount: 79000, currency: 'VND', label: 'Couple Pack' },
-  gap_report: { amount: 49000, currency: 'VND', label: 'Gap Report' },
+  // Gap Report: free once the user gets FREE_UNLOCK_VOTER_THRESHOLD friends to
+  // engage via a shared invite link; otherwise this paid fallback applies.
+  gap_report: { amount: 25000, currency: 'VND', label: 'Gap Report' },
 };
+
+// Story 7.x — share-to-unlock: N friends engaging via the shared invite link
+// (perception vote) unlocks the Gap Report for free. Below this → 25k paywall.
+export const FREE_UNLOCK_VOTER_THRESHOLD = 2;
 
 export type PerceptionLikertOption = { label: string; value: number };
 

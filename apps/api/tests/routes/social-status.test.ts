@@ -104,9 +104,56 @@ describe('GET /api/social/status', () => {
 
     expect(res.status).toBe(200);
     expect(body.data.voterCount).toBe(2);
-    expect(body.data.hasUnlockedGapReport).toBe(false);
+    // New rule: >=2 friends engaged via shared invite link → free unlock.
+    expect(body.data.hasUnlockedGapReport).toBe(true);
     expect(body.data.selfTags.length).toBe(3);
     expect(body.data.friendTags).toEqual(['Quyết đoán', 'Hướng ngoại', 'Thẳng thắn']);
+  });
+
+  it('(a2) 1 voter, no payment → still locked (below free-unlock threshold)', async () => {
+    vi.spyOn(db, 'getSocialStatusForInviter').mockResolvedValue({
+      voterCount: 1,
+      latestVotes: [
+        makeVote([
+          { questionId: 'p1-decision', value: 5 },
+          { questionId: 'p2-social', value: 2 },
+          { questionId: 'p3-conflict', value: 5 },
+        ]),
+      ],
+    });
+    vi.spyOn(db, 'getLatestTestResultForUser').mockResolvedValue(makeTestResultRow());
+    vi.spyOn(db, 'getCompletedPayment').mockResolvedValue(null);
+
+    const res = await getStatus(mockKv, mockDb, { 'X-Session-Token': TOKEN });
+    const body = (await res.json()) as { data: { hasUnlockedGapReport: boolean } };
+    expect(body.data.hasUnlockedGapReport).toBe(false);
+  });
+
+  it('(a3) 0 voters but paid gap_report → unlocked', async () => {
+    vi.spyOn(db, 'getSocialStatusForInviter').mockResolvedValue({
+      voterCount: 0,
+      latestVotes: [],
+    });
+    vi.spyOn(db, 'getLatestTestResultForUser').mockResolvedValue(makeTestResultRow());
+    vi.spyOn(db, 'getCompletedPayment').mockResolvedValue({
+      id: 'pay-1',
+      user_id: USER_ID,
+      result_id: 'result-id',
+      product_type: 'gap_report',
+      gateway: 'sepay',
+      provider_ref: 'QMTEST',
+      amount: 25000,
+      currency: 'VND',
+      status: 'completed',
+      created_at: '2026-05-16T00:00:00.000Z',
+      updated_at: '2026-05-16T00:00:00.000Z',
+      completed_at: '2026-05-16T00:00:00.000Z',
+      deleted_at: null,
+    });
+
+    const res = await getStatus(mockKv, mockDb, { 'X-Session-Token': TOKEN });
+    const body = (await res.json()) as { data: { hasUnlockedGapReport: boolean } };
+    expect(body.data.hasUnlockedGapReport).toBe(true);
   });
 
   it('(b) 0 votes → empty friend tags, self still populated', async () => {
