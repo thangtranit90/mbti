@@ -3,7 +3,7 @@
 Hướng dẫn sử dụng khu vực quản trị (Admin) và tính năng quyền riêng tư (PDPA)
 của nền tảng MBTI. _Cập nhật: 2026-05-16._
 
-- Admin UI: **https://mbti-web-a2k.pages.dev/admin**
+- Admin UI: **https://mbti.thanghost.io.vn/admin**
 - Thông tin đăng nhập production: xem file mật (gitignored)
   `docs/epic7-admin-credentials-and-secrets.md` hoặc password manager của team.
 
@@ -11,7 +11,7 @@ của nền tảng MBTI. _Cập nhật: 2026-05-16._
 
 ## 1. Đăng nhập Admin (Story 7.1)
 
-1. Mở `https://mbti-web-a2k.pages.dev/admin` → tự động chuyển tới
+1. Mở `https://mbti.thanghost.io.vn/admin` → tự động chuyển tới
    `/admin/login` nếu chưa đăng nhập.
 2. Nhập **Tài khoản** (`admin`) và **Mật khẩu** → bấm **Đăng nhập**.
 3. Phiên đăng nhập kéo dài **24 giờ**, sau đó cần đăng nhập lại.
@@ -89,7 +89,7 @@ Vào tab **Analytics** (`/admin/analytics`):
 **Người dùng cuối** có thể tự yêu cầu xoá dữ liệu:
 
 1. Truy cập trang **`/privacy`** (ví dụ
-   `https://mbti-web-a2k.pages.dev/privacy`).
+   `https://mbti.thanghost.io.vn/privacy`).
 2. Bấm **Xoá dữ liệu của tôi** → **Xác nhận xoá vĩnh viễn**.
 3. Hệ thống đánh dấu xoá (soft delete) toàn bộ: kết quả test, link mời, phiếu
    đánh giá, báo cáo tương hợp của người dùng đó, và xoá phiên đăng nhập —
