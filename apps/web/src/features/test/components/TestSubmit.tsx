@@ -44,15 +44,15 @@ export function TestSubmit() {
 
   if (isError) {
     return (
-      <main id="main" className="min-h-svh bg-surface-base flex items-center justify-center px-6">
-        <div className="text-center max-w-sm">
-          <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#f87171" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+      <main id="main" className="min-h-svh bg-surface-deep flex items-center justify-center px-6">
+        <div className="text-center max-w-sm bg-surface-elevated border border-[var(--hairline)] rounded-2xl shadow-[var(--shadow-e2)] px-8 py-10">
+          <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/25 flex items-center justify-center mx-auto mb-4">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true" className="text-rose-400">
               <circle cx="10" cy="10" r="8" />
               <path d="M10 6v4M10 14h.01" />
             </svg>
           </div>
-          <p className="text-slate-300 text-[16px] mb-6">Có lỗi xảy ra. Vui lòng thử lại.</p>
+          <p className="text-slate-200 text-[16px] mb-6">Có lỗi xảy ra. Vui lòng thử lại.</p>
           <button
             type="button"
             disabled={isPending}
@@ -61,7 +61,7 @@ export function TestSubmit() {
               hasFired.current = true;
               mutate({ answers, declaredType, inviteSource });
             }}
-            className="px-6 py-3 rounded-xl bg-cta-primary hover:bg-cta-hover text-white font-medium text-[15px] disabled:opacity-50 cursor-pointer transition-colors duration-200"
+            className="px-6 py-3 rounded-xl bg-cta-primary hover:bg-cta-hover text-white font-semibold text-[15px] disabled:opacity-50 cursor-pointer transition-[transform,background-color] duration-[var(--dur-fast)] hover:-translate-y-[1px] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-deep"
           >
             Thử lại
           </button>

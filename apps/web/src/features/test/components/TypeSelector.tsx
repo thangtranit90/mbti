@@ -129,12 +129,12 @@ export function TypeSelector() {
                 exit={reduceMotion ? { opacity: 0 } : { x: '-100%', opacity: 0 }}
                 transition={{ duration: reduceMotion ? 0 : 0.3, ease: 'easeOut' }}
               >
-                <h1 className="text-[22px] font-semibold text-white leading-tight">
+                <h1 className="font-clash text-[26px] font-bold tracking-[-0.01em] text-white leading-[1.15]">
                   {HEADLINE}
                 </h1>
-                <p className="text-[14px] text-slate-400 mt-2 mb-6">{SUBCOPY}</p>
+                <p className="text-[15px] text-slate-400 mt-3 mb-7 leading-relaxed">{SUBCOPY}</p>
 
-                <div role="radiogroup" aria-label="Nhóm tính cách" className="space-y-2">
+                <div role="radiogroup" aria-label="Nhóm tính cách" className="space-y-2.5">
                   {TYPE_GROUPS.map((group) => (
                     <button
                       key={group.key}
@@ -144,15 +144,16 @@ export function TypeSelector() {
                       aria-label={`${group.name} — ${group.descriptor}`}
                       onClick={() => handleGroupTap(group.key)}
                       className={cn(
-                        'w-full text-left rounded-xl border border-white/10 bg-surface-elevated',
-                        'px-4 py-4 min-h-[80px] flex flex-col gap-1 cursor-pointer',
-                        'transition-colors duration-150 hover:bg-white/5 hover:border-white/20 active:bg-white/10',
-                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
+                        'group w-full text-left rounded-2xl border border-[var(--hairline)] bg-surface-elevated shadow-[var(--shadow-e1)]',
+                        'px-5 py-4 min-h-[84px] flex flex-col gap-1 cursor-pointer',
+                        'transition-[transform,border-color,background-color] duration-[var(--dur-fast)]',
+                        'hover:-translate-y-[1px] hover:border-[var(--hairline-strong)] hover:bg-white/[0.04] active:translate-y-0',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-deep',
                       )}
                     >
                       <span className="text-[18px] font-semibold text-white">{group.name}</span>
                       <span className="text-[14px] text-slate-400">{group.descriptor}</span>
-                      <span className="text-[12px] text-slate-600 tracking-[0.08em] mt-1">
+                      <span className="text-[12px] text-slate-500 tracking-[0.08em] mt-1">
                         {group.types.join(' · ')}
                       </span>
                     </button>
@@ -221,15 +222,15 @@ export function TypeSelector() {
                         }
                         transition={{ duration: reduceMotion ? 0 : 0.3, ease: 'easeInOut' }}
                         className={cn(
-                          'flex flex-col gap-2 rounded-xl border-2 p-4 text-left min-h-[120px]',
-                          'transition-opacity duration-150 cursor-pointer',
-                          'bg-surface-elevated',
-                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
+                          'flex flex-col gap-2 rounded-2xl border-2 p-4 text-left min-h-[120px]',
+                          'transition-[opacity,border-color,box-shadow] duration-[var(--dur-fast)] cursor-pointer',
+                          'bg-surface-elevated shadow-[var(--shadow-e1)]',
+                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-deep',
                           'disabled:cursor-not-allowed',
                           dim && 'opacity-40',
                           isSelected
-                            ? `border-type-${code} ring-2 ring-type-${code}/30`
-                            : 'border-white/10 hover:border-white/25',
+                            ? `border-type-${code} ring-2 ring-type-${code}/40 shadow-[var(--shadow-e2)]`
+                            : 'border-[var(--hairline)] hover:border-[var(--hairline-strong)]',
                         )}
                       >
                         <span
@@ -264,9 +265,9 @@ export function TypeSelector() {
             type="button"
             onClick={handleSkip}
             className={cn(
-              'flex items-center gap-1.5 mx-auto mt-6 text-[14px] text-slate-500',
-              'hover:text-slate-300 transition-colors duration-150 cursor-pointer',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded px-2 py-1',
+              'flex items-center gap-1.5 mx-auto mt-7 text-[14px] text-slate-400',
+              'hover:text-white transition-colors duration-[var(--dur-fast)] cursor-pointer',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-primary/50 rounded-lg px-2 py-1',
             )}
           >
             {SKIP_COPY}

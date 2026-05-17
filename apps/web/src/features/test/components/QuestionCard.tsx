@@ -52,20 +52,20 @@ export function QuestionCard({ question, questionIndex, onAnswer }: Props) {
             key={i}
             aria-label={i === questionIndex ? `Câu ${questionIndex + 1} / 12` : undefined}
             className={cn(
-              'w-2 h-2 rounded-full inline-block transition-colors duration-300',
-              i < questionIndex
-                ? 'bg-cta-primary/60'
-                : i === questionIndex
-                  ? 'bg-cta-primary'
-                  : 'bg-white/15',
+              'h-1.5 rounded-full inline-block transition-all duration-[var(--dur-base)]',
+              i === questionIndex
+                ? 'w-6 bg-cta-primary'
+                : i < questionIndex
+                  ? 'w-1.5 bg-cta-primary/55'
+                  : 'w-1.5 bg-white/15',
             )}
           />
         ))}
       </div>
 
       {/* Question text */}
-      <div className="flex-1 flex flex-col justify-center max-w-prose mx-auto w-full gap-8">
-        <p className="text-[20px] font-bold text-[#F8F9FC] leading-relaxed text-center">
+      <div className="flex-1 flex flex-col justify-center max-w-prose mx-auto w-full gap-9">
+        <p className="font-clash text-[24px] sm:text-[26px] font-semibold text-white leading-snug text-center text-balance tracking-[-0.01em]">
           {question.text}
         </p>
 
@@ -84,14 +84,14 @@ export function QuestionCard({ question, questionIndex, onAnswer }: Props) {
                 onClick={() => handleSelect(option.value)}
                 onKeyDown={(e) => handleKeyDown(e, option.value)}
                 className={cn(
-                  'w-full text-left rounded-xl border-2 px-5 py-4 cursor-pointer',
-                  'text-[15px] font-medium leading-relaxed',
-                  'transition-all duration-150 bg-white/5',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-primary/50',
+                  'w-full text-left rounded-2xl border-2 px-5 py-4 cursor-pointer',
+                  'text-[15px] font-medium leading-relaxed bg-surface-elevated shadow-[var(--shadow-e1)]',
+                  'transition-[transform,border-color,background-color,box-shadow,opacity] duration-[var(--dur-fast)]',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-deep',
                   'disabled:cursor-not-allowed',
                   isSelected
-                    ? 'border-cta-primary ring-2 ring-cta-primary/30 text-white bg-cta-primary/10'
-                    : 'border-white/10 text-slate-300 hover:border-white/30 hover:bg-white/8',
+                    ? 'border-cta-primary ring-2 ring-cta-primary/40 text-white bg-cta-primary/10 shadow-[var(--shadow-e2)]'
+                    : 'border-[var(--hairline)] text-slate-200 hover:border-[var(--hairline-strong)] hover:-translate-y-[1px] active:translate-y-0',
                   isDimmed && 'opacity-40',
                 )}
               >
