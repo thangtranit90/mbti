@@ -1,7 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+/* Geist removed: it was only a named fallback in --font-sans, never primary —
+   the webfont import was unused payload. Inter Variable is the body font. */
 @import "@fontsource-variable/inter";
 
 /* Clash Display — self-hosted; binary must be downloaded from https://www.fontshare.com/fonts/clash-display */
