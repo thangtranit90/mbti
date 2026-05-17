@@ -60,7 +60,7 @@ export function FeedPage() {
         id="main"
         className="min-h-svh bg-surface-deep px-6 py-12 flex flex-col items-center"
       >
-        <h1 className="text-[24px] font-semibold text-white mb-2 text-center">
+        <h1 className="font-clash text-[26px] font-bold tracking-[-0.01em] text-white mb-2 text-center">
           Chọn kiểu của bạn
         </h1>
         <p className="text-slate-400 text-[14px] mb-8 text-center">
@@ -72,7 +72,7 @@ export function FeedPage() {
               key={t}
               type="button"
               onClick={() => setSelected(t)}
-              className={`h-12 rounded-lg border border-white/15 text-[13px] text-slate-200 hover:bg-white/5 cursor-pointer text-type-${t}`}
+              className={`h-12 rounded-xl border border-[var(--hairline)] bg-surface-elevated shadow-[var(--shadow-e1)] text-[13px] font-semibold hover:-translate-y-[1px] hover:border-[var(--hairline-strong)] transition-[transform,border-color] duration-[var(--dur-fast)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-deep text-type-${t}`}
             >
               {t}
             </button>
@@ -88,7 +88,7 @@ export function FeedPage() {
       className="min-h-svh bg-surface-deep px-6 py-10 max-w-[960px] mx-auto"
     >
       <header className="mb-8 flex items-baseline justify-between">
-        <h1 className="text-[24px] font-semibold text-white">
+        <h1 className="font-clash text-[26px] font-bold tracking-[-0.01em] text-white">
           Cho {selected}
         </h1>
         <button
@@ -106,14 +106,17 @@ export function FeedPage() {
         </div>
       )}
       {isError && (
-        <div role="alert" className="text-red-400">
+        <div role="alert" className="text-rose-400">
           Không tải được bài viết. Vui lòng thử lại.
         </div>
       )}
 
       <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {(data?.data?.articles ?? []).map((a) => (
-          <li key={a.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-5 hover:bg-white/[0.05] transition-colors">
+          <li
+            key={a.id}
+            className="rounded-2xl border border-[var(--hairline)] bg-surface-elevated shadow-[var(--shadow-e1)] p-5 hover:-translate-y-[2px] hover:border-[var(--hairline-strong)] transition-[transform,border-color] duration-[var(--dur-fast)]"
+          >
             <Link to={`/feed/${a.slug}`} className="block cursor-pointer">
               <span
                 className={`inline-block text-[11px] uppercase tracking-[0.2em] mb-3 text-type-${a.mbtiType}`}

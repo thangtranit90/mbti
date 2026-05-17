@@ -38,12 +38,12 @@ export function ArticlePage() {
   if (isError || !data?.data) {
     return (
       <main id="main" className="min-h-svh bg-surface-deep flex items-center justify-center px-6">
-        <div className="text-center max-w-sm">
-          <h1 className="text-[24px] font-semibold text-white mb-3">Không tìm thấy bài viết</h1>
+        <div className="text-center max-w-sm bg-surface-elevated border border-[var(--hairline)] rounded-2xl shadow-[var(--shadow-e2)] px-8 py-10">
+          <h1 className="font-clash text-[24px] font-bold text-white mb-4">Không tìm thấy bài viết</h1>
           <button
             type="button"
             onClick={() => navigate('/feed')}
-            className="px-6 py-3 rounded-xl bg-cta-primary hover:bg-cta-hover text-white font-medium text-[15px] cursor-pointer"
+            className="px-6 py-3 rounded-xl bg-cta-primary hover:bg-cta-hover text-white font-semibold text-[15px] cursor-pointer transition-[transform,background-color] duration-[var(--dur-fast)] hover:-translate-y-[1px] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-deep"
           >
             Về trang feed
           </button>

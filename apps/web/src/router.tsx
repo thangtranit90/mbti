@@ -83,13 +83,13 @@ function wrap(element: React.ReactNode) {
 
 function NotFound() {
   return (
-    <div className="min-h-svh bg-surface-base flex items-center justify-center px-6">
-      <main id="main" className="text-center max-w-sm">
-        <h1 className="text-6xl font-clash font-bold text-white mb-4 leading-none">404</h1>
+    <div className="min-h-svh bg-surface-deep flex items-center justify-center px-6">
+      <main id="main" className="text-center max-w-sm bg-surface-elevated border border-[var(--hairline)] rounded-2xl shadow-[var(--shadow-e2)] px-8 py-12">
+        <h1 className="text-7xl font-clash font-bold text-white mb-4 leading-none tracking-[-0.02em]">404</h1>
         <p className="text-slate-400 mb-8">Trang bạn tìm không tồn tại.</p>
         <Link
           to="/"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cta-primary hover:bg-cta-hover text-white font-medium text-[15px] transition-colors duration-200 cursor-pointer"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cta-primary hover:bg-cta-hover text-white font-semibold text-[15px] transition-[transform,background-color] duration-[var(--dur-fast)] hover:-translate-y-[1px] active:translate-y-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-deep"
         >
           Về trang chủ
         </Link>

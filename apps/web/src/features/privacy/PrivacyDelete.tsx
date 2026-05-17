@@ -24,9 +24,9 @@ export function PrivacyDelete() {
   return (
     <main
       id="main"
-      className="min-h-svh bg-surface-base flex items-center justify-center px-6"
+      className="min-h-svh bg-surface-deep flex items-center justify-center px-6"
     >
-      <div className="max-w-md w-full bg-surface-deep border border-white/10 rounded-2xl p-8 text-center">
+      <div className="max-w-md w-full bg-surface-elevated border border-[var(--hairline)] shadow-[var(--shadow-e2)] rounded-2xl p-8 text-center">
         <h1 className="font-clash font-bold text-2xl text-white mb-3">
           Quyền riêng tư &amp; dữ liệu
         </h1>
@@ -65,7 +65,7 @@ export function PrivacyDelete() {
                 <button
                   type="button"
                   onClick={() => setState('idle')}
-                  className="px-5 py-2.5 rounded-xl border border-white/10 text-slate-300 text-sm cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl border border-[var(--hairline-strong)] text-slate-300 hover:text-white hover:bg-white/[0.04] text-sm cursor-pointer transition-colors duration-[var(--dur-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-primary/50"
                 >
                   Huỷ
                 </button>

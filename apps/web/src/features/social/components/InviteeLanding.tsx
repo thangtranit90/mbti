@@ -39,12 +39,12 @@ function CenteredMessage({
       id="main"
       className="min-h-svh bg-surface-deep flex items-center justify-center px-6"
     >
-      <div className="text-center max-w-sm">
-        <h1 className="text-[24px] font-semibold text-white mb-3">{title}</h1>
-        <p className="text-slate-400 text-[15px] mb-6">{body}</p>
+      <div className="text-center max-w-sm bg-surface-elevated border border-[var(--hairline)] rounded-2xl shadow-[var(--shadow-e2)] px-8 py-10">
+        <h1 className="font-clash text-[24px] font-bold text-white mb-3">{title}</h1>
+        <p className="text-slate-400 text-[15px] mb-7 leading-relaxed">{body}</p>
         <Link
           to="/"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cta-primary hover:bg-cta-hover text-white font-medium text-[15px] transition-colors duration-200 cursor-pointer"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cta-primary hover:bg-cta-hover text-white font-semibold text-[15px] transition-[transform,background-color] duration-[var(--dur-fast)] hover:-translate-y-[1px] active:translate-y-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-deep"
         >
           Về trang chủ
         </Link>
@@ -168,7 +168,7 @@ export function InviteeLanding() {
             type="button"
             onClick={() => setStep('voting')}
             data-testid="invitee-continue"
-            className={`mt-4 w-full h-[52px] rounded-xl font-semibold text-[15px] cursor-pointer transition-colors duration-200 bg-type-${inviter.inviterMbtiType} text-white hover:opacity-90 active:opacity-80`}
+            className={`mt-4 w-full h-[56px] rounded-2xl font-semibold text-[15px] cursor-pointer shadow-[var(--shadow-e2)] transition-[transform,opacity] duration-[var(--dur-fast)] bg-type-${inviter.inviterMbtiType} text-white hover:-translate-y-[1px] hover:opacity-95 active:translate-y-0 active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-deep`}
           >
             Tiếp tục
           </button>
