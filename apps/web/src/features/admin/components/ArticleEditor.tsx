@@ -79,7 +79,7 @@ export function ArticleEditor() {
           e.preventDefault();
           saveMut.mutate();
         }}
-        className="bg-surface-base border border-white/10 rounded-2xl p-5 space-y-3"
+        className="bg-surface-elevated border border-[var(--hairline)] rounded-2xl p-5 space-y-3"
       >
         <h2 className="font-semibold">{editingId ? 'Sửa bài viết' : 'Bài viết mới'}</h2>
         <input
@@ -87,20 +87,20 @@ export function ArticleEditor() {
           value={form.title}
           onChange={(e) => setForm({ ...form, title: e.target.value })}
           required
-          className="w-full px-3 py-2 rounded-lg bg-surface-deep border border-white/10 text-white"
+          className="w-full px-3 py-2 rounded-lg bg-surface-deep border border-[var(--hairline)] text-white"
         />
         <input
           placeholder="slug-kebab-case"
           value={form.slug}
           onChange={(e) => setForm({ ...form, slug: e.target.value })}
           required
-          className="w-full px-3 py-2 rounded-lg bg-surface-deep border border-white/10 text-white"
+          className="w-full px-3 py-2 rounded-lg bg-surface-deep border border-[var(--hairline)] text-white"
         />
         <div className="flex gap-3">
           <select
             value={form.mbtiType}
             onChange={(e) => setForm({ ...form, mbtiType: e.target.value as MBTIType })}
-            className="px-3 py-2 rounded-lg bg-surface-deep border border-white/10 text-white"
+            className="px-3 py-2 rounded-lg bg-surface-deep border border-[var(--hairline)] text-white"
           >
             {MBTI_TYPES.map((t) => (
               <option key={t} value={t}>
@@ -113,7 +113,7 @@ export function ArticleEditor() {
             onChange={(e) =>
               setForm({ ...form, status: e.target.value as 'draft' | 'published' })
             }
-            className="px-3 py-2 rounded-lg bg-surface-deep border border-white/10 text-white"
+            className="px-3 py-2 rounded-lg bg-surface-deep border border-[var(--hairline)] text-white"
           >
             <option value="draft">Nháp</option>
             <option value="published">Xuất bản</option>
@@ -125,7 +125,7 @@ export function ArticleEditor() {
           onChange={(e) => setForm({ ...form, body: e.target.value })}
           required
           rows={6}
-          className="w-full px-3 py-2 rounded-lg bg-surface-deep border border-white/10 text-white"
+          className="w-full px-3 py-2 rounded-lg bg-surface-deep border border-[var(--hairline)] text-white"
         />
         {err && <p className="text-rose-400 text-sm">{err}</p>}
         <div className="flex gap-2">
@@ -143,7 +143,7 @@ export function ArticleEditor() {
                 setEditingId(null);
                 setForm(empty);
               }}
-              className="px-4 py-2 rounded-xl border border-white/10 text-slate-300 text-sm cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-[var(--hairline)] text-slate-300 text-sm cursor-pointer"
             >
               Huỷ
             </button>
@@ -162,7 +162,7 @@ export function ArticleEditor() {
               return (
                 <li
                   key={a.id}
-                  className="flex items-center justify-between gap-3 bg-surface-base border border-white/10 rounded-xl px-4 py-3"
+                  className="flex items-center justify-between gap-3 bg-surface-elevated border border-[var(--hairline)] rounded-xl px-4 py-3"
                 >
                   <div className="min-w-0">
                     <p className="text-white truncate">{a.title}</p>

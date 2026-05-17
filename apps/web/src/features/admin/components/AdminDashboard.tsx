@@ -14,9 +14,9 @@ const THRESHOLD = 3;
 
 function Tile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-surface-base border border-white/10 rounded-2xl p-5">
+    <div className="bg-surface-elevated border border-[var(--hairline)] shadow-[var(--shadow-e1)] rounded-2xl p-5 transition-transform duration-[var(--dur-fast)] hover:-translate-y-[2px]">
       <p className="text-slate-400 text-sm mb-1">{label}</p>
-      <p className="text-3xl font-clash font-bold text-white">{value}</p>
+      <p className="text-3xl font-clash font-bold text-white tracking-[-0.01em]">{value}</p>
     </div>
   );
 }

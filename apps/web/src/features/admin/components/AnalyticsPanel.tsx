@@ -27,14 +27,14 @@ export function AnalyticsPanel() {
   return (
     <div className="space-y-8">
       <h1 className="font-clash font-bold text-2xl">Phân tích</h1>
-      <p className="text-xs text-slate-500">{a.note}</p>
+      <p className="text-xs text-slate-400">{a.note}</p>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-surface-base border border-white/10 rounded-2xl p-5">
+        <div className="bg-surface-elevated border border-[var(--hairline)] rounded-2xl p-5">
           <p className="text-slate-400 text-sm mb-1">Tổng bài test</p>
           <p className="text-3xl font-clash font-bold">{a.totalTests}</p>
         </div>
-        <div className="bg-surface-base border border-white/10 rounded-2xl p-5">
+        <div className="bg-surface-elevated border border-[var(--hairline)] rounded-2xl p-5">
           <p className="text-slate-400 text-sm mb-1">Lượt chia sẻ (7 ngày)</p>
           <p className="text-3xl font-clash font-bold">{a.totalShares7d}</p>
         </div>
@@ -42,7 +42,7 @@ export function AnalyticsPanel() {
 
       <section>
         <h2 className="font-semibold mb-3">Nguồn insight (ai vs curated)</h2>
-        <div className="flex h-4 rounded-full overflow-hidden border border-white/10">
+        <div className="flex h-4 rounded-full overflow-hidden border border-[var(--hairline)]">
           <div
             className="bg-cta-primary"
             style={{ width: `${(a.insightSourceMix.ai / srcTotal) * 100}%` }}
@@ -63,7 +63,7 @@ export function AnalyticsPanel() {
           {Object.entries(a.testsByType).map(([t, n]) => (
             <div key={t} className="flex items-center gap-3 text-sm">
               <span className="w-12 text-slate-400">{t}</span>
-              <div className="flex-1 bg-surface-base rounded-full h-3 overflow-hidden">
+              <div className="flex-1 bg-surface-elevated rounded-full h-3 overflow-hidden">
                 <div
                   className="bg-cta-primary h-full"
                   style={{ width: `${(n / maxByType) * 100}%` }}

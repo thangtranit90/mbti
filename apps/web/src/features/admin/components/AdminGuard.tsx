@@ -16,9 +16,9 @@ export function AdminGuard() {
   }
   return (
     <div className="min-h-svh bg-surface-deep text-white">
-      <header className="border-b border-white/10 px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-[var(--hairline)] px-6 py-4 flex items-center justify-between">
         <nav className="flex items-center gap-1 flex-wrap">
-          <span className="font-clash font-bold text-lg mr-4">MBTI Admin</span>
+          <span className="font-clash font-bold text-lg mr-4 tracking-[-0.01em]">MBTI Admin</span>
           {NAV.map((n) => {
             const active = n.end
               ? location.pathname === n.to
@@ -27,8 +27,11 @@ export function AdminGuard() {
               <Link
                 key={n.to}
                 to={n.to}
-                className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                  active ? 'bg-cta-primary text-white' : 'text-slate-400 hover:text-white'
+                aria-current={active ? 'page' : undefined}
+                className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors duration-[var(--dur-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-primary/50 ${
+                  active
+                    ? 'bg-cta-primary text-white shadow-[var(--shadow-e1)]'
+                    : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
                 }`}
               >
                 {n.label}
@@ -42,7 +45,7 @@ export function AdminGuard() {
             clearAdminToken();
             window.location.href = '/admin/login';
           }}
-          className="text-sm text-slate-400 hover:text-white cursor-pointer"
+          className="text-sm text-slate-400 hover:text-white cursor-pointer transition-colors duration-[var(--dur-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-primary/50 rounded-lg px-2 py-1"
         >
           Đăng xuất
         </button>

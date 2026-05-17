@@ -55,7 +55,7 @@ export function InsightReview() {
             {byType[t].map((ins) => (
               <li
                 key={ins.id}
-                className="bg-surface-base border border-white/10 rounded-xl p-4 space-y-3"
+                className="bg-surface-elevated border border-[var(--hairline)] rounded-xl p-4 space-y-3"
               >
                 <div className="flex items-center gap-2 text-xs">
                   <span
@@ -69,7 +69,7 @@ export function InsightReview() {
                   defaultValue={ins.content}
                   onChange={(e) => setDraft({ ...draft, [ins.id]: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 rounded-lg bg-surface-deep border border-white/10 text-white text-sm"
+                  className="w-full px-3 py-2 rounded-lg bg-surface-deep border border-[var(--hairline)] text-white text-sm"
                 />
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -96,7 +96,7 @@ export function InsightReview() {
                     onClick={() =>
                       patchMut.mutate({ id: ins.id, body: { content: draft[ins.id] } })
                     }
-                    className="px-3 py-1.5 rounded-lg border border-white/10 text-slate-300 text-sm disabled:opacity-40 cursor-pointer"
+                    className="px-3 py-1.5 rounded-lg border border-[var(--hairline)] text-slate-300 text-sm disabled:opacity-40 cursor-pointer"
                   >
                     Lưu nội dung
                   </button>
