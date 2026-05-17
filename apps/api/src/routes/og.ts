@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import type { Bindings, Variables } from '../types/bindings';
 import { withDb, getTestResult } from '../lib/db';
 import { PERSONA_NAMES, MBTI_TYPES, type MBTIType } from '@mbti/shared';
-import { generateOGPng } from '../lib/og';
+import { generateOGPng, generateBrandOGPng } from '../lib/og';
 
 const og = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
@@ -20,6 +20,54 @@ const TRANSPARENT_PNG = new Uint8Array([
 function isValidMbtiType(t: unknown): t is MBTIType {
   return typeof t === 'string' && (MBTI_TYPES as readonly string[]).includes(t);
 }
+
+// Brand OG card for the homepage (index.html og:image / twitter:image).
+// Registered BEFORE /:resultId so "brand" isn't treated as a result id.
+og.get('/brand', async (c) => {
+  // v2: latin-only font → English copy (Vietnamese rendered as tofu). Bump
+  // the key to invalidate any previously cached broken render.
+  const key = 'og/brand-v2.png';
+  const bucket = c.env.ASSETS_BUCKET;
+  try {
+    const cached = await bucket.get(key);
+    if (
+      cached &&
+      cached.size > 0 &&
+      (cached.httpMetadata?.contentType ?? '').includes('image/png')
+    ) {
+      return new Response(cached.body, {
+        status: 200,
+        headers: {
+          'Content-Type': 'image/png',
+          'Cache-Control': 'public, max-age=86400',
+        },
+      });
+    }
+  } catch (e) {
+    console.error('brand og r2 get failed:', e);
+  }
+  try {
+    const png = await generateBrandOGPng();
+    c.executionCtx.waitUntil(
+      bucket
+        .put(key, png, { httpMetadata: { contentType: 'image/png' } })
+        .catch((e) => console.error('brand og r2 put failed:', e)),
+    );
+    return new Response(png, {
+      status: 200,
+      headers: {
+        'Content-Type': 'image/png',
+        'Cache-Control': 'public, max-age=86400',
+      },
+    });
+  } catch (e) {
+    console.error('brand og generation failed:', e);
+    return new Response(TRANSPARENT_PNG, {
+      status: 200,
+      headers: { 'Content-Type': 'image/png', 'Cache-Control': 'no-store' },
+    });
+  }
+});
 
 og.get('/:resultId', async (c) => {
   const resultId = c.req.param('resultId');

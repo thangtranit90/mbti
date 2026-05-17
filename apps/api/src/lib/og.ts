@@ -167,3 +167,101 @@ export async function generateOGPng(
   const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: 1200 } });
   return resvg.render().asPng();
 }
+
+// Brand (persona-agnostic) OG card for the homepage/share-of-site. Fixes the
+// missing static /og-image.png referenced by index.html meta tags.
+export async function generateBrandOGSvg(): Promise<string> {
+  const fontData = await getInterFont();
+  return satori(
+    // @ts-expect-error satori runtime accepts this shape
+    {
+      type: 'div',
+      props: {
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          width: '1200px',
+          height: '630px',
+          padding: '72px 88px',
+          background: 'linear-gradient(135deg, #0d0f1a 0%, #050507 60%, #1e1b4b 140%)',
+          color: '#fff',
+          fontFamily: 'Inter',
+        },
+        children: [
+          {
+            type: 'div',
+            props: {
+              style: {
+                display: 'flex',
+                fontSize: '22px',
+                color: '#94a3b8',
+                letterSpacing: '0.32em',
+                textTransform: 'uppercase',
+              },
+              children: 'Quiet Mirror',
+            },
+          },
+          {
+            type: 'div',
+            props: {
+              style: { display: 'flex', flexDirection: 'column', gap: '20px' },
+              children: [
+                {
+                  type: 'div',
+                  props: {
+                    style: {
+                      display: 'flex',
+                      fontSize: '82px',
+                      fontWeight: 700,
+                      lineHeight: 1.06,
+                      color: '#ffffff',
+                      maxWidth: '920px',
+                    },
+                    children: 'Discover your personality type',
+                  },
+                },
+                {
+                  type: 'div',
+                  props: {
+                    style: {
+                      display: 'flex',
+                      fontSize: '30px',
+                      color: '#818cf8',
+                    },
+                    children: 'A mirror — uncomfortably accurate',
+                  },
+                },
+              ],
+            },
+          },
+          {
+            type: 'div',
+            props: {
+              style: { display: 'flex', fontSize: '20px', color: '#64748b' },
+              children: 'Free · No signup · Instant result · 16 personality types',
+            },
+          },
+        ],
+      },
+    },
+    {
+      width: 1200,
+      height: 630,
+      fonts: [{ name: 'Inter', data: fontData, weight: 700, style: 'normal' }],
+    },
+  );
+}
+
+export async function generateBrandOGPng(): Promise<Uint8Array> {
+  const svg = await generateBrandOGSvg();
+  const { Resvg, initWasm } = await import('@resvg/resvg-wasm');
+  if (!wasmInitialized) {
+    // @ts-expect-error wasm module lacks TS declarations
+    const wasm = await import('@resvg/resvg-wasm/index_bg.wasm');
+    await initWasm(wasm.default);
+    wasmInitialized = true;
+  }
+  const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: 1200 } });
+  return resvg.render().asPng();
+}
