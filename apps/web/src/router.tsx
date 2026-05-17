@@ -3,8 +3,10 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Link, Outlet } from 'react-router';
 import { RootError } from './pages/RootError';
 import { SocialNotificationToast } from './features/social/components/SocialNotificationToast';
-
-const Landing = lazy(() => import('./pages/Landing').then((m) => ({ default: m.Landing })));
+// Landing is eager (not lazy): it's the entry route and its hero is the LCP
+// element. Eager import means no Suspense spinner on first paint, so the
+// static pre-rendered hero in index.html swaps seamlessly to the React tree.
+import { Landing } from './pages/Landing';
 const TypeSelector = lazy(() =>
   import('./features/test/components/TypeSelector').then((m) => ({ default: m.TypeSelector })),
 );
@@ -112,7 +114,7 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     errorElement: <RootError />,
     children: [
-      { path: '/', element: wrap(<Landing />) },
+      { path: '/', element: <Landing /> },
       { path: '/declare', element: wrap(<TypeSelector />) },
       { path: '/test', element: wrap(<TestFlow />) },
       { path: '/test/submit', element: wrap(<TestSubmit />) },
