@@ -304,7 +304,7 @@ export function PersonaReveal({
               onClick={() => setShareOpen(false)}
             />
             <motion.div
-              className="relative w-full max-w-md bg-surface-base border-t border-white/10 rounded-t-2xl px-6 pt-6 pb-8 flex flex-col gap-4"
+              className="relative w-full max-w-md bg-surface-elevated border-t border-[var(--hairline)] rounded-t-2xl shadow-[var(--shadow-e3)] px-6 pt-6 pb-8 flex flex-col gap-4"
               initial={{ y: rm ? 0 : '100%' }}
               animate={{ y: 0 }}
               exit={{ y: rm ? 0 : '100%' }}
@@ -333,15 +333,15 @@ export function PersonaReveal({
               </p>
 
               <div
-                className="bg-white/5 border border-white/10 rounded-xl px-3 py-3 text-[13px] text-slate-200 break-all select-all min-h-[48px] flex items-center"
+                className="bg-surface-deep border border-[var(--hairline)] rounded-xl px-3 py-3 text-[13px] text-slate-200 break-all select-all min-h-[48px] flex items-center"
                 data-testid="share-invite-url"
               >
                 {generateInvite.isPending ? (
-                  <span className="text-slate-500">Đang tạo link…</span>
+                  <span className="text-slate-400">Đang tạo link…</span>
                 ) : inviteUrl ? (
                   inviteUrl
                 ) : (
-                  <span className="text-slate-500">—</span>
+                  <span className="text-slate-400">—</span>
                 )}
               </div>
 

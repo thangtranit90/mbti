@@ -56,7 +56,7 @@ export function CouplePack({ resultId, mbtiType }: Props) {
               onClick={() => setOpen(false)}
             />
             <motion.div
-              className="relative w-full max-w-sm bg-surface-base border border-white/10 rounded-2xl p-6 flex flex-col gap-4"
+              className="relative w-full max-w-sm bg-surface-elevated border border-[var(--hairline)] rounded-2xl shadow-[var(--shadow-e3)] p-6 flex flex-col gap-4"
               initial={{ scale: rm ? 1 : 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: rm ? 1 : 0.96, opacity: 0 }}
@@ -81,7 +81,7 @@ export function CouplePack({ resultId, mbtiType }: Props) {
                 {checkout.isPending ? 'Đang chuyển hướng…' : 'Thanh toán'}
               </button>
               {checkout.isError && (
-                <p role="alert" className="text-red-400 text-[13px] text-center">
+                <p role="alert" className="text-rose-400 text-[13px] text-center">
                   Không tạo được phiên thanh toán. Vui lòng thử lại.
                 </p>
               )}

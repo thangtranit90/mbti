@@ -16,13 +16,13 @@ export function InsightCard({ insight, source }: Props) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: rm ? 0 : 0.4, delay: rm ? 0 : 0.8 }}
     >
-      <p className="text-[16px] leading-relaxed text-slate-300 text-center max-w-xs">
+      <p className="text-[17px] leading-relaxed text-slate-200 text-center max-w-sm text-balance">
         {insight}
       </p>
       {source === 'ai' && (
         <Badge
           variant="outline"
-          className="text-[11px] text-slate-500 border-slate-700 font-normal"
+          className="text-[11px] text-slate-400 border-[var(--hairline-strong)] bg-white/[0.03] font-normal"
         >
           AI-generated for self-reflection
         </Badge>

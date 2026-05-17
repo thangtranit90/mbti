@@ -25,7 +25,7 @@ export function GapVisualization({
         Bạn nhìn bạn vs. người khác nhìn bạn
       </h2>
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+        <div className="rounded-2xl border border-[var(--hairline)] bg-surface-elevated shadow-[var(--shadow-e1)] p-4">
           <p className="text-[12px] uppercase tracking-[0.2em] text-slate-400 mb-3">
             Bạn thấy bạn
           </p>
@@ -42,7 +42,7 @@ export function GapVisualization({
         </div>
 
         <div
-          className={`rounded-xl border border-white/10 bg-white/5 p-4 relative ${
+          className={`rounded-2xl border border-[var(--hairline)] bg-surface-elevated shadow-[var(--shadow-e1)] p-4 relative ${
             hasUnlockedGapReport ? '' : 'overflow-hidden'
           }`}
         >

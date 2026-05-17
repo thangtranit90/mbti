@@ -53,7 +53,7 @@ export function PaymentQR({ checkout, open, onClose, onCompleted }: Props) {
             onClick={onClose}
           />
           <motion.div
-            className="relative w-full max-w-sm bg-surface-base border border-white/10 rounded-2xl p-6 flex flex-col items-center gap-4 text-center"
+            className="relative w-full max-w-sm bg-surface-elevated border border-[var(--hairline)] rounded-2xl shadow-[var(--shadow-e3)] p-6 flex flex-col items-center gap-4 text-center"
             initial={{ scale: rm ? 1 : 0.96, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: rm ? 1 : 0.96, opacity: 0 }}
@@ -64,12 +64,12 @@ export function PaymentQR({ checkout, open, onClose, onCompleted }: Props) {
 
             {status === 'completed' ? (
               <div className="py-8 flex flex-col items-center gap-3" data-testid="payment-success">
-                <div className="w-14 h-14 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <div className="w-14 h-14 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="text-emerald-400">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </div>
-                <p className="text-green-400 font-semibold">Thanh toán thành công!</p>
+                <p className="text-emerald-400 font-semibold">Thanh toán thành công!</p>
               </div>
             ) : (
               <>
@@ -82,19 +82,19 @@ export function PaymentQR({ checkout, open, onClose, onCompleted }: Props) {
                 />
                 <div className="w-full text-[13px] text-slate-300 space-y-1.5">
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Ngân hàng</span>
+                    <span className="text-slate-400">Ngân hàng</span>
                     <span>{checkout.bankName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Số tài khoản</span>
+                    <span className="text-slate-400">Số tài khoản</span>
                     <span className="font-mono">{checkout.bankAccount}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Số tiền</span>
+                    <span className="text-slate-400">Số tiền</span>
                     <span className="font-semibold text-white">{formatVnd(checkout.amount)}</span>
                   </div>
                   <div className="flex justify-between items-center gap-2">
-                    <span className="text-slate-500">Nội dung</span>
+                    <span className="text-slate-400">Nội dung</span>
                     <button
                       type="button"
                       onClick={copyContent}
@@ -105,7 +105,7 @@ export function PaymentQR({ checkout, open, onClose, onCompleted }: Props) {
                     </button>
                   </div>
                 </div>
-                <p className="text-[12px] text-slate-500 leading-relaxed">
+                <p className="text-[12px] text-slate-400 leading-relaxed">
                   Mở app ngân hàng, quét mã. Giữ nguyên <strong>nội dung chuyển khoản</strong> để
                   hệ thống tự xác nhận. Màn hình sẽ tự cập nhật sau khi nhận được tiền.
                 </p>
