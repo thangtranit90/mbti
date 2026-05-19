@@ -9,7 +9,12 @@ import type {
   ReportRow,
   TestResultRow,
 } from '@mbti/shared';
-import { MBTI_TYPES, type MBTIType } from '@mbti/shared';
+import {
+  MBTI_TYPES,
+  RESULT_UNLOCK_FRIEND_THRESHOLD,
+  type MBTIType,
+  type ProductType,
+} from '@mbti/shared';
 import type { Bindings, Variables } from '../types/bindings';
 
 /**
@@ -320,7 +325,7 @@ export async function createPayment(
     id: string;
     userId: string;
     resultId: string | null;
-    productType: 'couple_pack' | 'gap_report';
+    productType: ProductType;
     gateway: 'sepay' | 'stripe';
     providerRef: string;
     amount: number;
@@ -453,7 +458,7 @@ export async function getPaymentById(
 export async function getCompletedPayment(
   db: D1Database,
   userId: string,
-  productType: 'couple_pack' | 'gap_report',
+  productType: ProductType,
 ): Promise<PaymentRow | null> {
   const result = await db
     .prepare(
@@ -470,6 +475,77 @@ export async function getCompletedPayment(
     );
   }
   return result.results[0] ?? null;
+}
+
+export type ResultAccess = {
+  unlocked: boolean;
+  paid: boolean;
+  friendCount: number;
+  threshold: number;
+};
+
+/**
+ * Story 7.x — durable, resultId-bound access check for the basic result.
+ *
+ * The result is unlocked when EITHER:
+ *  - a COMPLETED `result_unlock` payment is bound to this resultId, OR
+ *  - >= RESULT_UNLOCK_FRIEND_THRESHOLD DISTINCT friends COMPLETED the full
+ *    12-question test via an invite link generated from this result.
+ *
+ * Bound to the resultId (not the viewer's session) so the unlock survives
+ * session loss, device change and shared links — this also fixes the bug
+ * where the inviter's page showed nothing after friends engaged.
+ * Returns null if the result does not exist (caller maps to 404).
+ */
+export async function getResultAccess(
+  db: D1Database,
+  resultId: string,
+): Promise<ResultAccess | null> {
+  const id = resultId.toLowerCase();
+  const result = await getTestResult(db, id);
+  if (!result) return null;
+
+  const paidRes = await db
+    .prepare(
+      `SELECT 1 AS hit FROM payments
+       WHERE result_id = ? AND product_type = 'result_unlock'
+         AND status = 'completed' AND deleted_at IS NULL
+       LIMIT 1`,
+    )
+    .bind(id)
+    .all<{ hit: number }>();
+  if (!paidRes.success) {
+    throw new Error(
+      `getResultAccess: D1 paid query failed: ${paidRes.error ?? 'unknown error'}`,
+    );
+  }
+  const paid = (paidRes.results?.length ?? 0) > 0;
+
+  const friendRes = await db
+    .prepare(
+      `SELECT COUNT(DISTINCT tr.user_id) AS n
+       FROM test_results tr
+       INNER JOIN invite_links il ON il.token = tr.invite_source_token
+       WHERE il.inviter_result_id = ?
+         AND il.deleted_at IS NULL
+         AND tr.deleted_at IS NULL
+         AND tr.user_id <> ?`,
+    )
+    .bind(id, result.user_id.toLowerCase())
+    .all<{ n: number }>();
+  if (!friendRes.success) {
+    throw new Error(
+      `getResultAccess: D1 friend query failed: ${friendRes.error ?? 'unknown error'}`,
+    );
+  }
+  const friendCount = friendRes.results?.[0]?.n ?? 0;
+
+  return {
+    paid,
+    friendCount,
+    threshold: RESULT_UNLOCK_FRIEND_THRESHOLD,
+    unlocked: paid || friendCount >= RESULT_UNLOCK_FRIEND_THRESHOLD,
+  };
 }
 
 export async function getArticlesByType(

@@ -1,4 +1,4 @@
-export type ProductType = 'couple_pack' | 'gap_report';
+export type ProductType = 'couple_pack' | 'gap_report' | 'result_unlock';
 
 export const PRODUCT_CATALOG: Readonly<
   Record<ProductType, { amount: number; currency: string; label: string }>
@@ -7,11 +7,21 @@ export const PRODUCT_CATALOG: Readonly<
   // Gap Report: free once the user gets FREE_UNLOCK_VOTER_THRESHOLD friends to
   // engage via a shared invite link; otherwise this paid fallback applies.
   gap_report: { amount: 25000, currency: 'VND', label: 'Gap Report' },
+  // Result unlock: the basic personality result (type + persona + insight) is
+  // gated. Free once RESULT_UNLOCK_FRIEND_THRESHOLD friends complete the full
+  // test via the shared invite link; otherwise this low-friction paid fallback.
+  result_unlock: { amount: 2000, currency: 'VND', label: 'Mở khoá kết quả' },
 };
 
 // Story 7.x — share-to-unlock: N friends engaging via the shared invite link
 // (perception vote) unlocks the Gap Report for free. Below this → 25k paywall.
 export const FREE_UNLOCK_VOTER_THRESHOLD = 2;
+
+// Result paywall: N distinct friends must COMPLETE the full 12-question test
+// via this result's shared invite link to unlock the result for free.
+// Otherwise the 2.000đ result_unlock payment is the fallback. Bound to the
+// resultId (durable) — survives session loss / device change / shared links.
+export const RESULT_UNLOCK_FRIEND_THRESHOLD = 2;
 
 export type PerceptionLikertOption = { label: string; value: number };
 

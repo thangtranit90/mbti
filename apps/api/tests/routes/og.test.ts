@@ -1,9 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock generateOGPng so tests don't load resvg-wasm / fetch fonts.
-const { mockGenerate } = vi.hoisted(() => ({ mockGenerate: vi.fn() }));
+const { mockGenerate, mockBrand } = vi.hoisted(() => ({
+  mockGenerate: vi.fn(),
+  mockBrand: vi.fn(),
+}));
 vi.mock('../../src/lib/og', () => ({
   generateOGPng: mockGenerate,
+  generateBrandOGPng: mockBrand,
 }));
 
 import { app } from '../../src/index';
@@ -64,9 +68,12 @@ const getOG = (resultId: string, r2: ReturnType<typeof makeR2>) =>
 describe('GET /api/og/:resultId', () => {
   let r2: ReturnType<typeof makeR2>;
 
+  const UNLOCKED = { unlocked: true, paid: false, friendCount: 2, threshold: 2 };
+
   beforeEach(() => {
     r2 = makeR2();
     mockGenerate.mockReset();
+    mockBrand.mockReset();
   });
 
   afterEach(() => {
@@ -82,8 +89,9 @@ describe('GET /api/og/:resultId', () => {
     expect(mockGenerate).not.toHaveBeenCalled();
   });
 
-  it('(b) cache miss + valid resultId → generates PNG and writes to R2', async () => {
+  it('(b) cache miss + valid + unlocked → generates PNG and writes to R2', async () => {
     vi.spyOn(db, 'getTestResult').mockResolvedValue(makeTestResultRow());
+    vi.spyOn(db, 'getResultAccess').mockResolvedValue(UNLOCKED);
     mockGenerate.mockResolvedValue(new Uint8Array([1, 2, 3, 4]));
 
     const res = await getOG(RESULT_ID, r2);
@@ -106,11 +114,30 @@ describe('GET /api/og/:resultId', () => {
 
   it('(d) generation error → returns fallback transparent PNG (not 500)', async () => {
     vi.spyOn(db, 'getTestResult').mockResolvedValue(makeTestResultRow());
+    vi.spyOn(db, 'getResultAccess').mockResolvedValue(UNLOCKED);
     mockGenerate.mockRejectedValue(new Error('wasm failed'));
 
     const res = await getOG(RESULT_ID, r2);
 
     expect(res.status).toBe(200);
     expect(res.headers.get('Content-Type')).toBe('image/png');
+  });
+
+  it('(e) locked result → serves brand OG (no type leak), per-result gen not called', async () => {
+    vi.spyOn(db, 'getTestResult').mockResolvedValue(makeTestResultRow());
+    vi.spyOn(db, 'getResultAccess').mockResolvedValue({
+      unlocked: false,
+      paid: false,
+      friendCount: 0,
+      threshold: 2,
+    });
+    mockBrand.mockResolvedValue(new Uint8Array([9, 9, 9, 9]));
+
+    const res = await getOG(RESULT_ID, r2);
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('Content-Type')).toBe('image/png');
+    expect(mockBrand).toHaveBeenCalledOnce();
+    expect(mockGenerate).not.toHaveBeenCalled();
   });
 });

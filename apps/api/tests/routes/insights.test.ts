@@ -96,8 +96,11 @@ describe('GET /api/results/:resultId/insight', () => {
     vi.restoreAllMocks();
   });
 
+  const UNLOCKED = { unlocked: true, paid: false, friendCount: 2, threshold: 2 };
+
   it('(a) valid resultId → 200 with { personaName, insight, villains }', async () => {
     vi.spyOn(db, 'getTestResult').mockResolvedValue(makeTestResultRow());
+    vi.spyOn(db, 'getResultAccess').mockResolvedValue(UNLOCKED);
     vi.spyOn(db, 'getCuratedInsight').mockResolvedValue(makeCuratedInsightRow());
 
     const res = await getInsight(RESULT_ID, mockKv, mockDb);
@@ -125,6 +128,7 @@ describe('GET /api/results/:resultId/insight', () => {
 
   it('(c) no session token header → still 200 (public route)', async () => {
     vi.spyOn(db, 'getTestResult').mockResolvedValue(makeTestResultRow());
+    vi.spyOn(db, 'getResultAccess').mockResolvedValue(UNLOCKED);
     vi.spyOn(db, 'getCuratedInsight').mockResolvedValue(makeCuratedInsightRow());
 
     const res = await getInsight(RESULT_ID, mockKv, mockDb, {
@@ -136,6 +140,7 @@ describe('GET /api/results/:resultId/insight', () => {
 
   it('(d) curated insight missing → uses fallback string, not 500', async () => {
     vi.spyOn(db, 'getTestResult').mockResolvedValue(makeTestResultRow());
+    vi.spyOn(db, 'getResultAccess').mockResolvedValue(UNLOCKED);
     vi.spyOn(db, 'getCuratedInsight').mockResolvedValue(null);
 
     const res = await getInsight(RESULT_ID, mockKv, mockDb);
@@ -148,6 +153,7 @@ describe('GET /api/results/:resultId/insight', () => {
 
   it('(e) villains array length === 3 for all valid responses', async () => {
     vi.spyOn(db, 'getTestResult').mockResolvedValue(makeTestResultRow({ calculated_type: 'INTJ' }));
+    vi.spyOn(db, 'getResultAccess').mockResolvedValue(UNLOCKED);
     vi.spyOn(db, 'getCuratedInsight').mockResolvedValue(
       makeCuratedInsightRow({ mbti_type: 'INTJ' }),
     );
@@ -161,5 +167,27 @@ describe('GET /api/results/:resultId/insight', () => {
       expect(v.type).toBeTruthy();
       expect(v.reason.length).toBeGreaterThan(0);
     });
+  });
+
+  it('(f) locked result → 200 { locked:true }, no insight content', async () => {
+    vi.spyOn(db, 'getTestResult').mockResolvedValue(makeTestResultRow());
+    vi.spyOn(db, 'getResultAccess').mockResolvedValue({
+      unlocked: false,
+      paid: false,
+      friendCount: 1,
+      threshold: 2,
+    });
+    const curatedSpy = vi
+      .spyOn(db, 'getCuratedInsight')
+      .mockResolvedValue(makeCuratedInsightRow());
+
+    const res = await getInsight(RESULT_ID, mockKv, mockDb);
+    const body = (await res.json()) as InsightBody & { data: { locked?: boolean } | null };
+
+    expect(res.status).toBe(200);
+    expect(body.error).toBeNull();
+    expect((body.data as { locked?: boolean })?.locked).toBe(true);
+    expect(body.data?.insight).toBeUndefined();
+    expect(curatedSpy).not.toHaveBeenCalled();
   });
 });

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const CheckoutRequestSchema = z
   .object({
-    productType: z.enum(['couple_pack', 'gap_report']),
+    productType: z.enum(['couple_pack', 'gap_report', 'result_unlock']),
     resultId: z.string().uuid(),
     gateway: z.enum(['sepay', 'stripe']).optional(),
   })

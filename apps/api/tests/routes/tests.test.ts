@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { app } from '../../src/index';
+import * as db from '../../src/lib/db';
 import type { QuestionRow, TestResultRow, MBTIType } from '@mbti/shared';
 
 type NextQBody = {
@@ -110,13 +111,17 @@ type SubmitBody = {
 type GetResultBody = {
   data: {
     id: string;
-    mbtiType: MBTIType;
-    declaredType: MBTIType | null;
-    personaName: string;
+    locked?: boolean;
+    mbtiType?: MBTIType;
+    declaredType?: MBTIType | null;
+    personaName?: string;
     createdAt: string;
   } | null;
   error: { code: string; message: string } | null;
 };
+
+const UNLOCKED = { unlocked: true, paid: false, friendCount: 2, threshold: 2 };
+const LOCKED = { unlocked: false, paid: false, friendCount: 0, threshold: 2 };
 
 const MBTI_TYPES_SET = new Set([
   'INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP',
@@ -336,20 +341,17 @@ describe('POST /api/tests/submit', () => {
 
 describe('GET /api/tests/:resultId', () => {
   let mockKv: ReturnType<typeof makeKv>;
+  let mockDb: ReturnType<typeof makeDb>;
 
   beforeEach(() => {
     mockKv = makeKv();
+    mockDb = makeDb(ALL_QUESTIONS);
   });
+  afterEach(() => vi.restoreAllMocks());
 
-  it('(a) valid resultId, no session token → 200 with all result fields', async () => {
-    const mockDb = makeDb(ALL_QUESTIONS);
-    const stmt = {
-      bind: vi.fn().mockReturnThis(),
-      all: vi.fn().mockResolvedValue({ success: true, results: [RESULT_ROW] }),
-      run: vi.fn().mockResolvedValue({ success: true }),
-      first: vi.fn().mockResolvedValue(RESULT_ROW),
-    };
-    mockDb.prepare = vi.fn().mockReturnValue(stmt);
+  it('(a) unlocked result → 200 with all result fields, locked:false', async () => {
+    vi.spyOn(db, 'getTestResult').mockResolvedValue(RESULT_ROW);
+    vi.spyOn(db, 'getResultAccess').mockResolvedValue(UNLOCKED);
 
     const res = await getResultRequest(RESULT_ID, mockKv, mockDb);
     const body = (await res.json()) as GetResultBody;
@@ -357,6 +359,7 @@ describe('GET /api/tests/:resultId', () => {
     expect(res.status).toBe(200);
     expect(body.error).toBeNull();
     expect(body.data?.id).toBe(RESULT_ROW.id);
+    expect(body.data?.locked).toBe(false);
     expect(body.data?.mbtiType).toBe(RESULT_ROW.calculated_type);
     expect(body.data?.declaredType).toBe(RESULT_ROW.declared_type);
     expect(body.data?.personaName).toBe(RESULT_ROW.persona_name);
@@ -364,14 +367,7 @@ describe('GET /api/tests/:resultId', () => {
   });
 
   it('(b) unknown resultId → 404 NOT_FOUND envelope', async () => {
-    const mockDb = makeDb([]);
-    const stmt = {
-      bind: vi.fn().mockReturnThis(),
-      all: vi.fn().mockResolvedValue({ success: true, results: [] }),
-      run: vi.fn().mockResolvedValue({ success: true }),
-      first: vi.fn().mockResolvedValue(null),
-    };
-    mockDb.prepare = vi.fn().mockReturnValue(stmt);
+    vi.spyOn(db, 'getTestResult').mockResolvedValue(null);
 
     const res = await getResultRequest('nonexistent-id', mockKv, mockDb);
     const body = (await res.json()) as GetResultBody;
@@ -381,19 +377,28 @@ describe('GET /api/tests/:resultId', () => {
     expect(body.error?.code).toBe('NOT_FOUND');
   });
 
-  it('(c) public route — no session token still returns 200 for existing result', async () => {
-    const mockDb = makeDb(ALL_QUESTIONS);
-    const stmt = {
-      bind: vi.fn().mockReturnThis(),
-      all: vi.fn().mockResolvedValue({ success: true, results: [RESULT_ROW] }),
-      run: vi.fn().mockResolvedValue({ success: true }),
-      first: vi.fn().mockResolvedValue(RESULT_ROW),
-    };
-    mockDb.prepare = vi.fn().mockReturnValue(stmt);
+  it('(c) public route — no session token still returns 200 for unlocked result', async () => {
+    vi.spyOn(db, 'getTestResult').mockResolvedValue(RESULT_ROW);
+    vi.spyOn(db, 'getResultAccess').mockResolvedValue(UNLOCKED);
 
     // Deliberately no X-Session-Token header — public route
     const res = await getResultRequest(RESULT_ID, mockKv, mockDb);
 
     expect(res.status).toBe(200);
+  });
+
+  it('(d) locked result → 200 but content withheld (locked:true, no mbtiType)', async () => {
+    vi.spyOn(db, 'getTestResult').mockResolvedValue(RESULT_ROW);
+    vi.spyOn(db, 'getResultAccess').mockResolvedValue(LOCKED);
+
+    const res = await getResultRequest(RESULT_ID, mockKv, mockDb);
+    const body = (await res.json()) as GetResultBody;
+
+    expect(res.status).toBe(200);
+    expect(body.error).toBeNull();
+    expect(body.data?.id).toBe(RESULT_ROW.id);
+    expect(body.data?.locked).toBe(true);
+    expect(body.data?.mbtiType).toBeUndefined();
+    expect(body.data?.personaName).toBeUndefined();
   });
 });

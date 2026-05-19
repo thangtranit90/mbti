@@ -97,6 +97,38 @@ describe('POST /api/payments/checkout (SePay)', () => {
     expect(createSpy.mock.calls[0]?.[1].gateway).toBe('sepay');
   });
 
+  it('(a2) result_unlock (2.000đ) → accepted, returns QR + inserts pending payment', async () => {
+    mockCreateCheckout.mockResolvedValue({
+      gateway: 'sepay',
+      qrUrl: 'https://qr.sepay.vn/img?acc=0123456789&bank=970436&amount=2000&des=QMRU1',
+      transferContent: 'QMRU1',
+      providerRef: 'QMRU1',
+      amount: 2000,
+      currency: 'VND',
+      bankAccount: '0123456789',
+      bankName: 'Vietcombank',
+    });
+    const createSpy = vi.spyOn(db, 'createPayment').mockResolvedValue();
+
+    const res = await app.request(
+      '/api/payments/checkout',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Session-Token': SESSION_TOKEN },
+        body: JSON.stringify({ productType: 'result_unlock', resultId: RESULT_ID }),
+      },
+      baseEnv(kv, dbMock),
+    );
+    const body = (await res.json()) as {
+      data: { gateway: string; amount: number } | null;
+    };
+    expect(res.status).toBe(201);
+    expect(body.data?.gateway).toBe('sepay');
+    expect(body.data?.amount).toBe(2000);
+    expect(createSpy).toHaveBeenCalledOnce();
+    expect(createSpy.mock.calls[0]?.[1].productType).toBe('result_unlock');
+  });
+
   it('(b) stripe → returns checkoutUrl', async () => {
     mockCreateCheckout.mockResolvedValue({
       gateway: 'stripe',

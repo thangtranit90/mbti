@@ -5,6 +5,7 @@ import {
   getTestResult,
   getCuratedInsight,
   getActiveCuratedInsights,
+  getResultAccess,
 } from '../lib/db';
 import { generateInsight } from '../lib/ai';
 import { FALLBACK_INSIGHT } from '../lib/fallback';
@@ -24,6 +25,37 @@ function isValidMbtiType(t: unknown): t is MBTIType {
 }
 
 const insights = new Hono<{ Bindings: Bindings; Variables: Variables }>();
+
+// Story 7.x — durable, resultId-bound access status. PUBLIC by design: the
+// gate UI must resolve unlock state even on a different device / lost session
+// (this is exactly the bug being fixed). No content is exposed here.
+// Mounted under /api/results → GET /api/results/:resultId/access.
+insights.get('/:resultId/access', async (c) => {
+  const resultId = c.req.param('resultId');
+  if (!UUID_RE.test(resultId)) {
+    return c.json(
+      { data: null, error: { code: 'VALIDATION_ERROR', message: 'Invalid resultId' } },
+      400,
+    );
+  }
+  const db = withDb(c);
+  const access = await getResultAccess(db, resultId);
+  if (!access) {
+    return c.json(
+      { data: null, error: { code: 'NOT_FOUND', message: 'Result not found' } },
+      404,
+    );
+  }
+  return c.json({
+    data: {
+      unlocked: access.unlocked,
+      paid: access.paid,
+      friendCount: access.friendCount,
+      threshold: access.threshold,
+    },
+    error: null,
+  });
+});
 
 insights.get('/:resultId/insight', async (c) => {
   const resultId = c.req.param('resultId');
@@ -47,10 +79,16 @@ insights.get('/:resultId/insight', async (c) => {
       500,
     );
   }
+  // Story 7.x — withhold insight + villains until the result is unlocked.
+  const access = await getResultAccess(db, row.id);
+  if (!access || !access.unlocked) {
+    return c.json({ data: { locked: true }, error: null });
+  }
   const mbtiType = row.calculated_type;
   const insightRow = await getCuratedInsight(db, mbtiType);
   return c.json({
     data: {
+      locked: false,
       personaName: PERSONA_NAMES[mbtiType],
       insight: insightRow?.content ?? FALLBACK_INSIGHT,
       villains: VILLAINS_MAP[mbtiType],
@@ -94,6 +132,12 @@ insights.post('/generate', requireSession, async (c) => {
       { data: null, error: { code: 'INVALID_TYPE', message: 'Stored mbti_type invalid' } },
       500,
     );
+  }
+
+  // Story 7.x — never spend AI tokens on a locked result.
+  const access = await getResultAccess(db, row.id);
+  if (!access || !access.unlocked) {
+    return c.json({ data: { locked: true }, error: null });
   }
 
   // Defensive parse of the answers JSON column.

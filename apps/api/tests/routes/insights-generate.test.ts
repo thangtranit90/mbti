@@ -120,8 +120,11 @@ describe('POST /api/insights/generate', () => {
     expect(body.error?.code).toBe('UNAUTHORIZED');
   });
 
+  const UNLOCKED = { unlocked: true, paid: false, friendCount: 2, threshold: 2 };
+
   it('(b) valid session + valid resultId + AI success → 200 with source "ai"', async () => {
     vi.spyOn(db, 'getTestResult').mockResolvedValue(makeTestResultRow());
+    vi.spyOn(db, 'getResultAccess').mockResolvedValue(UNLOCKED);
     vi.spyOn(db, 'getActiveCuratedInsights').mockResolvedValue([makeCuratedInsightRow()]);
     mockCreate.mockResolvedValue({
       content: [{ type: 'text', text: 'Bạn nhìn thế giới sâu hơn bạn nói ra.' }],
@@ -154,6 +157,7 @@ describe('POST /api/insights/generate', () => {
 
   it('(d) Anthropic error → 200 with source "curated" (not 500)', async () => {
     vi.spyOn(db, 'getTestResult').mockResolvedValue(makeTestResultRow());
+    vi.spyOn(db, 'getResultAccess').mockResolvedValue(UNLOCKED);
     vi.spyOn(db, 'getActiveCuratedInsights').mockResolvedValue([makeCuratedInsightRow()]);
     vi.spyOn(db, 'getCuratedInsight').mockResolvedValue(makeCuratedInsightRow());
     mockCreate.mockRejectedValue(new Error('Anthropic down'));
@@ -177,5 +181,25 @@ describe('POST /api/insights/generate', () => {
 
     expect(res.status).toBe(400);
     expect(body.error?.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('(f) locked result → 200 { locked:true }, AI never called', async () => {
+    vi.spyOn(db, 'getTestResult').mockResolvedValue(makeTestResultRow());
+    vi.spyOn(db, 'getResultAccess').mockResolvedValue({
+      unlocked: false,
+      paid: false,
+      friendCount: 0,
+      threshold: 2,
+    });
+
+    const res = await postGenerate({ resultId: RESULT_ID }, mockKv, mockDb, {
+      'X-Session-Token': TOKEN,
+    });
+    const body = (await res.json()) as GenerateBody & { data: { locked?: boolean } | null };
+
+    expect(res.status).toBe(200);
+    expect(body.error).toBeNull();
+    expect((body.data as { locked?: boolean })?.locked).toBe(true);
+    expect(mockCreate).not.toHaveBeenCalled();
   });
 });

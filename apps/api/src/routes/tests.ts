@@ -1,7 +1,13 @@
 import { Hono } from 'hono';
 import type { Bindings, Variables } from '../types/bindings';
 import { requireSession } from '../middleware/auth';
-import { withDb, getAllActiveQuestions, createTestResult, getTestResult } from '../lib/db';
+import {
+  withDb,
+  getAllActiveQuestions,
+  createTestResult,
+  getTestResult,
+  getResultAccess,
+} from '../lib/db';
 import { selectNextQuestion, calculateMBTIType } from '../lib/cat';
 import { captureServer } from '../lib/analytics';
 import { NextQuestionRequestSchema, TestSubmitSchema, PERSONA_NAMES } from '@mbti/shared';
@@ -103,9 +109,20 @@ tests.get('/:resultId', async (c) => {
       404,
     );
   }
+  // Story 7.x — server-enforced paywall. The basic result (type + persona) is
+  // withheld until the result is unlocked (2 friends finished the full test
+  // OR a 2.000đ payment). Durable, bound to resultId — not the viewer session.
+  const access = await getResultAccess(db, row.id);
+  if (!access || !access.unlocked) {
+    return c.json({
+      data: { id: row.id, locked: true, createdAt: row.created_at },
+      error: null,
+    });
+  }
   return c.json({
     data: {
       id: row.id,
+      locked: false,
       mbtiType: row.calculated_type,
       declaredType: row.declared_type,
       personaName: row.persona_name,

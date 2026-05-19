@@ -8,4 +8,5 @@ export const queryKeys = {
   nextQuestion: (answeredIds: string[]) => ['nextQuestion', answeredIds] as const,
   resultInsight: (resultId: string) => ['resultInsight', resultId] as const,
   insightGenerate: (resultId: string) => ['insightGenerate', resultId] as const,
+  resultAccess: (resultId: string) => ['resultAccess', resultId] as const,
 };

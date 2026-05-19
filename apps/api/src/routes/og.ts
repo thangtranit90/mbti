@@ -1,6 +1,6 @@
-import { Hono } from 'hono';
+import { Hono, type Context } from 'hono';
 import type { Bindings, Variables } from '../types/bindings';
-import { withDb, getTestResult } from '../lib/db';
+import { withDb, getTestResult, getResultAccess } from '../lib/db';
 import { PERSONA_NAMES, MBTI_TYPES, type MBTIType } from '@mbti/shared';
 import { generateOGPng, generateBrandOGPng } from '../lib/og';
 
@@ -21,9 +21,14 @@ function isValidMbtiType(t: unknown): t is MBTIType {
   return typeof t === 'string' && (MBTI_TYPES as readonly string[]).includes(t);
 }
 
-// Brand OG card for the homepage (index.html og:image / twitter:image).
-// Registered BEFORE /:resultId so "brand" isn't treated as a result id.
-og.get('/brand', async (c) => {
+// Shared brand OG renderer. Used by /brand AND as the fallback for a locked
+// result (so a gated result never leaks its type via the link preview).
+// `cacheControl` is overridable: locked results pass a short policy so the
+// preview refreshes once the result unlocks.
+async function brandOgResponse(
+  c: Context<{ Bindings: Bindings; Variables: Variables }>,
+  cacheControl = 'public, max-age=86400',
+): Promise<Response> {
   // v2: latin-only font → English copy (Vietnamese rendered as tofu). Bump
   // the key to invalidate any previously cached broken render.
   const key = 'og/brand-v2.png';
@@ -37,10 +42,7 @@ og.get('/brand', async (c) => {
     ) {
       return new Response(cached.body, {
         status: 200,
-        headers: {
-          'Content-Type': 'image/png',
-          'Cache-Control': 'public, max-age=86400',
-        },
+        headers: { 'Content-Type': 'image/png', 'Cache-Control': cacheControl },
       });
     }
   } catch (e) {
@@ -55,10 +57,7 @@ og.get('/brand', async (c) => {
     );
     return new Response(png, {
       status: 200,
-      headers: {
-        'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=86400',
-      },
+      headers: { 'Content-Type': 'image/png', 'Cache-Control': cacheControl },
     });
   } catch (e) {
     console.error('brand og generation failed:', e);
@@ -67,7 +66,11 @@ og.get('/brand', async (c) => {
       headers: { 'Content-Type': 'image/png', 'Cache-Control': 'no-store' },
     });
   }
-});
+}
+
+// Brand OG card for the homepage (index.html og:image / twitter:image).
+// Registered BEFORE /:resultId so "brand" isn't treated as a result id.
+og.get('/brand', (c) => brandOgResponse(c));
 
 og.get('/:resultId', async (c) => {
   const resultId = c.req.param('resultId');
@@ -80,7 +83,11 @@ og.get('/:resultId', async (c) => {
   const key = `og/${resultId.toLowerCase()}.png`;
   const bucket = c.env.ASSETS_BUCKET;
 
-  // Try R2 cache first — but verify the cached object is a valid, non-empty PNG.
+  // Per-result R2 cache first — verify the cached object is a valid, non-empty
+  // PNG. A per-result PNG is ONLY ever written after passing the unlock check
+  // below, and unlock is monotonic (a completed payment / completed friend
+  // tests are never revoked). So a cache hit always implies an unlocked result
+  // — safe to serve without re-checking.
   try {
     const cached = await bucket.get(key);
     if (
@@ -108,6 +115,13 @@ og.get('/:resultId', async (c) => {
       { data: null, error: { code: 'NOT_FOUND', message: 'Result not found' } },
       404,
     );
+  }
+
+  // Story 7.x — a locked result must not leak its type via the link preview.
+  // Serve the generic brand card with a short cache so it refreshes on unlock.
+  const access = await getResultAccess(db, row.id);
+  if (!access || !access.unlocked) {
+    return brandOgResponse(c, 'public, max-age=300');
   }
 
   if (!isValidMbtiType(row.calculated_type)) {
