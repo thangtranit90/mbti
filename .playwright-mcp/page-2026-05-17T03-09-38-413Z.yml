@@ -1,0 +1,20 @@
+- generic [active] [ref=e1]:
+  - link "Bỏ qua đến nội dung chính" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=e3]:
+    - main [ref=e64]:
+      - progressbar "Câu 3 trên 12" [ref=e65]:
+        - generic "Câu 3 / 12" [ref=e68]
+      - generic [ref=e78]:
+        - paragraph [ref=e79]: Khi có xung đột, người này thường nói thẳng vấn đề thay vì né tránh.
+        - radiogroup "Lựa chọn câu trả lời" [ref=e80]:
+          - radio "Hoàn toàn không" [ref=e81] [cursor=pointer]
+          - radio "Ít khi" [ref=e82] [cursor=pointer]
+          - radio "Đôi khi" [ref=e83] [cursor=pointer]
+          - radio "Thường xuyên" [ref=e84] [cursor=pointer]
+          - radio "Luôn luôn" [ref=e85] [cursor=pointer]
+    - status [ref=e14]:
+      - generic [ref=e15]: The Framework Builder vừa vote về cách bạn hành xử
+      - button "Xem" [ref=e16] [cursor=pointer]
+      - button "Đóng thông báo" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]

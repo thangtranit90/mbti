@@ -1,0 +1,98 @@
+- generic [ref=e1]:
+  - link "Bỏ qua đến nội dung chính" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=e3]:
+    - main [ref=e7]:
+      - generic [ref=e8]:
+        - generic [ref=e9]:
+          - heading "The Framework Builder" [level=1] [ref=e10]
+          - separator [ref=e11]
+          - paragraph [ref=e13]: Bạn là người lên kế hoạch, chủ trì cuộc họp, và theo dõi vào ngày hôm sau. Điều bạn vẫn đang học là không phải ai cũng xử lý thông tin theo tốc độ của bạn — và đó không phải là sự lười biếng.
+          - paragraph [ref=e14]: ESTJ
+          - generic [ref=e15]:
+            - button "Chia sẻ kết quả" [ref=e16] [cursor=pointer]:
+              - img [ref=e17]
+              - text: Chia sẻ kết quả
+            - link "Làm lại bài test" [ref=e22] [cursor=pointer]:
+              - /url: /
+              - img [ref=e23]
+              - text: Làm lại bài test
+            - button "Xem bạn bè thấy bạn thế nào" [ref=e26] [cursor=pointer]:
+              - text: Xem bạn bè thấy bạn thế nào
+              - generic [ref=e27]: →
+        - img [ref=e29]
+      - generic:
+        - generic: Quiet Mirror
+        - generic:
+          - generic: The Framework Builder
+          - generic: ESTJ
+          - generic: Bạn là người lên kế hoạch, chủ trì cuộc họp, và theo dõi vào ngày hôm sau. Điều bạn vẫn đang học là không phải ai cũng xử lý thông tin theo tốc độ của bạn — và đó không phải là sự lười biếng.
+        - generic: 3 kiểu người dễ mâu thuẫn với tôi →
+      - generic [ref=e31]:
+        - region "3 kiểu người dễ mâu thuẫn với bạn" [ref=e32]:
+          - heading "3 kiểu người dễ mâu thuẫn với bạn" [level=2] [ref=e33]
+          - generic [ref=e34]:
+            - generic [ref=e35]:
+              - generic [ref=e36]: INFP
+              - paragraph [ref=e37]: Những quyết định bắt nguồn từ giá trị cá nhân hơn dữ liệu khách quan có thể gây khó khăn cho sự hợp tác có cấu trúc.
+            - generic [ref=e38]:
+              - generic [ref=e39]: ENFP
+              - paragraph [ref=e40]: Sự hứng khởi về những hướng đi mới có thể làm gián đoạn các quy trình đáng tin cậy giúp mọi thứ vận hành trơn tru.
+            - generic [ref=e41]:
+              - generic [ref=e42]: INTP
+              - paragraph [ref=e43]: Cách tiếp cận lý thuyết của họ hiếm khi chuyển thành các bước hành động cụ thể trong khung thời gian bạn đang làm việc.
+        - region "Bạn nhìn bạn vs. người khác nhìn bạn" [ref=e44]:
+          - heading "Bạn nhìn bạn vs. người khác nhìn bạn" [level=2] [ref=e45]
+          - generic [ref=e46]:
+            - generic [ref=e47]:
+              - paragraph [ref=e48]: Bạn thấy bạn
+              - list [ref=e49]:
+                - listitem [ref=e50]: Cân nhắc
+                - listitem [ref=e51]: Hướng nội
+                - listitem [ref=e52]: Né tránh
+            - generic [ref=e53]:
+              - paragraph [ref=e54]: Người thân thấy bạn
+              - list [ref=e55]:
+                - listitem [ref=e56]: Cân nhắc
+                - listitem [ref=e57]: Hướng nội
+                - listitem [ref=e58]: Né tránh
+        - region "Trạng thái vòng lặp xã hội" [ref=e59]:
+          - heading "Trạng thái vòng lặp xã hội" [level=2] [ref=e60]
+          - status "2 of 2 friends have responded" [ref=e61]:
+            - generic [ref=e62]: 2/2
+            - text: bạn đã làm — đủ 2 là mở khoá báo cáo miễn phí
+          - generic [ref=e65]:
+            - button "Mời thêm bạn (miễn phí)" [ref=e66] [cursor=pointer]
+            - button "Mở khoá ngay 25.000đ" [active] [ref=e67] [cursor=pointer]
+        - button "Mua Couple Pack (79.000 ₫)" [ref=e68] [cursor=pointer]
+      - dialog "Quét mã để chuyển khoản" [ref=e75]:
+        - button "Đóng" [ref=e76] [cursor=pointer]
+        - generic [ref=e77]:
+          - heading "Quét mã để chuyển khoản" [level=2] [ref=e78]
+          - img "Mã QR chuyển khoản VietQR" [ref=e79]
+          - generic [ref=e80]:
+            - generic [ref=e81]:
+              - generic [ref=e82]: Ngân hàng
+              - generic [ref=e83]: vpbank
+            - generic [ref=e84]:
+              - generic [ref=e85]: Số tài khoản
+              - generic [ref=e86]: "150649714"
+            - generic [ref=e87]:
+              - generic [ref=e88]: Số tiền
+              - generic [ref=e89]: 25.000 ₫
+            - generic [ref=e90]:
+              - generic [ref=e91]: Nội dung
+              - button "QM4EE97B79C8" [ref=e92] [cursor=pointer]
+          - paragraph [ref=e93]:
+            - text: Mở app ngân hàng, quét mã. Giữ nguyên
+            - strong [ref=e94]: nội dung chuyển khoản
+            - text: để hệ thống tự xác nhận. Màn hình sẽ tự cập nhật sau khi nhận được tiền.
+          - status [ref=e95]:
+            - img [ref=e96]
+            - text: Đang chờ thanh toán…
+          - button "Để sau" [ref=e98] [cursor=pointer]
+    - status [ref=e69]:
+      - generic [ref=e70]: Một người vừa vote về cách bạn hành xử
+      - button "Xem" [ref=e71] [cursor=pointer]
+      - button "Đóng thông báo" [ref=e72] [cursor=pointer]:
+        - img [ref=e73]

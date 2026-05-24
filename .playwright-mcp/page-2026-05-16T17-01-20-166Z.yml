@@ -1,0 +1,59 @@
+- generic [ref=e1]:
+  - link "Bỏ qua đến nội dung chính" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - main [ref=e7]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - heading "The Hidden Compass" [level=1] [ref=e10]
+        - separator [ref=e11]
+        - paragraph [ref=e13]: Bạn có một la bàn nội tâm rất rõ ràng ít khi phù hợp với bản đồ mà mọi người khác đang dùng. Bạn sống với khoảng cách đó, nhưng nó tiêu tốn nhiều năng lượng hơn bạn thừa nhận.
+        - paragraph [ref=e14]: INFP
+        - generic [ref=e15]:
+          - button "Chia sẻ kết quả" [active] [ref=e16] [cursor=pointer]:
+            - img [ref=e17]
+            - text: Chia sẻ kết quả
+          - link "Làm lại bài test" [ref=e22] [cursor=pointer]:
+            - /url: /
+            - img [ref=e23]
+            - text: Làm lại bài test
+          - button "Xem bạn bè thấy bạn thế nào" [ref=e26] [cursor=pointer]:
+            - text: Xem bạn bè thấy bạn thế nào
+            - generic [ref=e27]: →
+      - img [ref=e29]
+    - generic:
+      - generic: Quiet Mirror
+      - generic:
+        - generic: The Hidden Compass
+        - generic: INFP
+        - generic: Bạn có một la bàn nội tâm rất rõ ràng ít khi phù hợp với bản đồ mà mọi người khác đang dùng. Bạn sống với khoảng cách đó, nhưng nó tiêu tốn nhiều năng lượng hơn bạn thừa nhận.
+      - generic: 3 kiểu người dễ mâu thuẫn với tôi →
+    - region "3 kiểu người dễ mâu thuẫn với bạn" [ref=e32]:
+      - heading "3 kiểu người dễ mâu thuẫn với bạn" [level=2] [ref=e33]
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - generic [ref=e36]: ESTJ
+          - paragraph [ref=e37]: Sự ưu tiên hệ thống khách quan hơn giá trị cá nhân khiến bạn cảm thấy vô hình trong các cấu trúc họ thiết kế.
+        - generic [ref=e38]:
+          - generic [ref=e39]: ENTJ
+          - paragraph [ref=e40]: Cách tiếp cận đặt hiệu quả lên hàng đầu của họ có thể xem giá trị của bạn là những điểm kém hiệu quả cần được tối ưu hóa.
+        - generic [ref=e41]:
+          - generic [ref=e42]: ESTP
+          - paragraph [ref=e43]: Họ hành động trước, suy nghĩ sau — điều này có thể đưa những việc quan trọng vào chuyển động trước khi các hàm ý đạo đức được cân nhắc.
+    - dialog "Chia sẻ kết quả" [ref=e44]:
+      - button "Đóng" [ref=e45] [cursor=pointer]
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - heading "Chia sẻ kết quả" [level=2] [ref=e48]
+          - button "Đóng" [ref=e49] [cursor=pointer]:
+            - img [ref=e50]
+        - paragraph [ref=e52]: Chia sẻ cho 2 người bạn qua Facebook hoặc copy link — họ làm bài và bạn mở khoá báo cáo miễn phí.
+        - generic [ref=e54]: —
+        - generic [ref=e55]:
+          - button "Facebook" [disabled] [ref=e56]:
+            - img [ref=e57]
+            - text: Facebook
+          - button "Copy link" [disabled] [ref=e59]:
+            - img [ref=e60]
+            - text: Copy link
+        - button "Hoặc tải ảnh kết quả để đăng story" [ref=e63] [cursor=pointer]
+        - status [ref=e64]: Không tạo được link. Thử lại nhé.

@@ -1,0 +1,11 @@
+- generic [active] [ref=e1]:
+  - link "Bỏ qua đến nội dung chính" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - main [ref=e28]:
+    - progressbar "Câu 2 trên 12" [ref=e29]:
+      - generic "Câu 2 / 12" [ref=e31]
+    - generic [ref=e42]:
+      - paragraph [ref=e43]: Bạn tin vào điều gì hơn khi đưa ra quyết định?
+      - radiogroup "Lựa chọn câu trả lời" [ref=e44]:
+        - radio "Kinh nghiệm thực tế và dữ liệu cụ thể" [ref=e45] [cursor=pointer]
+        - radio "Linh cảm và các xu hướng tôi nhận ra theo thời gian" [ref=e46] [cursor=pointer]

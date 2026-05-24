@@ -1,0 +1,14 @@
+- generic [active] [ref=e1]:
+  - link "Bỏ qua đến nội dung chính" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - main [ref=e58]:
+    - progressbar "Câu 3 trên 12" [ref=e59]:
+      - generic "Câu 3 / 12" [ref=e62]
+    - generic [ref=e72]:
+      - paragraph [ref=e73]: Khi có xung đột, người này thường nói thẳng vấn đề thay vì né tránh.
+      - radiogroup "Lựa chọn câu trả lời" [ref=e74]:
+        - radio "Hoàn toàn không" [ref=e75] [cursor=pointer]
+        - radio "Ít khi" [ref=e76] [cursor=pointer]
+        - radio "Đôi khi" [ref=e77] [cursor=pointer]
+        - radio "Thường xuyên" [ref=e78] [cursor=pointer]
+        - radio "Luôn luôn" [ref=e79] [cursor=pointer]

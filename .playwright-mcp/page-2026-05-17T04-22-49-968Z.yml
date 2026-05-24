@@ -1,0 +1,27 @@
+- generic [active] [ref=e1]:
+  - link "Bỏ qua đến nội dung chính" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - main [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - img [ref=e8]
+        - img [ref=e10]
+        - img [ref=e12]
+        - img [ref=e14]
+        - img [ref=e16]
+      - paragraph [ref=e18]: Hơn 12,000 người Việt đã làm tuần này
+    - heading "Bạn bè đang so sánh kiểu tính cách với nhau. Bạn chưa có kết quả." [level=1] [ref=e19]
+    - paragraph [ref=e20]: Không phải trắc nghiệm. Không có kiểu người đúng hay sai. Chỉ có một tấm gương — chính xác đến mức khó chịu.
+    - button "Xem tôi thuộc kiểu người nào" [ref=e21] [cursor=pointer]:
+      - text: Xem tôi thuộc kiểu người nào
+      - img
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - img [ref=e24]
+        - text: Miễn phí
+      - generic [ref=e26]:
+        - img [ref=e27]
+        - text: Không đăng ký
+      - generic [ref=e29]:
+        - img [ref=e30]
+        - text: Kết quả ngay

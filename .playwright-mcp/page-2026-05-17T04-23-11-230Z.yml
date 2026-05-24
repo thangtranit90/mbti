@@ -1,0 +1,34 @@
+- generic [active] [ref=e1]:
+  - link "Bỏ qua đến nội dung chính" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=e3]:
+    - main [ref=e39]:
+      - paragraph [ref=e40]: Đây là công cụ tự phản chiếu — không phải đánh giá lâm sàng
+      - generic [ref=e42]:
+        - heading "Trước khi bắt đầu — bạn hay bị nhận xét là người như thế nào?" [level=1] [ref=e43]
+        - paragraph [ref=e44]: Không cần chắc chắn. Kết quả sẽ cho bạn thấy mình đoán đúng hay sai.
+        - radiogroup "Nhóm tính cách" [ref=e45]:
+          - radio "Người tư duy — Phân tích, logic, chiến lược" [ref=e46] [cursor=pointer]:
+            - generic [ref=e47]: Người tư duy
+            - generic [ref=e48]: Phân tích, logic, chiến lược
+            - generic [ref=e49]: INTJ · INTP · ENTJ · ENTP
+          - radio "Người đồng cảm — Giá trị, kết nối, ý nghĩa" [ref=e50] [cursor=pointer]:
+            - generic [ref=e51]: Người đồng cảm
+            - generic [ref=e52]: Giá trị, kết nối, ý nghĩa
+            - generic [ref=e53]: INFJ · INFP · ENFJ · ENFP
+          - radio "Người thực tế — Trách nhiệm, trật tự, đáng tin" [ref=e54] [cursor=pointer]:
+            - generic [ref=e55]: Người thực tế
+            - generic [ref=e56]: Trách nhiệm, trật tự, đáng tin
+            - generic [ref=e57]: ISTJ · ISFJ · ESTJ · ESFJ
+          - radio "Người trải nghiệm — Tự do, linh hoạt, hành động" [ref=e58] [cursor=pointer]:
+            - generic [ref=e59]: Người trải nghiệm
+            - generic [ref=e60]: Tự do, linh hoạt, hành động
+            - generic [ref=e61]: ISTP · ISFP · ESTP · ESFP
+      - button "Tôi không chắc — bỏ qua bước này" [ref=e62] [cursor=pointer]:
+        - text: Tôi không chắc — bỏ qua bước này
+        - img [ref=e63]
+    - status [ref=e32]:
+      - generic [ref=e33]: Một người vừa vote về cách bạn hành xử
+      - button "Xem" [ref=e34] [cursor=pointer]
+      - button "Đóng thông báo" [ref=e35] [cursor=pointer]:
+        - img [ref=e36]

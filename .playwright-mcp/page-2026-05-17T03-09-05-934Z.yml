@@ -1,0 +1,20 @@
+- generic [active] [ref=e1]:
+  - link "Bỏ qua đến nội dung chính" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=e3]:
+    - main [ref=e20]:
+      - progressbar "Câu 1 trên 12" [ref=e21]:
+        - generic "Câu 1 / 12" [ref=e22]
+      - generic [ref=e34]:
+        - paragraph [ref=e35]: The Framework Builder thường ra quyết định nhanh và quyết đoán hơn là cân nhắc lâu.
+        - radiogroup "Lựa chọn câu trả lời" [ref=e36]:
+          - radio "Hoàn toàn không" [ref=e37] [cursor=pointer]
+          - radio "Ít khi" [ref=e38] [cursor=pointer]
+          - radio "Đôi khi" [ref=e39] [cursor=pointer]
+          - radio "Thường xuyên" [ref=e40] [cursor=pointer]
+          - radio "Luôn luôn" [ref=e41] [cursor=pointer]
+    - status [ref=e14]:
+      - generic [ref=e15]: The Framework Builder vừa vote về cách bạn hành xử
+      - button "Xem" [ref=e16] [cursor=pointer]
+      - button "Đóng thông báo" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]

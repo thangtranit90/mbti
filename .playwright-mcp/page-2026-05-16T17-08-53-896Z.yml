@@ -1,0 +1,14 @@
+- generic [active] [ref=e1]:
+  - link "Bỏ qua đến nội dung chính" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - main [ref=e36]:
+    - progressbar "Câu 2 trên 12" [ref=e37]:
+      - generic "Câu 2 / 12" [ref=e39]
+    - generic [ref=e50]:
+      - paragraph [ref=e51]: The Framework Builder thường lấy lại năng lượng bằng cách gặp gỡ nhiều người hơn là ở một mình.
+      - radiogroup "Lựa chọn câu trả lời" [ref=e52]:
+        - radio "Hoàn toàn không" [ref=e53] [cursor=pointer]
+        - radio "Ít khi" [ref=e54] [cursor=pointer]
+        - radio "Đôi khi" [ref=e55] [cursor=pointer]
+        - radio "Thường xuyên" [ref=e56] [cursor=pointer]
+        - radio "Luôn luôn" [ref=e57] [cursor=pointer]

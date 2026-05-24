@@ -1,0 +1,59 @@
+- generic [ref=e1]:
+  - link "Bỏ qua đến nội dung chính" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - main [ref=e67]:
+    - generic [ref=e68]:
+      - generic [ref=e69]:
+        - heading "The Framework Builder" [level=1] [ref=e70]
+        - separator [ref=e71]
+        - paragraph [ref=e73]: Bạn là người lên kế hoạch, chủ trì cuộc họp, và theo dõi vào ngày hôm sau. Điều bạn vẫn đang học là không phải ai cũng xử lý thông tin theo tốc độ của bạn — và đó không phải là sự lười biếng.
+        - paragraph [ref=e74]: ESTJ
+        - generic [ref=e75]:
+          - button "Chia sẻ kết quả" [active] [ref=e76] [cursor=pointer]:
+            - img [ref=e77]
+            - text: Chia sẻ kết quả
+          - link "Làm lại bài test" [ref=e82] [cursor=pointer]:
+            - /url: /
+            - img [ref=e83]
+            - text: Làm lại bài test
+          - button "Xem bạn bè thấy bạn thế nào" [ref=e86] [cursor=pointer]:
+            - text: Xem bạn bè thấy bạn thế nào
+            - generic [ref=e87]: →
+      - img [ref=e89]
+    - generic:
+      - generic: Quiet Mirror
+      - generic:
+        - generic: The Framework Builder
+        - generic: ESTJ
+        - generic: Bạn là người lên kế hoạch, chủ trì cuộc họp, và theo dõi vào ngày hôm sau. Điều bạn vẫn đang học là không phải ai cũng xử lý thông tin theo tốc độ của bạn — và đó không phải là sự lười biếng.
+      - generic: 3 kiểu người dễ mâu thuẫn với tôi →
+    - region "3 kiểu người dễ mâu thuẫn với bạn" [ref=e92]:
+      - heading "3 kiểu người dễ mâu thuẫn với bạn" [level=2] [ref=e93]
+      - generic [ref=e94]:
+        - generic [ref=e95]:
+          - generic [ref=e96]: INFP
+          - paragraph [ref=e97]: Những quyết định bắt nguồn từ giá trị cá nhân hơn dữ liệu khách quan có thể gây khó khăn cho sự hợp tác có cấu trúc.
+        - generic [ref=e98]:
+          - generic [ref=e99]: ENFP
+          - paragraph [ref=e100]: Sự hứng khởi về những hướng đi mới có thể làm gián đoạn các quy trình đáng tin cậy giúp mọi thứ vận hành trơn tru.
+        - generic [ref=e101]:
+          - generic [ref=e102]: INTP
+          - paragraph [ref=e103]: Cách tiếp cận lý thuyết của họ hiếm khi chuyển thành các bước hành động cụ thể trong khung thời gian bạn đang làm việc.
+    - dialog "Chia sẻ kết quả" [ref=e104]:
+      - button "Đóng" [ref=e105] [cursor=pointer]
+      - generic [ref=e106]:
+        - generic [ref=e107]:
+          - heading "Chia sẻ kết quả" [level=2] [ref=e108]
+          - button "Đóng" [ref=e109] [cursor=pointer]:
+            - img [ref=e110]
+        - paragraph [ref=e112]: Chia sẻ cho 2 người bạn qua Facebook hoặc copy link — họ làm bài và bạn mở khoá báo cáo miễn phí.
+        - generic [ref=e113]: https://mbti.thanghost.io.vn/invite/64f026eb-be9b-4150-8861-54a5db975148
+        - generic [ref=e114]:
+          - button "Facebook" [ref=e115] [cursor=pointer]:
+            - img [ref=e116]
+            - text: Facebook
+          - button "Copy link" [ref=e118] [cursor=pointer]:
+            - img [ref=e119]
+            - text: Copy link
+        - button "Hoặc tải ảnh kết quả để đăng story" [ref=e122] [cursor=pointer]
+        - status [ref=e123]

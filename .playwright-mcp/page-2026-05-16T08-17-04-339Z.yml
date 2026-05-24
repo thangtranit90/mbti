@@ -1,0 +1,18 @@
+- generic [active] [ref=e1]:
+  - link "Bỏ qua đến nội dung chính" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=e16]:
+    - banner [ref=e17]:
+      - navigation [ref=e18]:
+        - generic [ref=e19]: MBTI Admin
+        - link "Dashboard" [ref=e20] [cursor=pointer]:
+          - /url: /admin
+        - link "Content" [ref=e21] [cursor=pointer]:
+          - /url: /admin/content
+        - link "Insights" [ref=e22] [cursor=pointer]:
+          - /url: /admin/insights
+        - link "Analytics" [ref=e23] [cursor=pointer]:
+          - /url: /admin/analytics
+      - button "Đăng xuất" [ref=e24] [cursor=pointer]
+    - main [ref=e25]:
+      - paragraph [ref=e26]: Đang tải số liệu…

@@ -1,0 +1,11 @@
+- generic [active] [ref=e1]:
+  - link "Bỏ qua đến nội dung chính" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - main [ref=e48]:
+    - progressbar "Câu 3 trên 12" [ref=e49]:
+      - generic "Câu 3 / 12" [ref=e52]
+    - generic [ref=e62]:
+      - paragraph [ref=e63]: "Khi bạn bè nhờ lời khuyên về quyết định quan trọng, bạn thường:"
+      - radiogroup "Lựa chọn câu trả lời" [ref=e64]:
+        - radio "Phân tích ưu/nhược điểm và chỉ ra lựa chọn hợp lý nhất" [ref=e65] [cursor=pointer]
+        - radio "Lắng nghe cảm xúc của họ và hỏi điều gì quan trọng nhất với họ" [ref=e66] [cursor=pointer]

@@ -1,0 +1,17 @@
+- generic [active] [ref=e1]:
+  - link "Bỏ qua đến nội dung chính" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=e3]:
+    - main [ref=e87]:
+      - progressbar "Câu 1 trên 12" [ref=e88]:
+        - generic "Câu 1 / 12" [ref=e89]
+      - generic [ref=e101]:
+        - paragraph [ref=e102]: Sau một ngày làm việc mệt mỏi, bạn thích làm gì nhất?
+        - radiogroup "Lựa chọn câu trả lời" [ref=e103]:
+          - radio "Gặp gỡ bạn bè, ra ngoài xã giao" [ref=e104] [cursor=pointer]
+          - radio "Ở nhà một mình, nạp lại năng lượng" [ref=e105] [cursor=pointer]
+    - status [ref=e14]:
+      - generic [ref=e15]: The Framework Builder vừa vote về cách bạn hành xử
+      - button "Xem" [ref=e16] [cursor=pointer]
+      - button "Đóng thông báo" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
