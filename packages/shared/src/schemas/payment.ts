@@ -5,6 +5,10 @@ export const CheckoutRequestSchema = z
     productType: z.enum(['couple_pack', 'gap_report', 'result_unlock']),
     resultId: z.string().uuid(),
     gateway: z.enum(['sepay', 'stripe']).optional(),
+    // Buyer email — required for `result_unlock` so we can email the
+    // result link after payment. The route handler enforces presence;
+    // here we just validate shape.
+    email: z.string().trim().toLowerCase().email().max(254).optional(),
   })
   .strict();
 

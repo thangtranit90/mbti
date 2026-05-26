@@ -24,14 +24,26 @@ type CheckoutResponse = {
   error: { code: string; message: string } | null;
 };
 
+type CheckoutVars = {
+  productType: ProductType;
+  resultId: string;
+  /** Required for `result_unlock` — used to send the thank-you email. */
+  email?: string;
+};
+
 // Returns checkout data. Stripe is redirected immediately; SePay data is
 // returned so the caller can render the VietQR screen.
 export function useCheckout() {
   return useMutation({
-    mutationFn: async (vars: { productType: ProductType; resultId: string }) => {
+    mutationFn: async (vars: CheckoutVars) => {
+      const body: Record<string, unknown> = {
+        productType: vars.productType,
+        resultId: vars.resultId,
+      };
+      if (vars.email) body.email = vars.email;
       const res = await apiCall<CheckoutResponse>('/api/payments/checkout', {
         method: 'POST',
-        body: JSON.stringify({ productType: vars.productType, resultId: vars.resultId }),
+        body: JSON.stringify(body),
       });
       if (!res.data) {
         throw new Error(res.error?.message ?? 'Checkout failed');

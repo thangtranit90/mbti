@@ -6,6 +6,8 @@ import { usePaymentStatus } from '../hooks/usePaymentStatus';
 type Props = {
   checkout: SePayCheckoutData;
   open: boolean;
+  /** Buyer email collected upstream — shown as a reassurance line under the QR. */
+  recipientEmail?: string | null;
   onClose: () => void;
   onCompleted: () => void;
 };
@@ -13,7 +15,7 @@ type Props = {
 const formatVnd = (n: number) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
 
-export function PaymentQR({ checkout, open, onClose, onCompleted }: Props) {
+export function PaymentQR({ checkout, open, recipientEmail, onClose, onCompleted }: Props) {
   const rm = useReducedMotion() ?? false;
   const { data } = usePaymentStatus(checkout.paymentId, open);
   const status = data?.data?.status ?? 'pending';
@@ -109,6 +111,13 @@ export function PaymentQR({ checkout, open, onClose, onCompleted }: Props) {
                   Mở app ngân hàng, quét mã. Giữ nguyên <strong>nội dung chuyển khoản</strong> để
                   hệ thống tự xác nhận. Màn hình sẽ tự cập nhật sau khi nhận được tiền.
                 </p>
+                {recipientEmail && (
+                  <p className="text-[12px] text-slate-500 leading-relaxed -mt-1">
+                    Link kết quả sẽ được gửi đến{' '}
+                    <span className="text-slate-300 font-medium break-all">{recipientEmail}</span>{' '}
+                    sau khi thanh toán thành công.
+                  </p>
+                )}
                 <div
                   role="status"
                   aria-live="polite"

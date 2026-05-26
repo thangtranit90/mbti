@@ -32,6 +32,8 @@ function makePayment(over: Partial<PaymentRow> = {}): PaymentRow {
     updated_at: '2026-05-05T00:00:00.000Z',
     completed_at: null,
     deleted_at: null,
+    email: null,
+    email_sent_at: null,
     ...over,
   };
 }

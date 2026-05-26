@@ -115,7 +115,11 @@ describe('POST /api/payments/checkout (SePay)', () => {
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Session-Token': SESSION_TOKEN },
-        body: JSON.stringify({ productType: 'result_unlock', resultId: RESULT_ID }),
+        body: JSON.stringify({
+          productType: 'result_unlock',
+          resultId: RESULT_ID,
+          email: 'buyer@example.com',
+        }),
       },
       baseEnv(kv, dbMock),
     );
@@ -127,6 +131,22 @@ describe('POST /api/payments/checkout (SePay)', () => {
     expect(body.data?.amount).toBe(2000);
     expect(createSpy).toHaveBeenCalledOnce();
     expect(createSpy.mock.calls[0]?.[1].productType).toBe('result_unlock');
+    expect(createSpy.mock.calls[0]?.[1].email).toBe('buyer@example.com');
+  });
+
+  it('(a3) result_unlock without email → 400 EMAIL_REQUIRED', async () => {
+    const res = await app.request(
+      '/api/payments/checkout',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Session-Token': SESSION_TOKEN },
+        body: JSON.stringify({ productType: 'result_unlock', resultId: RESULT_ID }),
+      },
+      baseEnv(kv, dbMock),
+    );
+    const body = (await res.json()) as { error: { code: string } | null };
+    expect(res.status).toBe(400);
+    expect(body.error?.code).toBe('EMAIL_REQUIRED');
   });
 
   it('(b) stripe → returns checkoutUrl', async () => {
@@ -225,6 +245,8 @@ describe('GET /api/payments/:paymentId/status', () => {
     updated_at: '2026-05-05T00:00:00.000Z',
     completed_at: null,
     deleted_at: null,
+    email: null,
+    email_sent_at: null,
     ...over,
   });
 

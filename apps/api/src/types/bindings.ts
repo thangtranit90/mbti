@@ -18,6 +18,10 @@ export type Bindings = {
   STRIPE_WEBHOOK_SECRET: string;
   ADMIN_PASSWORD_HASH: string;
   PUBLIC_WEB_ORIGIN?: string;
+  // Resend (Story — result_unlock thank-you email). Set via
+  // `wrangler secret put RESEND_API_KEY`. When unset, the email send is a
+  // logged no-op so the IPN webhook keeps acking 200 to SePay.
+  RESEND_API_KEY?: string;
   // PostHog server-side analytics (Story 7.4). Optional — analytics is a
   // silent no-op when unset so deploys never block on PostHog credentials.
   POSTHOG_API_KEY?: string;

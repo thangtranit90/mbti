@@ -149,6 +149,8 @@ describe('GET /api/social/status', () => {
       updated_at: '2026-05-16T00:00:00.000Z',
       completed_at: '2026-05-16T00:00:00.000Z',
       deleted_at: null,
+      email: null,
+      email_sent_at: null,
     });
 
     const res = await getStatus(mockKv, mockDb, { 'X-Session-Token': TOKEN });

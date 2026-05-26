@@ -92,7 +92,8 @@ export interface PaymentRow {
   id: string;
   user_id: string;
   result_id: string | null;
-  product_type: 'couple_pack' | 'gap_report';
+  // Migration 0012 added 'result_unlock' to the CHECK constraint.
+  product_type: 'couple_pack' | 'gap_report' | 'result_unlock';
   // Story 5.4 — PayOS replaced by SePay (migration 0010 CHECK IN ('sepay','stripe')).
   gateway: 'sepay' | 'stripe';
   provider_ref: string | null;
@@ -103,6 +104,9 @@ export interface PaymentRow {
   updated_at: string;
   completed_at: string | null;
   deleted_at: string | null;
+  // Migration 0013 — buyer email + thank-you send guard (result_unlock only).
+  email: string | null;
+  email_sent_at: string | null;
 }
 
 export interface QuestionRow {

@@ -7,6 +7,7 @@ import { safeCapture } from '@/lib/posthog';
 import { useGenerateInvite } from '../hooks/useGenerateInvite';
 import { useCheckout } from '@/features/payment/hooks/useCheckout';
 import { PaymentQR } from '@/features/payment/components/PaymentQR';
+import { EmailCaptureForm } from '@/features/payment/components/EmailCaptureForm';
 
 type Props = {
   resultId: string;
@@ -30,6 +31,9 @@ export function ResultGate({ resultId, friendCount, threshold, onUnlocked }: Pro
   const checkout = useCheckout();
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Funnel state: gate (default CTA) → email (collect address) → qr (SePay).
+  const [payStage, setPayStage] = useState<'gate' | 'email' | 'qr'>('gate');
+  const [buyerEmail, setBuyerEmail] = useState<string | null>(null);
   const inviteUrl = generateInvite.data?.inviteUrl ?? '';
   const sepay = checkout.data?.gateway === 'sepay' ? checkout.data : null;
   const target = threshold || RESULT_UNLOCK_FRIEND_THRESHOLD;
@@ -77,7 +81,23 @@ export function ResultGate({ resultId, friendCount, threshold, onUnlocked }: Pro
   };
 
   const handlePay = () => {
-    checkout.mutate({ productType: 'result_unlock', resultId });
+    safeCapture('result_unlock_email_prompt_opened', { resultId });
+    setPayStage('email');
+  };
+
+  const handleEmailSubmit = (email: string) => {
+    safeCapture('result_unlock_email_submitted', { resultId });
+    setBuyerEmail(email);
+    checkout.mutate(
+      { productType: 'result_unlock', resultId, email },
+      { onSuccess: () => setPayStage('qr') },
+    );
+  };
+
+  const closePaymentFlow = () => {
+    setPayStage('gate');
+    setBuyerEmail(null);
+    checkout.reset();
   };
 
   return (
@@ -241,15 +261,24 @@ export function ResultGate({ resultId, friendCount, threshold, onUnlocked }: Pro
         </div>
       </motion.div>
 
-      {sepay && (
+      <EmailCaptureForm
+        open={payStage === 'email'}
+        pending={checkout.isPending}
+        serverError={checkout.isError ? 'Không tạo được thanh toán. Hãy thử lại.' : null}
+        onClose={closePaymentFlow}
+        onSubmit={handleEmailSubmit}
+      />
+
+      {sepay && payStage === 'qr' && (
         <PaymentQR
           checkout={sepay}
           open
-          onClose={() => checkout.reset()}
+          recipientEmail={buyerEmail}
+          onClose={closePaymentFlow}
           onCompleted={() => {
             safeCapture('result_unlock_paid', { resultId });
             onUnlocked();
-            checkout.reset();
+            closePaymentFlow();
           }}
         />
       )}

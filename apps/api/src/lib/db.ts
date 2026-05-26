@@ -330,12 +330,13 @@ export async function createPayment(
     providerRef: string;
     amount: number;
     currency: string;
+    email?: string | null;
   },
 ): Promise<void> {
   const result = await db
     .prepare(
-      `INSERT INTO payments (id, user_id, result_id, product_type, gateway, provider_ref, amount, currency, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
+      `INSERT INTO payments (id, user_id, result_id, product_type, gateway, provider_ref, amount, currency, status, email)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
     )
     .bind(
       payload.id.toLowerCase(),
@@ -346,6 +347,7 @@ export async function createPayment(
       payload.providerRef,
       payload.amount,
       payload.currency,
+      payload.email ? payload.email.trim().toLowerCase() : null,
     )
     .run();
   if (!result.success) {
@@ -359,7 +361,7 @@ export async function getPaymentByProviderRef(
 ): Promise<PaymentRow | null> {
   const result = await db
     .prepare(
-      `SELECT id, user_id, result_id, product_type, gateway, provider_ref, amount, currency, status, created_at, updated_at, completed_at, deleted_at
+      `SELECT id, user_id, result_id, product_type, gateway, provider_ref, amount, currency, status, created_at, updated_at, completed_at, deleted_at, email, email_sent_at
        FROM payments WHERE provider_ref = ? AND deleted_at IS NULL LIMIT 1`,
     )
     .bind(providerRef)
@@ -444,7 +446,7 @@ export async function getPaymentById(
 ): Promise<PaymentRow | null> {
   const result = await db
     .prepare(
-      `SELECT id, user_id, result_id, product_type, gateway, provider_ref, amount, currency, status, created_at, updated_at, completed_at, deleted_at
+      `SELECT id, user_id, result_id, product_type, gateway, provider_ref, amount, currency, status, created_at, updated_at, completed_at, deleted_at, email, email_sent_at
        FROM payments WHERE id = ? AND deleted_at IS NULL LIMIT 1`,
     )
     .bind(paymentId.toLowerCase())
@@ -453,6 +455,27 @@ export async function getPaymentById(
     throw new Error(`getPaymentById: D1 query failed: ${result.error ?? 'unknown error'}`);
   }
   return result.results[0] ?? null;
+}
+
+// Migration 0013 — flip email_sent_at to "now" iff still null; guards against
+// duplicate sends when SePay re-delivers an IPN we already processed.
+export async function markEmailSent(
+  db: D1Database,
+  paymentId: string,
+): Promise<void> {
+  const now = new Date().toISOString();
+  const result = await db
+    .prepare(
+      `UPDATE payments SET email_sent_at = ?, updated_at = ?
+       WHERE id = ? AND email_sent_at IS NULL`,
+    )
+    .bind(now, now, paymentId.toLowerCase())
+    .run();
+  if (!result.success) {
+    throw new Error(
+      `markEmailSent: D1 update failed: ${result.error ?? 'unknown error'}`,
+    );
+  }
 }
 
 export async function getCompletedPayment(

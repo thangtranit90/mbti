@@ -8,6 +8,7 @@ import {
   getPaymentByProviderRef,
   getPaymentById,
   getTestResult,
+  markEmailSent,
   markPaymentCompleted,
 } from '../lib/db';
 import { generateCompatibilityReport } from '../lib/report';
@@ -17,7 +18,9 @@ import {
   verifySePayApiKey,
   extractProviderRef,
 } from '../lib/payment';
+import { sendResultUnlockEmail } from '../lib/email';
 import { CheckoutRequestSchema } from '@mbti/shared';
+import type { PaymentRow } from '@mbti/shared';
 
 const payments = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
@@ -32,9 +35,22 @@ payments.post('/checkout', requireSession, async (c) => {
     );
   }
 
-  const { productType, resultId, gateway } = CheckoutRequestSchema.parse(payload);
+  const { productType, resultId, gateway, email } = CheckoutRequestSchema.parse(payload);
   const userId = c.get('userId');
   const db = withDb(c);
+
+  // result_unlock funnels into a transactional thank-you email — refuse
+  // checkout without a valid address rather than booking a payment we can
+  // never follow up on.
+  if (productType === 'result_unlock' && !email) {
+    return c.json(
+      {
+        data: null,
+        error: { code: 'EMAIL_REQUIRED', message: 'Email is required to unlock results' },
+      },
+      400,
+    );
+  }
 
   let session;
   try {
@@ -65,6 +81,7 @@ payments.post('/checkout', requireSession, async (c) => {
     providerRef: session.providerRef,
     amount: session.amount,
     currency: session.currency,
+    email: email ?? null,
   });
 
   if (session.gateway === 'sepay') {
@@ -140,6 +157,9 @@ payments.post('/sepay-ipn', async (c) => {
     if (existing.product_type === 'couple_pack') {
       c.executionCtx.waitUntil(maybeGenerateCouplePackReport(c, existing));
     }
+    if (existing.product_type === 'result_unlock') {
+      c.executionCtx.waitUntil(maybeSendResultUnlockEmail(c, existing));
+    }
   }
   return c.json({ success: true }, 200);
 });
@@ -200,6 +220,9 @@ payments.post('/webhook', async (c) => {
       await markPaymentCompleted(db, sessionId);
       if (payment && payment.product_type === 'couple_pack') {
         c.executionCtx.waitUntil(maybeGenerateCouplePackReport(c, payment));
+      }
+      if (payment && payment.product_type === 'result_unlock') {
+        c.executionCtx.waitUntil(maybeSendResultUnlockEmail(c, payment));
       }
     }
   }
@@ -275,6 +298,35 @@ async function maybeGenerateCouplePackReport(
     });
   } catch (err) {
     console.error('couple_pack report generation failed:', err);
+  }
+}
+
+// Best-effort thank-you email after a `result_unlock` payment is confirmed.
+// Never throws into the webhook caller — SePay/Stripe must always see 200.
+// Idempotent: skips when email already sent OR missing required data.
+async function maybeSendResultUnlockEmail(
+  c: { env: Bindings },
+  payment: PaymentRow,
+): Promise<void> {
+  try {
+    if (payment.email_sent_at) return;
+    if (!payment.email || !payment.result_id) return;
+
+    const origin =
+      c.env.PUBLIC_WEB_ORIGIN?.replace(/\/+$/, '') ?? 'https://mbti.thanghost.io.vn';
+    const resultUrl = `${origin}/result/${payment.result_id}`;
+
+    const sent = await sendResultUnlockEmail(c.env, {
+      to: payment.email,
+      paymentId: payment.id,
+      resultId: payment.result_id,
+      resultUrl,
+    });
+    if (sent.ok) {
+      await markEmailSent(c.env.DB, payment.id);
+    }
+  } catch (err) {
+    console.error('maybeSendResultUnlockEmail failed:', err);
   }
 }
 
